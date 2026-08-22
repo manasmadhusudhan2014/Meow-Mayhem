@@ -1,0 +1,2638 @@
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Meow Mayhem</title>
+
+<style>
+html,body{
+  margin:0;
+  padding:0;
+  overflow:hidden;
+  background:#10151f;
+  font-family:Arial,sans-serif;
+  width:100%;
+  height:100%;
+}
+
+canvas{
+  display:block;
+  width:100%;
+  height:100%;
+}
+
+#hud{
+  position:fixed;
+  top:15px;
+  left:15px;
+  color:white;
+  font-size:20px;
+  font-weight:bold;
+  z-index:10;
+  user-select:none;
+}
+
+#healthBox{
+  width:230px;
+  height:20px;
+  background:#333;
+  border-radius:10px;
+  margin-top:7px;
+  overflow:hidden;
+}
+
+#health{
+  width:100%;
+  height:100%;
+  background:#2ecc71;
+}
+
+#weapon{
+  margin-top:7px;
+  color:#ffd32a;
+}
+
+#reload{
+  color:#aaa;
+  font-size:15px;
+  margin-top:4px;
+}
+
+#powerup{
+  color:#00ffcc;
+  margin-top:5px;
+}
+
+#bossInfo{
+  color:#ff6b81;
+  margin-top:5px;
+}
+
+.screen{
+  position:fixed;
+  inset:0;
+  background:rgba(5,8,14,.96);
+  color:white;
+  z-index:20;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+}
+
+.screen h1{
+  font-size:55px;
+  margin:10px;
+}
+
+.screen p{
+  color:#bbb;
+  font-size:18px;
+}
+
+button{
+  background:#ff9f43;
+  color:white;
+  border:none;
+  border-radius:12px;
+  padding:14px 40px;
+  margin:8px;
+  font-size:21px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#ffb45c;
+}
+
+.hidden{
+  display:none;
+}
+
+#bossWarning,
+#miniBossWarning{
+  position:fixed;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:15;
+  display:none;
+  font-weight:bold;
+}
+
+#bossWarning{
+  top:20px;
+  color:#ff4757;
+  font-size:30px;
+}
+
+#miniBossWarning{
+  top:60px;
+  color:#ff9f43;
+  font-size:22px;
+}
+
+/* PAUSE SCREEN */
+
+#pauseScreen{
+  z-index:30;
+  background:rgba(5,8,14,.88);
+}
+
+#pauseScreen h1{
+  color:#ffd32a;
+}
+
+#pauseScreen p{
+  font-size:24px;
+  color:white;
+}
+
+.pauseKey{
+  color:#00ffcc;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<!-- MAIN MENU -->
+
+<div id="menu" class="screen">
+
+  <h1>🐱 Meow Mayhem</h1>
+
+  <p>Mouse — Move & Aim</p>
+  <p>SPACE — Shoot</p>
+  <p>P — Pause</p>
+
+  <button onclick="startGame()">
+    START GAME
+  </button>
+
+</div>
+
+
+<!-- DEATH SCREEN -->
+
+<div id="death" class="screen hidden">
+
+  <h1>💀 GULPERS GOT YOU</h1>
+
+  <p id="finalScore">
+    Kills: 0
+  </p>
+
+  <button onclick="startGame()">
+    PLAY AGAIN
+  </button>
+
+  <button onclick="goMenu()">
+    MAIN MENU
+  </button>
+
+</div>
+
+
+<!-- PAUSE SCREEN -->
+
+<div id="pauseScreen" class="screen hidden">
+
+  <h1>⏸️ PAUSED</h1>
+
+  <p>
+    Press
+    <span class="pauseKey">R</span>
+    to Resume
+  </p>
+
+</div>
+
+
+<!-- HUD -->
+
+<div id="hud">
+
+  🐱 Kills:
+  <span id="killText">0</span>
+
+  <div id="healthBox">
+    <div id="health"></div>
+  </div>
+
+  <div id="weapon">
+    🔫 Peashooter
+  </div>
+
+  <div id="reload">
+    🟢 READY
+  </div>
+
+  <div id="powerup"></div>
+
+  <div id="bossInfo"></div>
+
+</div>
+
+
+<div id="bossWarning">
+  👑 BOSS INCOMING 👑
+</div>
+
+
+<div id="miniBossWarning">
+  🔫 MINI-BOSS INCOMING!
+</div>
+
+
+<canvas id="game"></canvas>
+
+
+<script>
+
+// =====================================================
+// CANVAS
+// =====================================================
+
+const canvas =
+  document.getElementById("game");
+
+const ctx =
+  canvas.getContext("2d");
+
+
+function resize(){
+
+  canvas.width =
+    window.innerWidth;
+
+  canvas.height =
+    window.innerHeight;
+
+}
+
+resize();
+
+window.addEventListener(
+  "resize",
+  resize
+);
+
+
+// =====================================================
+// INPUT
+// =====================================================
+
+const keys = {};
+
+let mouseX =
+  canvas.width / 2;
+
+let mouseY =
+  canvas.height / 2;
+
+
+// =====================================================
+// MOUSE MOVEMENT SETTINGS
+// =====================================================
+
+// Lower number = slower cat movement.
+// Try 1.5, 2, 2.5, 3, etc.
+
+const mouseFollowSpeed = 2.5;
+
+
+// =====================================================
+// PAUSE SYSTEM
+// P = PAUSE
+// R = RESUME
+// =====================================================
+
+let paused = false;
+
+
+document.addEventListener(
+  "keydown",
+  e => {
+
+    // P = PAUSE ONLY
+    if(
+      e.code === "KeyP" &&
+      gameRunning &&
+      !paused
+    ){
+
+      paused = true;
+
+      document
+        .getElementById("pauseScreen")
+        .classList
+        .remove("hidden");
+
+      return;
+
+    }
+
+
+    // R = RESUME ONLY
+    if(
+      e.code === "KeyR" &&
+      gameRunning &&
+      paused
+    ){
+
+      paused = false;
+
+      document
+        .getElementById("pauseScreen")
+        .classList
+        .add("hidden");
+
+      return;
+
+    }
+
+
+    keys[e.code] = true;
+
+
+    if(
+      e.code === "Space"
+    ){
+
+      e.preventDefault();
+
+    }
+
+  }
+);
+
+
+document.addEventListener(
+  "keyup",
+  e => {
+
+    keys[e.code] = false;
+
+  }
+);
+
+
+// =====================================================
+// MOUSE
+// Mouse controls movement AND aiming
+// =====================================================
+
+canvas.addEventListener(
+  "mousemove",
+  e => {
+
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+
+  }
+);
+
+
+// =====================================================
+// COLORS
+// =====================================================
+
+const catColors = [
+
+  "#ff9f43",
+  "#3498db",
+  "#9b59b6",
+  "#2ecc71",
+  "#e74c3c",
+  "#f1c40f"
+
+];
+
+
+// =====================================================
+// WEAPONS
+// =====================================================
+
+const weapons = [
+
+  {
+    name:"🔫 Peashooter",
+    kills:0,
+    cooldown:520,
+    bullets:1,
+    damage:1,
+    speed:9,
+    spread:0
+  },
+
+  {
+    name:"🔵 Pistol",
+    kills:20,
+    cooldown:380,
+    bullets:1,
+    damage:1,
+    speed:11,
+    spread:0
+  },
+
+  {
+    name:"🟣 SMG",
+    kills:40,
+    cooldown:190,
+    bullets:1,
+    damage:1,
+    speed:12,
+    spread:.025
+  },
+
+  {
+    name:"🟠 Shotgun",
+    kills:70,
+    cooldown:650,
+    bullets:4,
+    damage:1,
+    speed:10,
+    spread:.22
+  },
+
+  {
+    name:"🔴 Double Blaster",
+    kills:100,
+    cooldown:330,
+    bullets:2,
+    damage:2,
+    speed:13,
+    spread:.10
+  }
+
+];
+
+
+function currentWeapon(){
+
+  let result =
+    weapons[0];
+
+  for(
+    const weapon of weapons
+  ){
+
+    if(
+      player.kills >=
+      weapon.kills
+    ){
+
+      result = weapon;
+
+    }
+
+  }
+
+  return result;
+
+}
+
+
+// =====================================================
+// PLAYER
+// =====================================================
+
+let player;
+
+
+function resetPlayer(){
+
+  player = {
+
+    x:canvas.width/2,
+    y:canvas.height/2,
+
+    size:25,
+
+    // Kept for compatibility.
+    // Mouse movement uses mouseFollowSpeed.
+    speed:5,
+
+    hp:100,
+    maxHp:100,
+
+    kills:0,
+
+    color:catColors[0],
+
+    reload:0,
+    hurtTimer:0,
+    regenTimer:0
+
+  };
+
+}
+
+
+// =====================================================
+// GAME OBJECTS
+// =====================================================
+
+let bullets = [];
+let enemyBullets = [];
+let enemies = [];
+let miniBosses = [];
+let boss = null;
+
+let gameRunning = false;
+
+let spawnTimer = 0;
+
+
+// =====================================================
+// MINI BOSS SYSTEM
+// =====================================================
+
+let miniBossTimer = 15000;
+
+let miniBossActive = false;
+
+
+// =====================================================
+// BIG BOSS
+// =====================================================
+
+let bigBossSpawned = false;
+
+
+// =====================================================
+// MACHINE GUN
+// =====================================================
+
+let machineGun = false;
+let machineGunTime = 0;
+
+let swarm = false;
+let swarmTime = 0;
+
+let dropTimer = 15000;
+
+
+// =====================================================
+// START GAME
+// =====================================================
+
+function startGame(){
+
+  resetPlayer();
+
+  bullets = [];
+  enemyBullets = [];
+  enemies = [];
+  miniBosses = [];
+
+  boss = null;
+
+  spawnTimer = 500;
+
+  miniBossTimer = 15000;
+  miniBossActive = false;
+
+  bigBossSpawned = false;
+
+  machineGun = false;
+  machineGunTime = 0;
+
+  swarm = false;
+  swarmTime = 0;
+
+  dropTimer = 15000;
+
+  gameRunning = true;
+
+  paused = false;
+
+
+  document
+    .getElementById("menu")
+    .classList
+    .add("hidden");
+
+
+  document
+    .getElementById("death")
+    .classList
+    .add("hidden");
+
+
+  document
+    .getElementById("pauseScreen")
+    .classList
+    .add("hidden");
+
+}
+
+
+// =====================================================
+// MAIN MENU
+// =====================================================
+
+function goMenu(){
+
+  gameRunning = false;
+
+  paused = false;
+
+
+  document
+    .getElementById("death")
+    .classList
+    .add("hidden");
+
+
+  document
+    .getElementById("pauseScreen")
+    .classList
+    .add("hidden");
+
+
+  document
+    .getElementById("menu")
+    .classList
+    .remove("hidden");
+
+}
+
+
+// =====================================================
+// SHOOT
+// =====================================================
+
+function shoot(){
+
+  if(!gameRunning)
+    return;
+
+  if(paused)
+    return;
+
+
+  const weapon =
+    currentWeapon();
+
+
+  if(
+    !machineGun &&
+    player.reload > 0
+  ){
+
+    return;
+
+  }
+
+
+  const angle =
+    Math.atan2(
+      mouseY-player.y,
+      mouseX-player.x
+    );
+
+
+  let count =
+    machineGun
+    ? 1
+    : weapon.bullets;
+
+
+  let damage =
+    machineGun
+    ? 1
+    : weapon.damage;
+
+
+  let speed =
+    machineGun
+    ? 16
+    : weapon.speed;
+
+
+  let spread =
+    machineGun
+    ? .02
+    : weapon.spread;
+
+
+  for(
+    let i=0;
+    i<count;
+    i++
+  ){
+
+    let offset=0;
+
+
+    if(count>1){
+
+      offset =
+        (
+          i-(count-1)/2
+        )*spread;
+
+    }
+
+
+    let a =
+      angle+offset;
+
+
+    bullets.push({
+
+      x:player.x,
+      y:player.y,
+
+      dx:Math.cos(a)*speed,
+      dy:Math.sin(a)*speed,
+
+      damage:damage,
+
+      size:
+        machineGun
+        ? 5
+        : 6
+
+    });
+
+  }
+
+
+  if(!machineGun){
+
+    player.reload =
+      weapon.cooldown;
+
+  }
+
+}
+
+
+// =====================================================
+// ENEMY SPAWN
+// =====================================================
+
+function spawnEnemy(){
+
+  let limit=4;
+
+  if(player.kills>=40)
+    limit=5;
+
+  if(player.kills>=70)
+    limit=6;
+
+  if(player.kills>=100)
+    limit=8;
+
+  if(swarm)
+    limit=25;
+
+  if(enemies.length>=limit)
+    return;
+
+
+  const side =
+    Math.floor(
+      Math.random()*4
+    );
+
+
+  let x,y;
+
+
+  if(side===0){
+
+    x=Math.random()*canvas.width;
+    y=-40;
+
+  }
+  else if(side===1){
+
+    x=canvas.width+40;
+    y=Math.random()*canvas.height;
+
+  }
+  else if(side===2){
+
+    x=Math.random()*canvas.width;
+    y=canvas.height+40;
+
+  }
+  else{
+
+    x=-40;
+    y=Math.random()*canvas.height;
+
+  }
+
+
+  enemies.push({
+
+    x:x,
+    y:y,
+
+    size:22,
+
+    speed:
+      swarm
+      ? 1.1+Math.random()*.7
+      : .8+Math.random()*.35,
+
+    hp:2
+
+  });
+
+}
+
+
+// =====================================================
+// MINI BOSS
+// =====================================================
+
+function resetMiniBossTimer(){
+
+  miniBossTimer =
+    15000+
+    Math.random()*15000;
+
+}
+
+
+function spawnMiniBoss(){
+
+  if(player.kills<20)
+    return;
+
+  if(miniBossActive)
+    return;
+
+
+  const side =
+    Math.floor(
+      Math.random()*4
+    );
+
+
+  let x,y;
+
+
+  if(side===0){
+
+    x=Math.random()*canvas.width;
+    y=-70;
+
+  }
+  else if(side===1){
+
+    x=canvas.width+70;
+    y=Math.random()*canvas.height;
+
+  }
+  else if(side===2){
+
+    x=Math.random()*canvas.width;
+    y=canvas.height+70;
+
+  }
+  else{
+
+    x=-70;
+    y=Math.random()*canvas.height;
+
+  }
+
+
+  miniBosses.push({
+
+    x:x,
+    y:y,
+
+    size:38,
+
+    hp:12,
+    maxHp:12,
+
+    speed:.55,
+
+    shootTimer:1000
+
+  });
+
+
+  miniBossActive=true;
+
+
+  const warning =
+    document.getElementById(
+      "miniBossWarning"
+    );
+
+
+  warning.style.display="block";
+
+
+  setTimeout(
+    ()=>{
+
+      warning.style.display="none";
+
+    },
+    1800
+  );
+
+}
+
+
+// =====================================================
+// MINI BOSS TIMER
+// =====================================================
+
+function updateMiniBossTimer(){
+
+  if(player.kills<20)
+    return;
+
+  if(miniBossActive)
+    return;
+
+
+  miniBossTimer-=16;
+
+
+  if(miniBossTimer<=0){
+
+    spawnMiniBoss();
+
+  }
+
+}
+
+
+// =====================================================
+// BIG BOSS
+// =====================================================
+
+function spawnBoss(){
+
+  boss={
+
+    x:canvas.width/2,
+    y:100,
+
+    size:70,
+
+    hp:40,
+    maxHp:40,
+
+    speed:.55,
+
+    shootTimer:800
+
+  };
+
+
+  document
+    .getElementById("bossWarning")
+    .style
+    .display="block";
+
+
+  setTimeout(
+    ()=>{
+
+      document
+        .getElementById("bossWarning")
+        .style
+        .display="none";
+
+    },
+    2500
+  );
+
+}
+
+
+// =====================================================
+// KILL
+// =====================================================
+
+function addKill(){
+
+  player.kills++;
+
+
+  if(
+    player.kills%10===0
+  ){
+
+    let index =
+      (
+        player.kills/10
+      )%catColors.length;
+
+
+    player.color =
+      catColors[index];
+
+  }
+
+
+  if(
+    player.kills>=50 &&
+    !bigBossSpawned
+  ){
+
+    bigBossSpawned=true;
+
+    spawnBoss();
+
+  }
+
+}
+
+
+// =====================================================
+// PLAYER UPDATE
+// =====================================================
+
+function updatePlayer(){
+
+  // -----------------------------------------------
+  // CAT FOLLOWS MOUSE
+  // -----------------------------------------------
+
+  const dx =
+    mouseX-player.x;
+
+  const dy =
+    mouseY-player.y;
+
+  const distance =
+    Math.hypot(dx,dy);
+
+
+  if(distance>2){
+
+    // Lower mouseFollowSpeed = slower movement.
+
+    const moveSpeed =
+      Math.min(
+        mouseFollowSpeed,
+        distance
+      );
+
+
+    player.x +=
+      dx/distance*
+      moveSpeed;
+
+
+    player.y +=
+      dy/distance*
+      moveSpeed;
+
+  }
+
+
+  // -----------------------------------------------
+  // KEEP CAT INSIDE SCREEN
+  // -----------------------------------------------
+
+  player.x =
+    Math.max(
+      player.size,
+      Math.min(
+        canvas.width-player.size,
+        player.x
+      )
+    );
+
+
+  player.y =
+    Math.max(
+      player.size,
+      Math.min(
+        canvas.height-player.size,
+        player.y
+      )
+    );
+
+
+  // -----------------------------------------------
+  // SPACE = SHOOT
+  // -----------------------------------------------
+
+  if(keys["Space"])
+    shoot();
+
+
+  // -----------------------------------------------
+  // RELOAD
+  // -----------------------------------------------
+
+  if(player.reload>0){
+
+    player.reload-=16;
+
+    if(player.reload<0)
+      player.reload=0;
+
+  }
+
+
+  // -----------------------------------------------
+  // HEALTH REGENERATION
+  // -----------------------------------------------
+
+  if(player.hurtTimer>0){
+
+    player.hurtTimer--;
+
+    player.regenTimer=0;
+
+  }
+  else{
+
+    player.regenTimer++;
+
+    if(
+      player.regenTimer>180 &&
+      player.hp<player.maxHp
+    ){
+
+      player.hp+=.15;
+
+      if(player.hp>player.maxHp)
+        player.hp=player.maxHp;
+
+    }
+
+  }
+
+}
+
+
+// =====================================================
+// BULLETS
+// =====================================================
+
+function updateBullets(){
+
+  for(
+    let i=bullets.length-1;
+    i>=0;
+    i--
+  ){
+
+    const bullet =
+      bullets[i];
+
+
+    bullet.x+=bullet.dx;
+    bullet.y+=bullet.dy;
+
+
+    if(
+      bullet.x<-50 ||
+      bullet.x>canvas.width+50 ||
+      bullet.y<-50 ||
+      bullet.y>canvas.height+50
+    ){
+
+      bullets.splice(i,1);
+      continue;
+
+    }
+
+
+    // NORMAL ENEMIES
+
+    for(
+      let j=enemies.length-1;
+      j>=0;
+      j--
+    ){
+
+      const enemy =
+        enemies[j];
+
+
+      const hit =
+        Math.hypot(
+          bullet.x-enemy.x,
+          bullet.y-enemy.y
+        );
+
+
+      if(
+        hit<
+        enemy.size+bullet.size
+      ){
+
+        enemy.hp-=bullet.damage;
+
+        bullets.splice(i,1);
+
+
+        if(enemy.hp<=0){
+
+          enemies.splice(j,1);
+
+          addKill();
+
+        }
+
+        break;
+
+      }
+
+    }
+
+
+    // MINI BOSS
+
+    for(
+      let j=miniBosses.length-1;
+      j>=0;
+      j--
+    ){
+
+      const mini =
+        miniBosses[j];
+
+
+      const hit =
+        Math.hypot(
+          bullet.x-mini.x,
+          bullet.y-mini.y
+        );
+
+
+      if(
+        hit<
+        mini.size+bullet.size
+      ){
+
+        mini.hp-=bullet.damage;
+
+        bullets.splice(i,1);
+
+
+        if(mini.hp<=0){
+
+          miniBosses.splice(j,1);
+
+          addKill();
+          addKill();
+
+          miniBossActive=false;
+
+          resetMiniBossTimer();
+
+        }
+
+        break;
+
+      }
+
+    }
+
+
+    // BIG BOSS
+
+    if(boss){
+
+      const hit =
+        Math.hypot(
+          bullet.x-boss.x,
+          bullet.y-boss.y
+        );
+
+
+      if(
+        hit<
+        boss.size+bullet.size
+      ){
+
+        boss.hp-=bullet.damage;
+
+        bullets.splice(i,1);
+
+
+        if(boss.hp<=0){
+
+          boss=null;
+
+          player.kills+=5;
+
+        }
+
+      }
+
+    }
+
+  }
+
+}
+
+
+// =====================================================
+// ENEMIES
+// =====================================================
+
+function updateEnemies(){
+
+  for(
+    let i=enemies.length-1;
+    i>=0;
+    i--
+  ){
+
+    const enemy =
+      enemies[i];
+
+
+    let dx =
+      player.x-enemy.x;
+
+    let dy =
+      player.y-enemy.y;
+
+
+    let distance =
+      Math.hypot(dx,dy);
+
+
+    if(distance>0){
+
+      enemy.x +=
+        dx/distance*
+        enemy.speed;
+
+      enemy.y +=
+        dy/distance*
+        enemy.speed;
+
+    }
+
+
+    if(
+      distance<
+      enemy.size+player.size
+    ){
+
+      if(player.hurtTimer<=0){
+
+        player.hp-=15;
+
+        player.hurtTimer=35;
+
+        enemies.splice(i,1);
+
+
+        if(player.hp<=0){
+
+          gameOver();
+          return;
+
+        }
+
+      }
+
+    }
+
+  }
+
+}
+
+
+// =====================================================
+// MINI BOSS UPDATE
+// =====================================================
+
+function updateMiniBosses(){
+
+  for(
+    let i=miniBosses.length-1;
+    i>=0;
+    i--
+  ){
+
+    const mini =
+      miniBosses[i];
+
+
+    let dx =
+      player.x-mini.x;
+
+    let dy =
+      player.y-mini.y;
+
+
+    let distance =
+      Math.hypot(dx,dy);
+
+
+    if(distance>170){
+
+      mini.x +=
+        dx/distance*
+        mini.speed;
+
+      mini.y +=
+        dy/distance*
+        mini.speed;
+
+    }
+
+
+    if(
+      distance<
+      mini.size+player.size
+    ){
+
+      if(player.hurtTimer<=0){
+
+        player.hp-=20;
+
+        player.hurtTimer=40;
+
+      }
+
+    }
+
+
+    mini.shootTimer-=16;
+
+
+    if(mini.shootTimer<=0){
+
+      let angle =
+        Math.atan2(
+          player.y-mini.y,
+          player.x-mini.x
+        );
+
+
+      enemyBullets.push({
+
+        x:mini.x,
+        y:mini.y,
+
+        dx:Math.cos(angle)*7,
+        dy:Math.sin(angle)*7,
+
+        damage:8,
+        size:6
+
+      });
+
+
+      mini.shootTimer=1100;
+
+    }
+
+  }
+
+}
+
+
+// =====================================================
+// ENEMY BULLETS
+// =====================================================
+
+function updateEnemyBullets(){
+
+  for(
+    let i=enemyBullets.length-1;
+    i>=0;
+    i--
+  ){
+
+    const bullet =
+      enemyBullets[i];
+
+
+    bullet.x+=bullet.dx;
+    bullet.y+=bullet.dy;
+
+
+    if(
+      bullet.x<-50 ||
+      bullet.x>canvas.width+50 ||
+      bullet.y<-50 ||
+      bullet.y>canvas.height+50
+    ){
+
+      enemyBullets.splice(i,1);
+      continue;
+
+    }
+
+
+    const hit =
+      Math.hypot(
+        bullet.x-player.x,
+        bullet.y-player.y
+      );
+
+
+    if(
+      hit<
+      player.size+bullet.size
+    ){
+
+      if(player.hurtTimer<=0){
+
+        player.hp-=bullet.damage;
+
+        player.hurtTimer=30;
+
+      }
+
+
+      enemyBullets.splice(i,1);
+
+
+      if(player.hp<=0){
+
+        gameOver();
+        return;
+
+      }
+
+    }
+
+  }
+
+}
+
+
+// =====================================================
+// BIG BOSS UPDATE
+// =====================================================
+
+function updateBoss(){
+
+  if(!boss)
+    return;
+
+
+  let dx =
+    player.x-boss.x;
+
+  let dy =
+    player.y-boss.y;
+
+
+  let distance =
+    Math.hypot(dx,dy);
+
+
+  if(distance>0){
+
+    boss.x +=
+      dx/distance*
+      boss.speed;
+
+    boss.y +=
+      dy/distance*
+      boss.speed;
+
+  }
+
+
+  boss.shootTimer-=16;
+
+
+  if(boss.shootTimer<=0){
+
+    let angle =
+      Math.atan2(
+        player.y-boss.y,
+        player.x-boss.x
+      );
+
+
+    enemyBullets.push({
+
+      x:boss.x,
+      y:boss.y,
+
+      dx:Math.cos(angle)*6,
+      dy:Math.sin(angle)*6,
+
+      damage:12,
+      size:8
+
+    });
+
+
+    boss.shootTimer=700;
+
+  }
+
+
+  if(
+    distance<
+    boss.size+player.size
+  ){
+
+    if(player.hurtTimer<=0){
+
+      player.hp-=25;
+
+      player.hurtTimer=45;
+
+    }
+
+  }
+
+}
+
+
+// =====================================================
+// NORMAL SPAWNING
+// =====================================================
+
+function updateSpawning(){
+
+  spawnTimer-=16;
+
+
+  if(spawnTimer<=0){
+
+    let amount=1;
+
+
+    if(player.kills>=40)
+      amount=2;
+
+
+    if(swarm)
+      amount=5;
+
+
+    for(
+      let i=0;
+      i<amount;
+      i++
+    ){
+
+      spawnEnemy();
+
+    }
+
+
+    if(swarm){
+
+      spawnTimer=350;
+
+    }
+    else if(player.kills>=70){
+
+      spawnTimer=1500;
+
+    }
+    else if(player.kills>=40){
+
+      spawnTimer=1800;
+
+    }
+    else{
+
+      spawnTimer=2200;
+
+    }
+
+  }
+
+}
+
+
+// =====================================================
+// MACHINE GUN
+// =====================================================
+
+function activateMachineGun(){
+
+  machineGun=true;
+
+  machineGunTime=30000;
+
+  swarm=true;
+
+  swarmTime=30000;
+
+}
+
+
+function updatePowerup(){
+
+  if(!machineGun)
+    return;
+
+
+  machineGunTime-=16;
+  swarmTime-=16;
+
+
+  if(machineGunTime<=0){
+
+    machineGun=false;
+
+    machineGunTime=0;
+
+    swarm=false;
+    swarmTime=0;
+
+  }
+
+}
+
+
+// =====================================================
+// POWERUP DROP
+// =====================================================
+
+function updateDrop(){
+
+  dropTimer-=16;
+
+
+  if(
+    dropTimer<=0 &&
+    !machineGun
+  ){
+
+    if(Math.random()<.35){
+
+      activateMachineGun();
+
+    }
+
+
+    dropTimer =
+      20000+
+      Math.random()*15000;
+
+  }
+
+}
+
+
+// =====================================================
+// DRAW BACKGROUND
+// =====================================================
+
+function drawBackground(){
+
+  ctx.fillStyle="#18202b";
+
+  ctx.fillRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+
+  ctx.strokeStyle="#222c3a";
+
+
+  for(
+    let x=0;
+    x<canvas.width;
+    x+=50
+  ){
+
+    ctx.beginPath();
+
+    ctx.moveTo(x,0);
+    ctx.lineTo(x,canvas.height);
+
+    ctx.stroke();
+
+  }
+
+
+  for(
+    let y=0;
+    y<canvas.height;
+    y+=50
+  ){
+
+    ctx.beginPath();
+
+    ctx.moveTo(0,y);
+    ctx.lineTo(canvas.width,y);
+
+    ctx.stroke();
+
+  }
+
+}
+
+
+// =====================================================
+// DRAW CAT
+// =====================================================
+
+function drawCat(){
+
+  ctx.save();
+
+
+  if(
+    player.hurtTimer>0 &&
+    Math.floor(
+      player.hurtTimer/4
+    )%2===0
+  ){
+
+    ctx.fillStyle="white";
+
+  }
+  else{
+
+    ctx.fillStyle=
+      player.color;
+
+  }
+
+
+  // Body
+
+  ctx.beginPath();
+
+  ctx.arc(
+    player.x,
+    player.y,
+    player.size,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+
+  // Ears
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    player.x-20,
+    player.y-15
+  );
+
+  ctx.lineTo(
+    player.x-12,
+    player.y-40
+  );
+
+  ctx.lineTo(
+    player.x-2,
+    player.y-15
+  );
+
+  ctx.fill();
+
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    player.x+20,
+    player.y-15
+  );
+
+  ctx.lineTo(
+    player.x+12,
+    player.y-40
+  );
+
+  ctx.lineTo(
+    player.x+2,
+    player.y-15
+  );
+
+  ctx.fill();
+
+
+  // Eyes
+
+  ctx.fillStyle="white";
+
+
+  ctx.beginPath();
+
+  ctx.arc(
+    player.x-9,
+    player.y-5,
+    5,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+
+  ctx.beginPath();
+
+  ctx.arc(
+    player.x+9,
+    player.y-5,
+    5,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+
+  ctx.restore();
+
+}
+
+
+// =====================================================
+// DRAW GUN
+// =====================================================
+
+function drawGun(){
+
+  let angle =
+    Math.atan2(
+      mouseY-player.y,
+      mouseX-player.x
+    );
+
+
+  ctx.save();
+
+
+  ctx.translate(
+    player.x,
+    player.y
+  );
+
+
+  ctx.rotate(angle);
+
+
+  if(machineGun){
+
+    ctx.fillStyle="#00ffcc";
+
+    ctx.fillRect(
+      12,
+      -10,
+      60,
+      20
+    );
+
+
+    ctx.fillStyle="#111";
+
+    ctx.fillRect(
+      65,
+      -5,
+      32,
+      10
+    );
+
+  }
+  else{
+
+    ctx.fillStyle="#555";
+
+    ctx.fillRect(
+      15,
+      -8,
+      38,
+      16
+    );
+
+
+    ctx.fillStyle="#111";
+
+    ctx.fillRect(
+      48,
+      -5,
+      28,
+      10
+    );
+
+  }
+
+
+  ctx.fillStyle="#704214";
+
+  ctx.fillRect(
+    22,
+    6,
+    12,
+    20
+  );
+
+
+  ctx.restore();
+
+}
+
+
+// =====================================================
+// DRAW ENEMIES
+// =====================================================
+
+function drawEnemies(){
+
+  for(
+    const enemy of enemies
+  ){
+
+    ctx.fillStyle="#ff4757";
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+      enemy.x,
+      enemy.y,
+      enemy.size,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    ctx.fillStyle="white";
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+      enemy.x-7,
+      enemy.y-4,
+      4,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+      enemy.x+7,
+      enemy.y-4,
+      4,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+  }
+
+}
+
+
+// =====================================================
+// DRAW MINI BOSSES
+// =====================================================
+
+function drawMiniBosses(){
+
+  for(
+    const mini of miniBosses
+  ){
+
+    ctx.fillStyle="#ff9f43";
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+      mini.x,
+      mini.y,
+      mini.size,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    // Crown
+
+    ctx.fillStyle="#ffd32a";
+
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      mini.x-25,
+      mini.y-30
+    );
+
+    ctx.lineTo(
+      mini.x-12,
+      mini.y-52
+    );
+
+    ctx.lineTo(
+      mini.x,
+      mini.y-32
+    );
+
+    ctx.lineTo(
+      mini.x+12,
+      mini.y-52
+    );
+
+    ctx.lineTo(
+      mini.x+25,
+      mini.y-30
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+
+    // Eyes
+
+    ctx.fillStyle="#ff0000";
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+      mini.x-11,
+      mini.y-7,
+      6,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+      mini.x+11,
+      mini.y-7,
+      6,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    // Pistol
+
+    let angle =
+      Math.atan2(
+        player.y-mini.y,
+        player.x-mini.x
+      );
+
+
+    ctx.save();
+
+
+    ctx.translate(
+      mini.x,
+      mini.y
+    );
+
+
+    ctx.rotate(angle);
+
+
+    ctx.fillStyle="#222";
+
+
+    ctx.fillRect(
+      18,
+      -5,
+      28,
+      10
+    );
+
+
+    ctx.fillStyle="#704214";
+
+
+    ctx.fillRect(
+      22,
+      5,
+      8,
+      14
+    );
+
+
+    ctx.restore();
+
+
+    // Health bar
+
+    ctx.fillStyle="#222";
+
+
+    ctx.fillRect(
+      mini.x-35,
+      mini.y-65,
+      70,
+      8
+    );
+
+
+    ctx.fillStyle="#2ecc71";
+
+
+    ctx.fillRect(
+      mini.x-35,
+      mini.y-65,
+      70*
+      (
+        mini.hp/
+        mini.maxHp
+      ),
+      8
+    );
+
+  }
+
+}
+
+
+// =====================================================
+// DRAW BIG BOSS
+// =====================================================
+
+function drawBoss(){
+
+  if(!boss)
+    return;
+
+
+  ctx.fillStyle="#8e44ad";
+
+
+  ctx.beginPath();
+
+  ctx.arc(
+    boss.x,
+    boss.y,
+    boss.size,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+
+  ctx.fillStyle="#ff0000";
+
+
+  ctx.beginPath();
+
+  ctx.arc(
+    boss.x-23,
+    boss.y-10,
+    10,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+
+  ctx.beginPath();
+
+  ctx.arc(
+    boss.x+23,
+    boss.y-10,
+    10,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+
+  // Boss health
+
+  ctx.fillStyle="#222";
+
+
+  ctx.fillRect(
+    boss.x-100,
+    boss.y-100,
+    200,
+    18
+  );
+
+
+  ctx.fillStyle="#e74c3c";
+
+
+  ctx.fillRect(
+    boss.x-100,
+    boss.y-100,
+    200*
+    (
+      boss.hp/
+      boss.maxHp
+    ),
+    18
+  );
+
+}
+
+
+// =====================================================
+// DRAW BULLETS
+// =====================================================
+
+function drawBullets(){
+
+  for(
+    const bullet of bullets
+  ){
+
+    ctx.fillStyle =
+      machineGun
+      ? "#00ffcc"
+      : "#ffe600";
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+      bullet.x,
+      bullet.y,
+      bullet.size,
+      0,
+      Math.PI*2
+    );
+
+
+    ctx.fill();
+
+  }
+
+
+  for(
+    const bullet of enemyBullets
+  ){
+
+    ctx.fillStyle="#ff6b81";
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+      bullet.x,
+      bullet.y,
+      bullet.size,
+      0,
+      Math.PI*2
+    );
+
+
+    ctx.fill();
+
+  }
+
+}
+
+
+// =====================================================
+// HUD
+// =====================================================
+
+function updateHUD(){
+
+  document
+    .getElementById("killText")
+    .textContent =
+    player.kills;
+
+
+  document
+    .getElementById("health")
+    .style
+    .width =
+    Math.max(
+      0,
+      player.hp
+    )+"%";
+
+
+  document
+    .getElementById("weapon")
+    .textContent =
+    currentWeapon().name;
+
+
+  if(machineGun){
+
+    document
+      .getElementById("powerup")
+      .textContent =
+      "🔫 MACHINE GUN — "+
+      Math.ceil(
+        machineGunTime/1000
+      )+
+      "s";
+
+
+    document
+      .getElementById("reload")
+      .textContent =
+      "♾️ NO RELOAD";
+
+  }
+  else{
+
+    document
+      .getElementById("powerup")
+      .textContent="";
+
+
+    document
+      .getElementById("reload")
+      .textContent =
+      player.reload>0
+      ? "🔄 Reloading..."
+      : "🟢 READY — SPACE TO FIRE";
+
+  }
+
+
+  if(miniBossActive){
+
+    document
+      .getElementById("bossInfo")
+      .textContent =
+      "👾 MINI-BOSS ACTIVE";
+
+  }
+  else if(player.kills<20){
+
+    document
+      .getElementById("bossInfo")
+      .textContent =
+      "🔒 Mini-boss unlocks at 20 kills";
+
+  }
+  else if(boss){
+
+    document
+      .getElementById("bossInfo")
+      .textContent =
+      "👑 BIG BOSS ACTIVE";
+
+  }
+  else{
+
+    document
+      .getElementById("bossInfo")
+      .textContent="";
+
+  }
+
+}
+
+
+// =====================================================
+// GAME OVER
+// =====================================================
+
+function gameOver(){
+
+  gameRunning=false;
+
+  paused=false;
+
+
+  document
+    .getElementById("pauseScreen")
+    .classList
+    .add("hidden");
+
+
+  document
+    .getElementById("finalScore")
+    .textContent =
+    "🐱 Kills: "+
+    player.kills;
+
+
+  document
+    .getElementById("death")
+    .classList
+    .remove("hidden");
+
+}
+
+
+// =====================================================
+// MAIN LOOP
+// =====================================================
+
+function gameLoop(){
+
+  if(
+    gameRunning &&
+    !paused
+  ){
+
+    updatePlayer();
+
+    updateBullets();
+
+    updateEnemyBullets();
+
+    updateEnemies();
+
+    updateMiniBosses();
+
+    updateBoss();
+
+    updateSpawning();
+
+    updateMiniBossTimer();
+
+    updatePowerup();
+
+    updateDrop();
+
+  }
+
+
+  drawBackground();
+
+  drawEnemies();
+
+  drawMiniBosses();
+
+  drawBoss();
+
+  drawBullets();
+
+
+  if(gameRunning){
+
+    drawCat();
+
+    drawGun();
+
+    updateHUD();
+
+  }
+
+
+  requestAnimationFrame(
+    gameLoop
+  );
+
+}
+
+
+// =====================================================
+// START
+// =====================================================
+
+resetPlayer();
+
+gameLoop();
+
+</script>
+
+</body>
+</html>
+```
+
+The main setting is:
+
+```js
+const mouseFollowSpeed = 2.5;
+```
+
+Change that one number to tune the cat: **lower = slower**, **higher = faster**.
