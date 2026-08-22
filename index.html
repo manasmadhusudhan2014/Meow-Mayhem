@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"> 
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -106,7 +106,17 @@ input{width:min(420px,90vw);padding:14px 16px;border-radius:12px;border:1px soli
 
 <script>
 const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
-function resize(){canvas.width=innerWidth;canvas.height=innerHeight;if(player){player.x=Math.min(player.x,canvas.width-player.size);player.y=Math.min(player.y,canvas.height-player.size)}}resize();addEventListener("resize",resize);
+
+function resize(){
+  canvas.width=innerWidth;
+  canvas.height=innerHeight;
+  if(player){
+    player.x=Math.min(player.x,canvas.width-player.size);
+    player.y=Math.min(player.y,canvas.height-player.size);
+  }
+}
+resize();
+addEventListener("resize",resize);
 
 const catColors=["#ff9f43","#3498db","#9b59b6","#2ecc71","#e74c3c","#f1c40f"];
 const classes=[
