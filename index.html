@@ -1346,6 +1346,8 @@ const game={
 
     bossActive:false,
 
+    timeSinceDamage:0,
+
     player:{
 
         x:500,
@@ -1554,6 +1556,7 @@ function startGame(){
 
     game.waveSpawned=false;
     game.bossActive=false;
+    game.timeSinceDamage=0;
 
     game.bullets=[];
 
@@ -2207,6 +2210,7 @@ function updateBullets(dt){
             ){
 
                 game.player.hp-=b.damage;
+                game.timeSinceDamage=0;
 
                 game.bullets.splice(i,1);
 
@@ -2593,53 +2597,87 @@ function updateEnemies(dt){
         }
 
 
-        if(
-            dist<
-            e.size+18 &&
-            !e.touchCooldown
-        ){
+        /* Swept collision: catch an enemy that moved through the cat
+   during this frame instead of merely checking its final position. */
+const nowDist=Math.hypot(
+    game.player.x-e.x,
+    game.player.y-e.y
+);
+const oldDist=Math.hypot(
+    game.player.x-oldX,
+    game.player.y-oldY
+);
 
-            e.touchCooldown=45;
+if(
+    oldDist > (e.size+22+(game.player.size||18)) &&
+    nowDist <= (e.size+22+(game.player.size||18)) &&
+    !e.touchCooldown
+){
+    e.x=game.player.x;
+    e.y=game.player.y;
+}
 
-            const touchDamage =
-                e.type==="mega" ? 30 :
-                e.type==="miniboss" ? 22 :
-                e.type==="tank" ? 16 :
-                10;
+/* Reliable player/enemy collision.
+   Enemy touching the player ALWAYS deals damage, including
+   enemies approaching from below/above/side. */
+const hitRadius =
+    e.size +
+    22 +
+    (game.player.size || 18);
 
-            /* ENEMY EXPLODES ON CONTACT */
-            explosion(
-                game.player.x,
-                game.player.y,
-                e.type==="mega" ? 85 : 55,
-                touchDamage * 0.35
-            );
+if(
+    dist <= hitRadius &&
+    !e.touchCooldown
+){
 
-            createParticles(
-                game.player.x,
-                game.player.y,
-                e.type==="mega" ? 24 : 12
-            );
+    e.touchCooldown=45;
 
-            game.player.hp -= touchDamage;
+    const touchDamage =
+        e.type==="mega" ? 30 :
+        e.type==="miniboss" ? 22 :
+        e.type==="tank" ? 16 :
+        10;
 
-            /* Push the enemy away after the explosion. */
-            const push = Math.max(1, dist);
-            e.x -= dx/push * 35;
-            e.y -= dy/push * 35;
+    /* Contact explosion */
+    explosion(
+        game.player.x,
+        game.player.y,
+        e.type==="mega" ? 85 : 55,
+        touchDamage * 0.35
+    );
 
-            if(game.player.hp<=0){
+    createParticles(
+        game.player.x,
+        game.player.y,
+        e.type==="mega" ? 24 : 12
+    );
 
-                gameOver();
+    game.player.hp = Math.max(
+        0,
+        game.player.hp - touchDamage
+    );
 
-                return;
+    gameMessage("💥 HIT! -"+touchDamage+" HP", 450);
 
-            }
-        }
+    game.timeSinceDamage=0;
 
-        if(e.touchCooldown){
-            e.touchCooldown -= dt;
-        }
+    /* Push the enemy away safely, even if dist is nearly zero. */
+    const safeDist = Math.max(dist, 0.01);
+    e.x -= dx/safeDist * 40;
+    e.y -= dy/safeDist * 40;
+
+    if(game.player.hp<=0){
+
+        gameOver();
+
+        return;
+
+    }
+}
+
+if(e.touchCooldown){
+    e.touchCooldown -= dt;
+}
 
 
         if(e.boss){
@@ -2827,6 +2865,16 @@ function updateHUD(){
             0,
             hp/max*100
         )+"%";
+
+    const regenActive =
+        game.timeSinceDamage >= 360 &&
+        hp < max;
+
+    const hpText =
+        document.getElementById("hpText");
+
+    hpText.style.color =
+        regenActive ? "#79ff79" : "";
 
 
     document.getElementById(
