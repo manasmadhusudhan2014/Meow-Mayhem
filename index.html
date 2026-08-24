@@ -3,340 +3,1508 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Meow Mayhem</title>
+<title>CAT OPS — Forest Survival</title>
+
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Inter,system-ui,Arial,sans-serif;background:#101722;color:#fff}
-button{font:inherit;font-weight:800;border:0;border-radius:12px;padding:12px 20px;cursor:pointer;color:#fff;background:#34495e;box-shadow:0 5px 0 #202d3a}
-button:hover{filter:brightness(1.12);transform:translateY(-1px)}
-button:active{transform:translateY(3px);box-shadow:0 2px 0 #202d3a}
-button:disabled{opacity:.45;cursor:not-allowed;filter:none;transform:none}
+body{
+    margin:0;
+    background:#07100b;
+    color:#fff;
+    font-family:Arial,Helvetica,sans-serif;
+    overflow:hidden;
+}
+button,input{font:inherit}
+button{
+    cursor:pointer;
+    border:0;
+    border-radius:8px;
+    padding:10px 15px;
+    font-weight:bold;
+}
 .hidden{display:none!important}
-.screen{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow:auto;background:radial-gradient(circle at 50% 30%,#24364e 0,#121b28 52%,#0c1119 100%)}
-.panel{width:min(1100px,96vw);max-height:94vh;overflow:auto;padding:30px;border:1px solid #3d526b;border-radius:24px;background:rgba(15,24,36,.94);box-shadow:0 25px 80px rgba(0,0,0,.5)}
-.title{font-size:clamp(42px,7vw,78px);margin:0 0 8px;text-align:center;letter-spacing:-3px}
-.subtitle{text-align:center;color:#aebdd0;margin:0 0 24px}
-.menuButtons{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:20px 0}
-.primary{background:#16a085}.shopBtn{background:#8e44ad}.danger{background:#c0392b}
-.coinBar{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;color:#ffd54a;font-size:20px;font-weight:900;margin:12px 0 20px}
-#mainClassGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
-.classCard{background:linear-gradient(145deg,#1d2a3b,#111a27);border:1px solid #3a4e65;border-radius:18px;padding:18px;text-align:center;min-height:235px;display:flex;flex-direction:column;justify-content:space-between}
-.classCard.equipped{border-color:#2ecc71;box-shadow:0 0 22px rgba(46,204,113,.18)}
-.catPreview{width:105px;height:105px;margin:0 auto 8px;position:relative}
-.catPreview .body{position:absolute;width:64px;height:64px;border-radius:50%;left:20px;top:30px}
-.catPreview .ear{position:absolute;width:0;height:0;border-left:17px solid transparent;border-right:17px solid transparent;border-bottom:35px solid;top:8px}
-.catPreview .e1{left:19px}.catPreview .e2{right:19px}
-.catPreview .eye{position:absolute;width:9px;height:12px;background:#fff;border-radius:50%;top:54px}
-.catPreview .eye.e1{left:39px}.catPreview .eye.e2{right:39px}
-.catName{font-size:21px;margin:3px 0}
-.cost{color:#ffd54a;font-weight:900}.use{color:#aebdd0;font-size:13px;min-height:38px}
-#game{position:absolute;inset:0;width:100%;height:100%;z-index:1;background:#18202b}
-#hud{position:absolute;z-index:10;left:16px;top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;pointer-events:none}
-.hudBox{background:rgba(10,16,25,.82);border:1px solid #41546b;border-radius:12px;padding:9px 12px;font-weight:800;backdrop-filter:blur(5px)}
-#healthBox{width:150px;height:16px;padding:2px;overflow:hidden}.healthInner{height:100%;border-radius:8px;background:#2ecc71}
-#bossWarning,#miniBossWarning,#abilityText{position:absolute;z-index:11;left:50%;transform:translateX(-50%);top:90px;font-weight:1000;text-shadow:0 2px 8px #000;display:none;text-align:center}
-#bossWarning{font-size:32px;color:#ffcc00}.mini{top:130px!important;color:#ff7675}.ability{top:170px!important;font-size:22px}
-#controls{position:absolute;z-index:10;right:16px;bottom:16px;background:rgba(10,16,25,.78);padding:10px 14px;border-radius:12px;color:#b8c6d8;font-size:13px}
-input{width:min(420px,90vw);padding:14px 16px;border-radius:12px;border:1px solid #53677d;background:#101823;color:#fff;font-size:18px;outline:none}
-.modalHint{color:#93a5ba;font-size:13px;text-align:center;margin-top:12px}
-.smallBtn{padding:8px 12px;font-size:13px}
+
+#app{
+    width:100vw;
+    height:100vh;
+    position:relative;
+}
+
+/* ---------------- HOME ---------------- */
+
+.screen{
+    width:100%;
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.panel{
+    width:min(1100px,94vw);
+    max-height:94vh;
+    overflow:auto;
+    background:rgba(10,20,13,.96);
+    border:2px solid #365d3d;
+    border-radius:18px;
+    padding:25px;
+    box-shadow:0 0 40px #000;
+}
+
+.logo{
+    text-align:center;
+    font-size:58px;
+    color:#8cff82;
+    text-shadow:0 0 20px #29a52d;
+    margin:10px 0 0;
+}
+
+.subtitle{
+    text-align:center;
+    color:#9eaf9f;
+    margin-bottom:25px;
+}
+
+.nickname{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin:20px 0;
+}
+
+.nickname input{
+    width:300px;
+    padding:13px;
+    border-radius:8px;
+    border:2px solid #456b4b;
+    background:#111a13;
+    color:white;
+    outline:none;
+}
+
+.primary{
+    background:#52d653;
+    color:#071008;
+}
+.primary:hover{background:#72ed72}
+
+.gold{
+    color:#ffd84a;
+}
+
+.home-buttons{
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:12px;
+    margin:25px 0;
+}
+
+.home-buttons button{
+    background:#17271a;
+    color:#fff;
+    border:1px solid #46634a;
+}
+.home-buttons button:hover{
+    background:#27452b;
+}
+
+.stats{
+    display:flex;
+    justify-content:center;
+    gap:25px;
+    flex-wrap:wrap;
+    margin:20px 0;
+}
+
+.stat{
+    background:#111c13;
+    border:1px solid #334c37;
+    border-radius:10px;
+    padding:12px 20px;
+}
+
+/* ---------------- TABLE ---------------- */
+
+.table-wrap{
+    overflow:auto;
+    max-height:65vh;
+    border:1px solid #304a34;
+    border-radius:10px;
+}
+
+table{
+    border-collapse:collapse;
+    width:100%;
+    min-width:850px;
+}
+
+th,td{
+    border-bottom:1px solid #263b29;
+    padding:10px;
+    text-align:left;
+}
+
+th{
+    position:sticky;
+    top:0;
+    background:#162719;
+    color:#9cff92;
+    z-index:2;
+}
+
+tr:hover td{
+    background:#142217;
+}
+
+.price{
+    color:#ffd84a;
+    font-weight:bold;
+}
+
+.locked{
+    color:#ff7777;
+}
+
+.unlocked{
+    color:#78ed78;
+}
+
+/* ---------------- SHOP ---------------- */
+
+.shop-tabs{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:15px;
+}
+
+.shop-tabs button{
+    background:#17271a;
+    color:#fff;
+}
+
+.shop-tabs button.active{
+    background:#58d85a;
+    color:#071008;
+}
+
+.shop-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+    gap:12px;
+}
+
+.card{
+    background:#111b13;
+    border:1px solid #314a35;
+    border-radius:12px;
+    padding:15px;
+}
+
+.card h3{
+    margin-top:0;
+    color:#a2ff9a;
+}
+
+.card p{
+    color:#a8b5aa;
+    min-height:40px;
+}
+
+.card button{
+    width:100%;
+    background:#263b29;
+    color:white;
+}
+
+.card button.buy{
+    background:#4bc84d;
+    color:#071008;
+}
+
+.card button.equipped{
+    background:#6e7c70;
+    color:#fff;
+}
+
+.card button.cant{
+    background:#542b2b;
+}
+
+/* ---------------- GAME ---------------- */
+
+#gameScreen{
+    display:block;
+    position:relative;
+    background:#071009;
+}
+
+#gameCanvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+}
+
+.hud{
+    position:absolute;
+    top:10px;
+    left:10px;
+    right:10px;
+    display:flex;
+    justify-content:space-between;
+    pointer-events:none;
+    z-index:5;
+}
+
+.hudBox{
+    background:rgba(5,12,7,.8);
+    border:1px solid #426446;
+    border-radius:9px;
+    padding:8px 12px;
+}
+
+.bar{
+    width:190px;
+    height:15px;
+    background:#301717;
+    border-radius:10px;
+    overflow:hidden;
+    margin-top:4px;
+}
+
+.bar div{
+    height:100%;
+    background:#56e55b;
+}
+
+#bossBar{
+    position:absolute;
+    top:82px;
+    left:50%;
+    transform:translateX(-50%);
+    width:min(650px,70vw);
+    background:#220909;
+    border:1px solid #8c3838;
+    z-index:5;
+    text-align:center;
+    padding:7px;
+    border-radius:8px;
+    display:none;
+}
+
+#bossFill{
+    height:12px;
+    background:#ef4444;
+    border-radius:5px;
+}
+
+#gameMessage{
+    position:absolute;
+    top:42%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    text-align:center;
+    pointer-events:none;
+    z-index:7;
+}
+
+.bigMessage{
+    font-size:48px;
+    font-weight:bold;
+    text-shadow:0 3px 15px #000;
+}
+
+.controls{
+    position:absolute;
+    bottom:12px;
+    left:12px;
+    color:#c7d4c8;
+    background:rgba(5,12,7,.65);
+    padding:8px 12px;
+    border-radius:8px;
+    z-index:5;
+    font-size:13px;
+}
+
+.pauseBtn{
+    pointer-events:auto;
+    background:#17271a;
+    color:white;
+}
+
+/* ---------------- MOBILE ---------------- */
+
+@media(max-width:700px){
+    .logo{font-size:40px}
+    .nickname{flex-direction:column;align-items:center}
+    .nickname input{width:90%}
+    .hud{font-size:12px}
+    .bigMessage{font-size:35px}
+}
 </style>
 </head>
+
 <body>
+<div id="app">
 
-<canvas id="game"></canvas>
+<!-- ================= HOME ================= -->
 
-<div id="hud" class="hidden">
-  <div class="hudBox">🐱 <span id="nicknameHud"></span></div>
-  <div class="hudBox">⚔️ Kills: <span id="killText">0</span></div>
-  <div class="hudBox">🪙 <span id="coinText">0</span></div>
-  <div class="hudBox" id="healthBox"><div id="health" class="healthInner"></div></div>
-  <div class="hudBox" id="weapon">🔫 Peashooter</div>
-  <div class="hudBox" id="reload">🟢 READY</div>
-</div>
-<div id="bossWarning">👑 BIG BOSS INCOMING 👑</div>
-<div id="miniBossWarning" class="mini">🔫 MINI-BOSS INCOMING!</div>
-<div id="abilityText" class="ability"></div>
-<div id="controls" class="hidden">Move: mouse &nbsp;•&nbsp; Shoot: SPACE &nbsp;•&nbsp; Pause: P</div>
+<section id="homeScreen" class="screen">
+<div class="panel">
 
-<div id="nicknameScreen" class="screen">
-  <div class="panel" style="max-width:620px;text-align:center">
-    <h1 class="title">🐱 MEOW MAYHEM</h1>
-    <p class="subtitle">Survive. Destroy. Collect coins. Become the strongest cat.</p>
-    <input id="nicknameInput" maxlength="18" placeholder="Enter your cat name">
-    <div class="menuButtons"><button class="primary" onclick="saveNickname()">START</button></div>
-  </div>
+<h1 class="logo">🐱 CAT OPS</h1>
+<div class="subtitle">99 NIGHTS-STYLE FOREST SURVIVAL</div>
+
+<div class="nickname">
+    <input id="nicknameInput" maxlength="16" placeholder="Enter your nickname">
+    <button class="primary" onclick="startGame()">PLAY</button>
 </div>
 
-<div id="menu" class="screen hidden">
-  <div class="panel">
-    <h1 class="title">🐱 MEOW MAYHEM</h1>
-    <p class="subtitle">Your cat is ready for chaos.</p>
-    <div class="coinBar">🪙 Coins: <span id="mainShopCoins">0</span> &nbsp;•&nbsp; Player: <span id="mainShopNickname"></span></div>
-    <div class="menuButtons">
-      <button class="primary" onclick="startGame()">🎮 START GAME</button>
-      <button class="shopBtn" onclick="toggleShop()">🏪 SHOP</button>
-      <button class="danger smallBtn" onclick="resetProgress()">RESET PROGRESS</button>
+<div class="stats">
+    <div class="stat">🪙 Coins: <b id="coinDisplay" class="gold">0</b></div>
+    <div class="stat">🏆 Kills: <b id="killDisplay">0</b></div>
+    <div class="stat">⭐ Class: <b id="classDisplay">Rookie</b></div>
+    <div class="stat">🔫 Gun: <b id="gunDisplay">Pistol</b></div>
+</div>
+
+<div class="home-buttons">
+    <button onclick="showClasses()">📋 ALL 30 CLASSES</button>
+    <button onclick="openShop()">🛒 SHOP</button>
+    <button onclick="showInstructions()">❓ HOW TO PLAY</button>
+</div>
+
+<div id="homeInfo"></div>
+
+</div>
+</section>
+
+
+<!-- ================= CLASSES ================= -->
+
+<section id="classesScreen" class="screen hidden">
+<div class="panel">
+
+<h2>📋 ALL 30 CLASSES</h2>
+<p>Every class has its own signature weapon. Prices get MUCH heavier as you progress.</p>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Class</th>
+<th>Signature Weapon</th>
+<th>Ability</th>
+<th>Cost</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody id="classTable"></tbody>
+</table>
+</div>
+
+<br>
+<button onclick="goHome()">← BACK</button>
+
+</div>
+</section>
+
+
+<!-- ================= SHOP ================= -->
+
+<section id="shopScreen" class="screen hidden">
+<div class="panel">
+
+<h2>🛒 CAT OPS SHOP</h2>
+
+<div class="stats">
+    <div class="stat">🪙 <span id="shopCoins">0</span> coins</div>
+</div>
+
+<div class="shop-tabs">
+    <button class="active" onclick="shopTab('classes',this)">Classes</button>
+    <button onclick="shopTab('guns',this)">Guns</button>
+    <button onclick="shopTab('skins',this)">Skins / Colour</button>
+</div>
+
+<div id="shopGrid" class="shop-grid"></div>
+
+<br>
+<button onclick="goHome()">← BACK</button>
+
+</div>
+</section>
+
+
+<!-- ================= GAME ================= -->
+
+<section id="gameScreen" class="hidden">
+<canvas id="gameCanvas"></canvas>
+
+<div class="hud">
+
+    <div class="hudBox">
+        🐱 <b id="playerNameHUD">Cat</b><br>
+        ❤️ <span id="hpText">100/100</span>
+        <div class="bar"><div id="hpFill" style="width:100%"></div></div>
     </div>
-    <div id="shopSection" class="hidden">
-      <h2 style="text-align:center;margin:28px 0 18px">🏪 CLASS SHOP</h2>
-      <div id="mainClassGrid"></div>
+
+    <div class="hudBox">
+        🪙 <span id="gameCoins">0</span>
+        &nbsp; | &nbsp;
+        💀 <span id="gameKills">0</span>
+        &nbsp; | &nbsp;
+        🌙 Night <span id="nightText">1</span>
     </div>
-  </div>
+
+    <button class="pauseBtn" onclick="endGame()">🏠 EXIT</button>
 </div>
 
-<div id="death" class="screen hidden">
-  <div class="panel" style="max-width:600px;text-align:center">
-    <h1>💀 GULPERS GOT YOU</h1>
-    <p id="finalScore" style="font-size:24px"></p>
-    <p id="finalCoins" style="font-size:20px;color:#ffd54a"></p>
-    <div class="menuButtons">
-      <button class="primary" onclick="startGame()">PLAY AGAIN</button>
-      <button onclick="goMenu()">MAIN MENU</button>
-    </div>
-  </div>
+<div id="bossBar">
+    <b id="bossName">BOSS</b>
+    <div id="bossFill" style="width:100%"></div>
 </div>
 
-<div id="pauseScreen" class="screen hidden">
-  <div class="panel" style="max-width:500px;text-align:center">
-    <h1>⏸️ PAUSED</h1><p>Press <b>R</b> to resume.</p>
-    <button onclick="resumeGame()">RESUME</button>
-  </div>
+<div id="gameMessage"></div>
+
+<div class="controls">
+    WASD / Arrow Keys = Move &nbsp; | &nbsp;
+    Mouse = Aim &nbsp; | &nbsp;
+    Click = Shoot
 </div>
+</section>
+
+</div>
+
 
 <script>
-const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
+/* ============================================================
+   CAT OPS
+   Everything is inside this ONE HTML FILE.
+   ============================================================ */
 
-function resize(){
-  canvas.width=innerWidth;
-  canvas.height=innerHeight;
-  if(player){
-    player.x=Math.min(player.x,canvas.width-player.size);
-    player.y=Math.min(player.y,canvas.height-player.size);
-  }
-}
-resize();
-addEventListener("resize",resize);
-
-const catColors=["#ff9f43","#3498db","#9b59b6","#2ecc71","#e74c3c","#f1c40f"];
-const classes=[
-{id:"peasant",name:"🐱 Peasant Cat",cost:0,use:"Balanced starter cat.",color:"#ff9f43",speed:1,damage:1,coin:1,hp:100},
-{id:"speed",name:"💨 Speed Cat",cost:500,use:"Moves much faster.",color:"#3498db",speed:1.8,damage:1,coin:1,hp:90},
-{id:"tank",name:"🛡️ Tank Cat",cost:1500,use:"More health and resistance.",color:"#2ecc71",speed:.75,damage:1,coin:1,hp:180},
-{id:"rich",name:"💰 Rich Cat",cost:5000,use:"Earns extra coins from kills.",color:"#f1c40f",speed:1,damage:1,coin:3,hp:100},
-{id:"wizard",name:"🧙 Wizard Cat",cost:15000,use:"Deals heavy damage.",color:"#9b59b6",speed:1,damage:2,coin:1,hp:110},
-{id:"meteor",name:"☄️ Meteor Cat",cost:75000,use:"Calls down a devastating meteor.",color:"#ff6b35",speed:1.05,damage:3,coin:2,hp:120},
-{id:"king",name:"👑 King Cat",cost:100000,use:"Powerful health, damage and coin boost.",color:"#ffd32a",speed:1.2,damage:3,coin:4,hp:180},
-{id:"galaxy",name:"🌌 Galaxy Cat",cost:250000,use:"Creates a cosmic storm.",color:"#a855f7",speed:1.25,damage:5,coin:5,hp:150}
+const classes = [
+ {name:"Rookie",weapon:"Starter Pistol",ability:"Balanced",cost:0,color:"#d5a77a"},
+ {name:"Scout",weapon:"Scout SMG",ability:"Speed +15%",cost:250,color:"#7dcf72"},
+ {name:"Hunter",weapon:"Hunting Rifle",ability:"Critical shots",cost:500,color:"#9f8b70"},
+ {name:"Medic",weapon:"Healing Blaster",ability:"Regenerate HP",cost:750,color:"#eeeeee"},
+ {name:"Ranger",weapon:"Ranger Bow",ability:"Long range",cost:950,color:"#6caa58"},
+ {name:"Gunner",weapon:"Heavy MG",ability:"High fire rate",cost:8500,color:"#858585"},
+ {name:"Sniper",weapon:"Wolf Sniper",ability:"Huge damage",cost:12000,color:"#718a63"},
+ {name:"Pyro",weapon:"Flame Cannon",ability:"Burn enemies",cost:18000,color:"#ff743b"},
+ {name:"Frost",weapon:"Ice Rifle",ability:"Freeze enemies",cost:24000,color:"#75d9ff"},
+ {name:"Vampire",weapon:"Blood Blaster",ability:"Lifesteal",cost:30000,color:"#9b4b69"},
+ {name:"Assassin",weapon:"Shadow SMG",ability:"Triple damage",cost:40000,color:"#563f66"},
+ {name:"Engineer",weapon:"Turret Gun",ability:"Deploy turrets",cost:45000,color:"#d49a46"},
+ {name:"Storm",weapon:"Lightning Gun",ability:"Chain lightning",cost:50000,color:"#837aff"},
+ {name:"Ninja",weapon:"Shuriken Cannon",ability:"Rapid projectiles",cost:70000,color:"#353b45"},
+ {name:"Berserker",weapon:"Rage Shotgun",ability:"More damage at low HP",cost:90000,color:"#b83d32"},
+ {name:"Paladin",weapon:"Holy Cannon",ability:"Shield + damage",cost:110000,color:"#f1d57a"},
+ {name:"Necromancer",weapon:"Soul Rifle",ability:"Summon minions",cost:140000,color:"#754d8e"},
+ {name:"Druid",weapon:"Nature Launcher",ability:"Healing vines",cost:170000,color:"#4e9d5c"},
+ {name:"Samurai",weapon:"Blade Blaster",ability:"Dash strike",cost:200000,color:"#b84b43"},
+ {name:"Cyber Cat",weapon:"Plasma Rifle",ability:"Energy shots",cost:250000,color:"#46d1c4"},
+ {name:"Void Walker",weapon:"Void Cannon",ability:"Black holes",cost:320000,color:"#5f4ac7"},
+ {name:"Dragon",weapon:"Dragonfire",ability:"Explosive fire",cost:400000,color:"#d95737"},
+ {name:"Titan",weapon:"Titan Minigun",ability:"Massive HP",cost:500000,color:"#767b80"},
+ {name:"Shadow Lord",weapon:"Dark Matter Gun",ability:"Darkness field",cost:600000,color:"#312b49"},
+ {name:"Galaxy",weapon:"Star Cannon",ability:"Meteor shots",cost:700000,color:"#8d75d9"},
+ {name:"Time Cat",weapon:"Chrono Rifle",ability:"Slow enemies",cost:780000,color:"#65a9a7"},
+ {name:"Inferno King",weapon:"Inferno Launcher",ability:"Fire explosions",cost:850000,color:"#e95729"},
+ {name:"Death Cat",weapon:"Death Ray",ability:"Instant criticals",cost:920000,color:"#25252c"},
+ {name:"God Cat",weapon:"Divine Cannon",ability:"Massive power",cost:970000,color:"#f0e7a2"},
+ {name:"OMEGA CAT",weapon:"Omega Destroyer",ability:"Ultimate weapon",cost:999999,color:"#ffffff"}
 ];
 
-let nickname=localStorage.getItem("meowNickname")||"";
-let coins=Number(localStorage.getItem("meowCoins")||0);
-let ownedClasses=JSON.parse(localStorage.getItem("meowClasses")||'["peasant"]');
-let equippedClass=localStorage.getItem("meowEquipped")||"peasant";
+const guns = [
+ {name:"Pistol",cost:0,damage:18,rate:320,speed:11,shots:1},
+ {name:"SMG",cost:2500,damage:11,rate:90,speed:13,shots:1},
+ {name:"Shotgun",cost:6000,damage:14,rate:520,speed:10,shots:6},
+ {name:"Rifle",cost:10000,damage:30,rate:250,speed:15,shots:1},
+ {name:"Burst Rifle",cost:16000,damage:24,rate:150,speed:14,shots:3},
+ {name:"Sniper",cost:25000,damage:110,rate:900,speed:20,shots:1},
+ {name:"Minigun",cost:50000,damage:12,rate:55,speed:14,shots:1},
+ {name:"Rocket Launcher",cost:75000,damage:130,rate:900,speed:9,shots:1},
+ {name:"Laser Gun",cost:120000,damage:75,rate:180,speed:22,shots:1},
+ {name:"Plasma Cannon",cost:200000,damage:160,rate:500,speed:17,shots:1},
+ {name:"Thunder Gun",cost:300000,damage:220,rate:650,speed:19,shots:1},
+ {name:"Omega Blaster",cost:800000,damage:500,rate:300,speed:25,shots:2}
+];
 
-let player=null,bullets=[],enemies=[],enemyBullets=[],boss=null,miniBosses=[];
-let gameRunning=false,paused=false,mouseX=innerWidth/2,mouseY=innerHeight/2,keys={};
-let spawnTimer=0,miniBossTimer=15000,bigBossSpawned=false,shotTimer=0,abilityTimer=0;
+const skins = [
+ {name:"Classic Brown",cost:0,color:"#b97845"},
+ {name:"Snow Cat",cost:1000,color:"#eeeeee"},
+ {name:"Midnight",cost:5000,color:"#252532"},
+ {name:"Golden",cost:15000,color:"#e9c84c"},
+ {name:"Toxic Green",cost:25000,color:"#6ce05e"},
+ {name:"Electric Blue",cost:50000,color:"#4bc9e8"},
+ {name:"Ruby",cost:90000,color:"#d64242"},
+ {name:"Void Purple",cost:150000,color:"#7042b5"},
+ {name:"Rainbow",cost:300000,color:"rainbow"},
+ {name:"Diamond",cost:750000,color:"#bff7ff"}
+];
 
-function saveData(){
- localStorage.setItem("meowNickname",nickname);localStorage.setItem("meowCoins",coins);
- localStorage.setItem("meowClasses",JSON.stringify(ownedClasses));localStorage.setItem("meowEquipped",equippedClass);
+let save = JSON.parse(localStorage.getItem("catOpsSave") || "null") || {
+ coins:0,
+ kills:0,
+ nickname:"",
+ ownedClasses:[0],
+ ownedGuns:[0],
+ ownedSkins:[0],
+ class:0,
+ gun:0,
+ skin:0
+};
+
+function saveGame(){
+ localStorage.setItem("catOpsSave",JSON.stringify(save));
+ updateDisplays();
 }
-function getClass(){return classes.find(c=>c.id===equippedClass)||classes[0]}
-function saveNickname(){
- const v=document.getElementById("nicknameInput").value.trim();
- if(!v)return alert("Please enter a nickname!");
- nickname=v;saveData();document.getElementById("nicknameScreen").classList.add("hidden");updateMenu();
+
+function updateDisplays(){
+ document.getElementById("coinDisplay").textContent=save.coins.toLocaleString();
+ document.getElementById("killDisplay").textContent=save.kills.toLocaleString();
+ document.getElementById("classDisplay").textContent=classes[save.class].name;
+ document.getElementById("gunDisplay").textContent=guns[save.gun].name;
+ document.getElementById("shopCoins").textContent=save.coins.toLocaleString();
 }
-function updateMenu(){
- document.getElementById("mainShopCoins").textContent=coins.toLocaleString();
- document.getElementById("mainShopNickname").textContent=nickname;
- renderShop();
+
+function hideScreens(){
+ document.getElementById("homeScreen").classList.add("hidden");
+ document.getElementById("classesScreen").classList.add("hidden");
+ document.getElementById("shopScreen").classList.add("hidden");
+ document.getElementById("gameScreen").classList.add("hidden");
 }
-function toggleShop(){
- const s=document.getElementById("shopSection");s.classList.toggle("hidden");
- if(!s.classList.contains("hidden"))renderShop();
+
+function goHome(){
+ endGame(false);
+ hideScreens();
+ document.getElementById("homeScreen").classList.remove("hidden");
+ updateDisplays();
 }
-function catPreview(c){
- return `<div class="catPreview">
-   <div class="body" style="background:${c.color}"></div>
-   <div class="ear e1" style="border-bottom-color:${c.color}"></div>
-   <div class="ear e2" style="border-bottom-color:${c.color}"></div>
-   <div class="eye e1"></div><div class="eye e2"></div>
- </div>`;
+
+function showClasses(){
+ hideScreens();
+ document.getElementById("classesScreen").classList.remove("hidden");
+ buildClassTable();
 }
-function renderShop(){
- const grid=document.getElementById("mainClassGrid");grid.innerHTML="";
- classes.forEach(c=>{
-  const owned=ownedClasses.includes(c.id),equipped=equippedClass===c.id;
-  const card=document.createElement("div");card.className="classCard"+(equipped?" equipped":"");
-  let action=equipped?`<button disabled>✅ EQUIPPED</button>`:
-   owned?`<button onclick="equipClass('${c.id}')">EQUIP</button>`:
-   coins>=c.cost?`<button class="primary" onclick="buyClass('${c.id}')">🛒 BUY</button>`:
-   `<button disabled>🔒 NEED ${c.cost.toLocaleString()}</button>`;
-  card.innerHTML=catPreview(c)+`<div><div class="catName" style="color:${c.color}">${c.name}</div><div class="cost">🪙 ${c.cost.toLocaleString()}</div><div class="use">${c.use}</div></div>${action}`;
-  grid.appendChild(card);
+
+function buildClassTable(){
+ const tbody=document.getElementById("classTable");
+ tbody.innerHTML="";
+ classes.forEach((c,i)=>{
+   const owned=save.ownedClasses.includes(i);
+   const tr=document.createElement("tr");
+   tr.innerHTML=`
+    <td>${i+1}</td>
+    <td><b>${c.name}</b></td>
+    <td>🔫 ${c.weapon}</td>
+    <td>${c.ability}</td>
+    <td class="price">${c.cost.toLocaleString()} 🪙</td>
+    <td class="${owned?"unlocked":"locked"}">${owned?"OWNED":"LOCKED"}</td>
+   `;
+   tbody.appendChild(tr);
  });
 }
-function buyClass(id){
- const c=classes.find(x=>x.id===id);if(!c||ownedClasses.includes(id)||coins<c.cost)return;
- coins-=c.cost;ownedClasses.push(id);equippedClass=id;saveData();updateMenu();
-}
-function equipClass(id){
- if(!ownedClasses.includes(id))return;equippedClass=id;saveData();updateMenu();
-}
-function resetProgress(){
- if(!confirm("Reset nickname, coins and classes?"))return;
- localStorage.removeItem("meowNickname");localStorage.removeItem("meowCoins");
- localStorage.removeItem("meowClasses");localStorage.removeItem("meowEquipped");location.reload();
+
+function openShop(){
+ hideScreens();
+ document.getElementById("shopScreen").classList.remove("hidden");
+ shopTab("classes",document.querySelector(".shop-tabs button"));
 }
 
-document.addEventListener("keydown",e=>{
- keys[e.code]=true;
- if(e.code==="Space")e.preventDefault();
- if(e.code==="KeyP"&&gameRunning&&!paused){paused=true;document.getElementById("pauseScreen").classList.remove("hidden")}
- if(e.code==="KeyR"&&paused)resumeGame();
-});
-document.addEventListener("keyup",e=>keys[e.code]=false);
-canvas.addEventListener("mousemove",e=>{mouseX=e.clientX;mouseY=e.clientY});
+function shopTab(tab,button){
+ document.querySelectorAll(".shop-tabs button").forEach(b=>b.classList.remove("active"));
+ if(button)button.classList.add("active");
+
+ const grid=document.getElementById("shopGrid");
+ grid.innerHTML="";
+
+ if(tab==="classes"){
+   classes.forEach((item,i)=>addShopCard(grid,item.name,
+     "🔫 "+item.weapon+"<br>"+item.ability,
+     item.cost,
+     save.ownedClasses.includes(i),
+     save.class===i,
+     ()=>buyClass(i)));
+ }
+
+ if(tab==="guns"){
+   guns.forEach((item,i)=>addShopCard(grid,item.name,
+     `Damage: ${item.damage}<br>Fire rate: ${Math.round(1000/item.rate*10)/10}/sec`,
+     item.cost,
+     save.ownedGuns.includes(i),
+     save.gun===i,
+     ()=>buyGun(i)));
+ }
+
+ if(tab==="skins"){
+   skins.forEach((item,i)=>addShopCard(grid,item.name,
+     `Colour customization`,
+     item.cost,
+     save.ownedSkins.includes(i),
+     save.skin===i,
+     ()=>buySkin(i)));
+ }
+}
+
+function addShopCard(grid,name,description,cost,owned,equipped,action){
+ const card=document.createElement("div");
+ card.className="card";
+
+ let text="BUY";
+ let cls="buy";
+
+ if(equipped){
+   text="EQUIPPED";
+   cls="equipped";
+ }else if(owned){
+   text="EQUIP";
+ }else if(save.coins<cost){
+   text="NEED "+(cost-save.coins).toLocaleString()+" MORE";
+   cls="cant";
+ }
+
+ card.innerHTML=`
+   <h3>${name}</h3>
+   <p>${description}</p>
+   <div class="price">${cost.toLocaleString()} 🪙</div>
+   <br>
+   <button class="${cls}">${text}</button>
+ `;
+
+ card.querySelector("button").onclick=action;
+ grid.appendChild(card);
+}
+
+function buyClass(i){
+ const c=classes[i];
+
+ if(save.ownedClasses.includes(i)){
+   save.class=i;
+   save.gun=0;
+   saveGame();
+   openShop();
+   return;
+ }
+
+ if(save.coins<c.cost)return;
+
+ save.coins-=c.cost;
+ save.ownedClasses.push(i);
+ save.class=i;
+ saveGame();
+ openShop();
+}
+
+function buyGun(i){
+ const g=guns[i];
+
+ if(save.ownedGuns.includes(i)){
+   save.gun=i;
+   saveGame();
+   openShop();
+   return;
+ }
+
+ if(save.coins<g.cost)return;
+
+ save.coins-=g.cost;
+ save.ownedGuns.push(i);
+ save.gun=i;
+ saveGame();
+ openShop();
+}
+
+function buySkin(i){
+ const s=skins[i];
+
+ if(save.ownedSkins.includes(i)){
+   save.skin=i;
+   saveGame();
+   openShop();
+   return;
+ }
+
+ if(save.coins<s.cost)return;
+
+ save.coins-=s.cost;
+ save.ownedSkins.push(i);
+ save.skin=i;
+ saveGame();
+ openShop();
+}
+
+function showInstructions(){
+ document.getElementById("homeInfo").innerHTML=`
+ <div class="card">
+ <h3>🎮 HOW TO PLAY</h3>
+ <p>Survive the forest, shoot enemies and collect coins.</p>
+ <p>💀 Normal enemy = <b>1 coin</b></p>
+ <p>👹 Miniboss = <b>5 coins</b></p>
+ <p>👑 Mega Boss = <b>10 coins</b></p>
+ <p>Use your coins to unlock stronger classes, guns and skins.</p>
+ <p>Every class has its own signature weapon and ability.</p>
+ <p>Controls: <b>WASD</b> to move, <b>mouse</b> to aim, <b>click</b> to shoot.</p>
+ </div>`;
+}
 
 function startGame(){
- const c=getClass();
- player={x:canvas.width/2,y:canvas.height/2,size:25,hp:c.hp,maxHp:c.hp,kills:0,
-  color:c.color,speed:c.speed,damage:c.damage,coinBoost:c.coin,invisible:false,shield:false};
- bullets=[];enemyBullets=[];enemies=[];miniBosses=[];boss=null;
- gameRunning=true;paused=false;spawnTimer=400;miniBossTimer=15000;bigBossSpawned=false;shotTimer=0;abilityTimer=0;
- ["menu","death","pauseScreen","nicknameScreen"].forEach(id=>document.getElementById(id).classList.add("hidden"));
- document.getElementById("hud").classList.remove("hidden");document.getElementById("controls").classList.remove("hidden");
+ const nick=document.getElementById("nicknameInput").value.trim();
+
+ if(nick)save.nickname=nick;
+ if(!save.nickname)save.nickname="Cat";
+
+ saveGame();
+
+ hideScreens();
+ document.getElementById("gameScreen").classList.remove("hidden");
+
+ resizeCanvas();
+
+ game.running=true;
+ game.lastTime=performance.now();
+ game.spawnTimer=0;
+ game.enemyTimer=0;
+ game.bullets=[];
+ game.enemies=[];
+ game.particles=[];
+ game.turrets=[];
+ game.night=1;
+ game.nightTimer=0;
+ game.player.x=canvas.width/2;
+ game.player.y=canvas.height/2;
+ game.player.hp=playerMaxHP();
+ game.player.angle=0;
+
+ document.getElementById("playerNameHUD").textContent=save.nickname;
+ requestAnimationFrame(loop);
 }
-function resumeGame(){paused=false;document.getElementById("pauseScreen").classList.add("hidden")}
-function goMenu(){
- gameRunning=false;paused=false;document.getElementById("hud").classList.add("hidden");document.getElementById("controls").classList.add("hidden");
- document.getElementById("death").classList.add("hidden");document.getElementById("pauseScreen").classList.add("hidden");
- document.getElementById("menu").classList.remove("hidden");updateMenu();
+
+
+/* ============================================================
+   GAME ENGINE
+   ============================================================ */
+
+const canvas=document.getElementById("gameCanvas");
+const ctx=canvas.getContext("2d");
+
+let mouse={x:0,y:0,down:false};
+
+const game={
+ running:false,
+ lastTime:0,
+ bullets:[],
+ enemies:[],
+ particles:[],
+ turrets:[],
+ spawnTimer:0,
+ enemyTimer:0,
+ night:1,
+ nightTimer:0,
+ player:{
+   x:500,y:400,
+   hp:100,
+   angle:0,
+   shootCooldown:0
+ }
+};
+
+function resizeCanvas(){
+ canvas.width=window.innerWidth;
+ canvas.height=window.innerHeight;
+}
+
+window.addEventListener("resize",resizeCanvas);
+
+canvas.addEventListener("mousemove",e=>{
+ mouse.x=e.clientX;
+ mouse.y=e.clientY;
+});
+
+canvas.addEventListener("mousedown",e=>{
+ if(e.button===0)mouse.down=true;
+});
+
+window.addEventListener("mouseup",e=>{
+ if(e.button===0)mouse.down=false;
+});
+
+window.addEventListener("keydown",e=>{
+ if(e.key==="Escape" && game.running)goHome();
+});
+
+function playerMaxHP(){
+ let hp=100;
+
+ if(classes[save.class].name==="Titan")hp=220;
+ if(classes[save.class].name==="Paladin")hp=140;
+ if(classes[save.class].name==="Berserker")hp=120;
+
+ return hp;
+}
+
+function playerSpeed(){
+ let speed=3.5;
+
+ if(classes[save.class].name==="Scout")speed*=1.15;
+ if(classes[save.class].name==="Ninja")speed*=1.3;
+ if(classes[save.class].name==="Time Cat")speed*=1.1;
+
+ return speed;
+}
+
+function playerDamage(){
+ let d=guns[save.gun].damage;
+
+ const c=classes[save.class].name;
+
+ if(c==="Gunner")d*=1.15;
+ if(c==="Sniper")d*=1.7;
+ if(c==="Assassin")d*=1.45;
+ if(c==="Berserker" && game.player.hp<playerMaxHP()*.4)d*=2;
+ if(c==="Paladin")d*=1.2;
+ if(c==="Cyber Cat")d*=1.3;
+ if(c==="Dragon")d*=1.35;
+ if(c==="Death Cat")d*=1.6;
+ if(c==="God Cat")d*=2.5;
+ if(c==="OMEGA CAT")d*=4;
+
+ return d;
+}
+
+function enemyCount(){
+ return Math.min(90,8+game.night*3);
+}
+
+function spawnEnemy(){
+ if(game.enemies.length>=enemyCount())return;
+
+ const edge=Math.floor(Math.random()*4);
+ let x,y;
+
+ if(edge===0){x=Math.random()*canvas.width;y=-40}
+ if(edge===1){x=canvas.width+40;y=Math.random()*canvas.height}
+ if(edge===2){x=Math.random()*canvas.width;y=canvas.height+40}
+ if(edge===3){x=-40;y=Math.random()*canvas.height}
+
+ let roll=Math.random();
+ let type="basic";
+
+ if(roll<.10)type="fast";
+ else if(roll<.17)type="tank";
+ else if(roll<.22)type="ranged";
+
+ game.enemies.push({
+   x,y,
+   type,
+   hp:type==="tank"?120+game.night*20:30+game.night*4,
+   maxHp:type==="tank"?120+game.night*20:30+game.night*4,
+   speed:type==="fast"?2.7:type==="tank"?1.0:type==="ranged"?1.3:1.6,
+   size:type==="tank"?25:type==="fast"?13:17,
+   shoot:Math.random()*2000,
+   burn:0,
+   freeze:0
+ });
+}
+
+function spawnMiniboss(){
+ const angle=Math.random()*Math.PI*2;
+
+ game.enemies.push({
+   x:canvas.width/2+Math.cos(angle)*500,
+   y:canvas.height/2+Math.sin(angle)*500,
+   type:"miniboss",
+   hp:500+game.night*100,
+   maxHp:500+game.night*100,
+   speed:1.15,
+   size:35,
+   shoot:0,
+   boss:true,
+   reward:5
+ });
+}
+
+function spawnMegaBoss(){
+ const angle=Math.random()*Math.PI*2;
+
+ game.enemies.push({
+   x:canvas.width/2+Math.cos(angle)*600,
+   y:canvas.height/2+Math.sin(angle)*600,
+   type:"mega",
+   hp:1800+game.night*300,
+   maxHp:1800+game.night*300,
+   speed:.8,
+   size:55,
+   shoot:0,
+   boss:true,
+   reward:10
+ });
+
+ document.getElementById("bossBar").style.display="block";
+ document.getElementById("bossName").textContent="👑 MEGA BOSS";
 }
 
 function shoot(){
- if(!gameRunning||paused||shotTimer>0)return;
- const c=getClass(),a=Math.atan2(mouseY-player.y,mouseX-player.x);
- const count=c.id==="wizard"||c.id==="king"||c.id==="galaxy"?2:1;
- for(let i=0;i<count;i++){
-  const off=count===1?0:(i-.5)*.12;
-  bullets.push({x:player.x,y:player.y,dx:Math.cos(a+off)*11,dy:Math.sin(a+off)*11,damage:c.damage,size:6});
+ const gun=guns[save.gun];
+ const c=classes[save.class].name;
+
+ if(game.player.shootCooldown>0)return;
+
+ game.player.shootCooldown=gun.rate;
+
+ let shots=gun.shots;
+
+ if(c==="Ninja")shots+=1;
+ if(c==="OMEGA CAT")shots+=2;
+
+ for(let i=0;i<shots;i++){
+
+   let spread=shots===1?0:(Math.random()-.5)*.35;
+   let angle=game.player.angle+spread;
+
+   let damage=playerDamage();
+
+   if(c==="Hunter" && Math.random()<.25)damage*=2;
+   if(c==="Death Cat" && Math.random()<.3)damage*=4;
+
+   game.bullets.push({
+      x:game.player.x,
+      y:game.player.y,
+      vx:Math.cos(angle)*gun.speed,
+      vy:Math.sin(angle)*gun.speed,
+      damage,
+      life:100,
+      explosive:
+       c==="Dragon" ||
+       c==="Inferno King" ||
+       gun.name==="Rocket Launcher" ||
+       gun.name==="Plasma Cannon",
+      freeze:c==="Frost",
+      lightning:c==="Storm",
+      lifesteal:c==="Vampire"
+   });
  }
- shotTimer=c.id==="speed"?150:c.id==="wizard"?260:340;
 }
-function spawnEnemy(){
- if(enemies.length>=Math.min(3+Math.floor(player.kills/20),9))return;
- const side=Math.floor(Math.random()*4),pad=40;let x,y;
- if(side===0){x=Math.random()*canvas.width;y=-pad}
- if(side===1){x=canvas.width+pad;y=Math.random()*canvas.height}
- if(side===2){x=Math.random()*canvas.width;y=canvas.height+pad}
- if(side===3){x=-pad;y=Math.random()*canvas.height}
- const hp=2+Math.floor(player.kills/30);
- enemies.push({x,y,size:20,hp,maxHp:hp,speed:1+Math.random()*.7,color:catColors[Math.floor(Math.random()*catColors.length)]});
-}
-function spawnBoss(){
- boss={x:canvas.width/2,y:100,size:65,hp:80+player.kills,maxHp:80+player.kills,speed:.45,color:"#e74c3c"};
-}
-function update(){
- if(!gameRunning||paused)return;
- const dx=mouseX-player.x,dy=mouseY-player.y,d=Math.hypot(dx,dy);
- if(d>2){const s=Math.min(2.5*player.speed,d);player.x+=dx/d*s*player.speed;player.y+=dy/d*s*player.speed}
- player.x=Math.max(player.size,Math.min(canvas.width-player.size,player.x));
- player.y=Math.max(player.size,Math.min(canvas.height-player.size,player.y));
- if(keys.Space)shoot();
- if(shotTimer>0)shotTimer-=16;
- spawnTimer-=16;if(spawnTimer<=0){spawnEnemy();spawnTimer=650}
- miniBossTimer-=16;
- if(miniBossTimer<=0&&miniBosses.length<1){
-  miniBosses.push({x:Math.random()*canvas.width,y:-40,size:35,hp:20,maxHp:20,speed:.7,color:"#ff7675"});
-  miniBossTimer=20000;showWarning("mini");
+
+function updatePlayer(dt){
+ let dx=0,dy=0;
+
+ if(keys["w"]||keys["ArrowUp"])dy--;
+ if(keys["s"]||keys["ArrowDown"])dy++;
+ if(keys["a"]||keys["ArrowLeft"])dx--;
+ if(keys["d"]||keys["ArrowRight"])dx++;
+
+ if(dx||dy){
+   const len=Math.hypot(dx,dy);
+   dx/=len;
+   dy/=len;
+
+   game.player.x+=dx*playerSpeed()*dt;
+   game.player.y+=dy*playerSpeed()*dt;
  }
- for(let i=bullets.length-1;i>=0;i--){
-  const b=bullets[i];b.x+=b.dx;b.y+=b.dy;
-  if(b.x<0||b.x>canvas.width||b.y<0||b.y>canvas.height){bullets.splice(i,1);continue}
-  let hit=false;
-  for(let j=enemies.length-1;j>=0;j--){
-   const e=enemies[j];if(Math.hypot(b.x-e.x,b.y-e.y)<e.size+b.size){
-    e.hp-=b.damage;bullets.splice(i,1);hit=true;
-    if(e.hp<=0){enemies.splice(j,1);addKill(1)}break;
+
+ game.player.x=Math.max(25,Math.min(canvas.width-25,game.player.x));
+ game.player.y=Math.max(25,Math.min(canvas.height-25,game.player.y));
+
+ game.player.angle=Math.atan2(
+   mouse.y-game.player.y,
+   mouse.x-game.player.x
+ );
+
+ if(mouse.down)shoot();
+
+ if(game.player.shootCooldown>0)
+   game.player.shootCooldown-=16.67*dt;
+
+ if(classes[save.class].name==="Medic"){
+   game.player.hp=Math.min(playerMaxHP(),game.player.hp+.018*dt);
+ }
+}
+
+function updateBullets(dt){
+ for(let i=game.bullets.length-1;i>=0;i--){
+   const b=game.bullets[i];
+
+   b.x+=b.vx*dt;
+   b.y+=b.vy*dt;
+   b.life-=dt;
+
+   let hit=false;
+
+   for(let j=game.enemies.length-1;j>=0;j--){
+     const e=game.enemies[j];
+
+     if(Math.hypot(b.x-e.x,b.y-e.y)<e.size+5){
+
+       e.hp-=b.damage;
+       hit=true;
+
+       if(b.freeze)e.freeze=120;
+
+       if(b.lifesteal)
+         game.player.hp=Math.min(playerMaxHP(),game.player.hp+b.damage*.04);
+
+       if(b.lightning){
+         game.enemies.forEach(other=>{
+           if(other!==e && Math.hypot(other.x-e.x,other.y-e.y)<120)
+             other.hp-=b.damage*.35;
+         });
+       }
+
+       if(b.explosive){
+         explosion(b.x,b.y,70,b.damage*.45);
+       }
+
+       if(e.hp<=0){
+         killEnemy(e,j);
+       }
+
+       break;
+     }
    }
-  }
-  if(hit)continue;
-  for(let j=miniBosses.length-1;j>=0;j--){
-   const e=miniBosses[j];if(Math.hypot(b.x-e.x,b.y-e.y)<e.size+b.size){
-    e.hp-=b.damage;bullets.splice(i,1);
-    if(e.hp<=0){miniBosses.splice(j,1);addKill(10)}break;
+
+   if(hit||b.life<=0||
+      b.x<-100||b.x>canvas.width+100||
+      b.y<-100||b.y>canvas.height+100){
+     game.bullets.splice(i,1);
    }
-  }
-  if(boss&&Math.hypot(b.x-boss.x,b.y-boss.y)<boss.size+b.size){
-   boss.hp-=b.damage;bullets.splice(i,1);
-   if(boss.hp<=0){boss=null;addKill(100);bigBossSpawned=true;showMessage("👑 BOSS DEFEATED! +100 COINS","#ffd32a",2500)}
-  }
  }
- const all=[...enemies,...miniBosses];
- all.forEach(e=>{
-  const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1;e.x+=dx/d*e.speed;e.y+=dy/d*e.speed;
-  if(d<e.size+player.size){player.hp-=.22;player.x+=dx/d*1.5;player.y+=dy/d*1.5}
+}
+
+function killEnemy(e,index){
+ let reward=1;
+
+ if(e.type==="miniboss")reward=5;
+ if(e.type==="mega")reward=10;
+
+ save.coins+=reward;
+ save.kills++;
+
+ createParticles(e.x,e.y,e.boss?35:10);
+
+ if(classes[save.class].name==="Vampire")
+   game.player.hp=Math.min(playerMaxHP(),game.player.hp+10);
+
+ if(e.type==="mega"){
+   document.getElementById("bossBar").style.display="none";
+   gameMessage("👑 MEGA BOSS DEFEATED! +10 🪙",1800);
+ }
+
+ if(e.type==="miniboss")
+   gameMessage("👹 MINIBOSS DEFEATED! +5 🪙",1200);
+
+ game.enemies.splice(index,1);
+ saveGame();
+}
+
+function explosion(x,y,radius,damage){
+ createParticles(x,y,18);
+
+ game.enemies.forEach(e=>{
+   const d=Math.hypot(e.x-x,e.y-y);
+   if(d<radius){
+     e.hp-=damage*(1-d/radius);
+
+     if(e.hp<=0){
+       const i=game.enemies.indexOf(e);
+       if(i>=0)killEnemy(e,i);
+     }
+   }
  });
- if(boss){const dx=player.x-boss.x,dy=player.y-boss.y,d=Math.hypot(dx,dy)||1;boss.x+=dx/d*boss.speed;boss.y+=dy/d*boss.speed;if(d<boss.size+player.size)player.hp-=.6}
- if(player.kills>=50&&!bigBossSpawned){bigBossSpawned=true;spawnBoss();showWarning("boss")}
- if(player.hp<=0)gameOver();
+}
+
+function updateEnemies(dt){
+ for(let i=game.enemies.length-1;i>=0;i--){
+   const e=game.enemies[i];
+
+   if(e.freeze>0){
+     e.freeze-=dt;
+     continue;
+   }
+
+   const dx=game.player.x-e.x;
+   const dy=game.player.y-e.y;
+   const dist=Math.hypot(dx,dy);
+
+   if(e.type==="ranged" && dist<500){
+     e.shoot-=16.67*dt;
+
+     if(e.shoot<=0){
+       e.shoot=1500;
+
+       game.bullets.push({
+         x:e.x,
+         y:e.y,
+         vx:dx/dist*5,
+         vy:dy/dist*5,
+         damage:8+game.night,
+         life:120,
+         enemyBullet:true
+       });
+     }
+   }else{
+     e.x+=dx/dist*e.speed*dt;
+     e.y+=dy/dist*e.speed*dt;
+   }
+
+   if(dist<e.size+18){
+     game.player.hp-=
+       (e.type==="mega"?0.45:
+        e.type==="miniboss"?0.28:
+        e.type==="tank"?0.18:.12)*dt;
+
+     if(game.player.hp<=0){
+       gameOver();
+       return;
+     }
+   }
+
+   if(e.boss){
+     const bossBar=document.getElementById("bossFill");
+     bossBar.style.width=Math.max(0,e.hp/e.maxHp*100)+"%";
+   }
+ }
+}
+
+function updateNight(dt){
+ game.nightTimer+=dt;
+
+ if(game.nightTimer>1200){
+   game.nightTimer=0;
+   game.night++;
+   gameMessage("🌙 NIGHT "+game.night,1000);
+
+   if(game.night%3===0)spawnMiniboss();
+   if(game.night%7===0)spawnMegaBoss();
+ }
+}
+
+function update(dt){
+ updatePlayer(dt);
+ updateBullets(dt);
+ updateEnemies(dt);
+ updateNight(dt);
+
+ game.enemyTimer-=dt*16.67;
+
+ if(game.enemyTimer<=0){
+   game.enemyTimer=Math.max(180,850-game.night*20);
+   spawnEnemy();
+ }
+
+ updateParticles(dt);
  updateHUD();
 }
-function addKill(amount){
- player.kills+=amount;coins+=amount===1?player.coinBoost:amount*player.coinBoost;saveData();
-}
-function showWarning(type){
- const id=type==="boss"?"bossWarning":"miniBossWarning",el=document.getElementById(id);el.style.display="block";setTimeout(()=>el.style.display="none",2200);
-}
-function showMessage(t,color,time){const e=document.getElementById("abilityText");e.textContent=t;e.style.color=color;e.style.display="block";setTimeout(()=>e.style.display="none",time)}
 
-function drawCat(x,y,size,color){
- ctx.save();ctx.fillStyle=color;
- ctx.beginPath();ctx.arc(x,y,size,0,Math.PI*2);ctx.fill();
- ctx.beginPath();ctx.moveTo(x-size*.8,y-size*.45);ctx.lineTo(x-size*.48,y-size*1.45);ctx.lineTo(x-size*.08,y-size*.55);ctx.fill();
- ctx.beginPath();ctx.moveTo(x+size*.8,y-size*.45);ctx.lineTo(x+size*.48,y-size*1.45);ctx.lineTo(x+size*.08,y-size*.55);ctx.fill();
- ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(x-size*.34,y-size*.15,5,0,Math.PI*2);ctx.arc(x+size*.34,y-size*.15,5,0,Math.PI*2);ctx.fill();
+function updateHUD(){
+ const hp=Math.max(0,game.player.hp);
+ const max=playerMaxHP();
+
+ document.getElementById("hpText").textContent=
+   Math.ceil(hp)+"/"+max;
+
+ document.getElementById("hpFill").style.width=
+   Math.max(0,hp/max*100)+"%";
+
+ document.getElementById("gameCoins").textContent=
+   save.coins.toLocaleString();
+
+ document.getElementById("gameKills").textContent=
+   save.kills.toLocaleString();
+
+ document.getElementById("nightText").textContent=game.night;
 }
+
+
+/* ============================================================
+   DRAWING
+   ============================================================ */
+
 function draw(){
- ctx.fillStyle="#18202b";ctx.fillRect(0,0,canvas.width,canvas.height);
- ctx.strokeStyle="#222c3a";ctx.lineWidth=1;
- for(let x=0;x<canvas.width;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke()}
- for(let y=0;y<canvas.height;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke()}
- enemies.forEach(e=>{drawCat(e.x,e.y,e.size,e.color);drawHp(e.x-e.size,e.y-e.size-10,e.size*2,e.hp/e.maxHp)});
- miniBosses.forEach(e=>{drawCat(e.x,e.y,e.size,e.color);drawHp(e.x-e.size,e.y-e.size-10,e.size*2,e.hp/e.maxHp)});
- if(boss){drawCat(boss.x,boss.y,boss.size,boss.color);drawHp(boss.x-70,boss.y-boss.size-18,140,boss.hp/boss.maxHp)}
- bullets.forEach(b=>{ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(b.x,b.y,b.size,0,Math.PI*2);ctx.fill()});
- if(gameRunning&&player){
-  const a=Math.atan2(mouseY-player.y,mouseX-player.x);ctx.save();ctx.translate(player.x,player.y);ctx.rotate(a);
-  ctx.fillStyle=getClass().id==="galaxy"?"#d8a7ff":"#555";ctx.fillRect(15,-7,42,14);ctx.fillStyle="#111";ctx.fillRect(50,-4,22,8);ctx.restore();
-  drawCat(player.x,player.y,player.size,player.color);
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+
+ drawForest();
+ drawParticles();
+ drawEnemies();
+ drawBullets();
+ drawPlayer();
+}
+
+function drawForest(){
+ ctx.fillStyle="#08150b";
+ ctx.fillRect(0,0,canvas.width,canvas.height);
+
+ const grid=70;
+
+ ctx.strokeStyle="rgba(45,100,52,.22)";
+ ctx.lineWidth=1;
+
+ for(let x=0;x<canvas.width;x+=grid){
+   ctx.beginPath();
+   ctx.moveTo(x,0);
+   ctx.lineTo(x,canvas.height);
+   ctx.stroke();
+ }
+
+ for(let y=0;y<canvas.height;y+=grid){
+   ctx.beginPath();
+   ctx.moveTo(0,y);
+   ctx.lineTo(canvas.width,y);
+   ctx.stroke();
+ }
+
+ for(let x=20;x<canvas.width;x+=130){
+   for(let y=30;y<canvas.height;y+=150){
+     ctx.fillStyle="#102719";
+     ctx.beginPath();
+     ctx.arc(x,y,20,0,Math.PI*2);
+     ctx.fill();
+
+     ctx.fillStyle="#173c20";
+     ctx.beginPath();
+     ctx.arc(x-7,y-10,12,0,Math.PI*2);
+     ctx.fill();
+
+     ctx.fillStyle="#244c28";
+     ctx.beginPath();
+     ctx.arc(x+8,y-5,13,0,Math.PI*2);
+     ctx.fill();
+   }
  }
 }
-function drawHp(x,y,w,p){ctx.fillStyle="#111";ctx.fillRect(x,y,w,5);ctx.fillStyle="#2ecc71";ctx.fillRect(x,y,w*Math.max(0,p),5)}
-function updateHUD(){
- if(!player)return;
- document.getElementById("nicknameHud").textContent=nickname;
- document.getElementById("killText").textContent=player.kills;
- document.getElementById("coinText").textContent=coins.toLocaleString();
- document.getElementById("health").style.width=Math.max(0,player.hp/player.maxHp*100)+"%";
- document.getElementById("weapon").textContent="🔫 "+(player.kills>=100?"Double Blaster":player.kills>=70?"Shotgun":player.kills>=40?"SMG":player.kills>=20?"Pistol":"Peashooter");
- document.getElementById("reload").textContent=shotTimer>0?"🔴 RELOADING":"🟢 READY";
-}
-function gameOver(){
- gameRunning=false;document.getElementById("hud").classList.add("hidden");document.getElementById("controls").classList.add("hidden");
- document.getElementById("finalScore").textContent=`🐱 ${nickname} — Kills: ${player.kills}`;
- document.getElementById("finalCoins").textContent=`🪙 Total Coins: ${coins.toLocaleString()}`;
- document.getElementById("death").classList.remove("hidden");
-}
-function loop(){update();draw();requestAnimationFrame(loop)}
 
-if(nickname){document.getElementById("nicknameScreen").classList.add("hidden");document.getElementById("menu").classList.remove("hidden");updateMenu()}
-else document.getElementById("nicknameScreen").classList.remove("hidden");
-loop();
+function drawPlayer(){
+ const p=game.player;
+
+ ctx.save();
+ ctx.translate(p.x,p.y);
+ ctx.rotate(p.angle);
+
+ let color=skins[save.skin].color;
+
+ if(color==="rainbow"){
+   const grad=ctx.createLinearGradient(-20,-20,20,20);
+   grad.addColorStop(0,"#ff5555");
+   grad.addColorStop(.25,"#ffd84a");
+   grad.addColorStop(.5,"#5cff76");
+   grad.addColorStop(.75,"#55cfff");
+   grad.addColorStop(1,"#c45cff");
+   color=grad;
+ }
+
+ ctx.fillStyle=color;
+ ctx.beginPath();
+ ctx.arc(0,0,18,0,Math.PI*2);
+ ctx.fill();
+
+ /* ears */
+ ctx.beginPath();
+ ctx.moveTo(-14,-10);
+ ctx.lineTo(-10,-28);
+ ctx.lineTo(-2,-13);
+ ctx.fill();
+
+ ctx.beginPath();
+ ctx.moveTo(14,-10);
+ ctx.lineTo(10,-28);
+ ctx.lineTo(2,-13);
+ ctx.fill();
+
+ /* eyes */
+ ctx.fillStyle="#111";
+ ctx.beginPath();
+ ctx.arc(7,-6,3,0,Math.PI*2);
+ ctx.arc(7,6,3,0,Math.PI*2);
+ ctx.fill();
+
+ /* gun */
+ ctx.fillStyle="#555";
+ ctx.fillRect(10,-4,28,8);
+
+ ctx.restore();
+}
+
+function drawBullets(){
+ game.bullets.forEach(b=>{
+   ctx.fillStyle=b.enemyBullet?"#ff5555":"#ffe65c";
+   ctx.beginPath();
+   ctx.arc(b.x,b.y,b.enemyBullet?5:4,0,Math.PI*2);
+   ctx.fill();
+ });
+}
+
+function drawEnemies(){
+ game.enemies.forEach(e=>{
+   ctx.save();
+   ctx.translate(e.x,e.y);
+
+   if(e.type==="mega"){
+     ctx.fillStyle="#8d2222";
+     ctx.beginPath();
+     ctx.arc(0,0,e.size,0,Math.PI*2);
+     ctx.fill();
+
+     ctx.strokeStyle="#ff3d3d";
+     ctx.lineWidth=4;
+     ctx.stroke();
+   }else if(e.type==="miniboss"){
+     ctx.fillStyle="#a54c22";
+     ctx.beginPath();
+     ctx.arc(0,0,e.size,0,Math.PI*2);
+     ctx.fill();
+   }else if(e.type==="tank"){
+     ctx.fillStyle="#59615b";
+     ctx.fillRect(-e.size,-e.size,e.size*2,e.size*2);
+   }else if(e.type==="fast"){
+     ctx.fillStyle="#c64b4b";
+     ctx.beginPath();
+     ctx.arc(0,0,e.size,0,Math.PI*2);
+     ctx.fill();
+   }else{
+     ctx.fillStyle="#a83f3f";
+     ctx.beginPath();
+     ctx.arc(0,0,e.size,0,Math.PI*2);
+     ctx.fill();
+   }
+
+   ctx.fillStyle="#111";
+   ctx.fillRect(-e.size,-e.size-9,e.size*2,4);
+
+   ctx.fillStyle="#61e45e";
+   ctx.fillRect(-e.size,-e.size-9,e.size*2*(e.hp/e.maxHp),4);
+
+   ctx.restore();
+ });
+}
+
+function createParticles(x,y,count){
+ for(let i=0;i<count;i++){
+   const angle=Math.random()*Math.PI*2;
+   const speed=Math.random()*4+1;
+
+   game.particles.push({
+     x,y,
+     vx:Math.cos(angle)*speed,
+     vy:Math.sin(angle)*speed,
+     life:30+Math.random()*30,
+     size:2+Math.random()*4
+   });
+ }
+}
+
+function updateParticles(dt){
+ for(let i=game.particles.length-1;i>=0;i--){
+   const p=game.particles[i];
+
+   p.x+=p.vx*dt;
+   p.y+=p.vy*dt;
+   p.vx*=.96;
+   p.vy*=.96;
+   p.life-=dt;
+
+   if(p.life<=0)game.particles.splice(i,1);
+ }
+}
+
+function drawParticles(){
+ game.particles.forEach(p=>{
+   ctx.globalAlpha=Math.max(0,p.life/50);
+   ctx.fillStyle="#ffd34d";
+   ctx.fillRect(p.x,p.y,p.size,p.size);
+   ctx.globalAlpha=1;
+ });
+}
+
+function gameMessage(text,time){
+ const el=document.getElementById("gameMessage");
+
+ el.innerHTML=`<div class="bigMessage">${text}</div>`;
+
+ setTimeout(()=>{
+   if(el.innerHTML.includes(text))el.innerHTML="";
+ },time);
+}
+
+
+/* ============================================================
+   GAME LOOP
+   ============================================================ */
+
+function loop(time){
+ if(!game.running)return;
+
+ const dt=Math.min(2,(time-game.lastTime)/16.67);
+ game.lastTime=time;
+
+ update(dt);
+ draw();
+
+ requestAnimationFrame(loop);
+}
+
+function gameOver(){
+ game.running=false;
+ mouse.down=false;
+
+ gameMessage("💀 GAME OVER",999999);
+
+ setTimeout(()=>{
+   alert(
+     "CAT OPS GAME OVER!\n\n"+
+     "Kills: "+save.kills+
+     "\nCoins: "+save.coins+
+     "\nNight reached: "+game.night
+   );
+
+   goHome();
+ },300);
+}
+
+function endGame(clear=true){
+ if(!game.running)return;
+
+ game.running=false;
+ mouse.down=false;
+
+ if(clear){
+   hideScreens();
+   document.getElementById("homeScreen").classList.remove("hidden");
+ }
+}
+
+
+/* ============================================================
+   KEYBOARD
+   ============================================================ */
+
+const keys={};
+
+window.addEventListener("keydown",e=>{
+ keys[e.key]=true;
+ keys[e.key.toLowerCase()]=true;
+});
+
+window.addEventListener("keyup",e=>{
+ keys[e.key]=false;
+ keys[e.key.toLowerCase()]=false;
+});
+
+
+/* ============================================================
+   INITIALIZE
+   ============================================================ */
+
+document.getElementById("nicknameInput").value=save.nickname;
+
+updateDisplays();
+buildClassTable();
+
+/* Save automatically every 10 seconds */
+setInterval(saveGame,10000);
+
 </script>
 </body>
 </html>
