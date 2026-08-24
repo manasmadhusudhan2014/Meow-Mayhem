@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>CAT OPS - Forest Survival</title>
+<title>CAT OPS - Medium Graphics - Forest Survival</title>
 
 <style>
 *{
@@ -348,9 +348,53 @@ tr:hover td{
     font-size:13px;
 }
 
+/* ================= TOUCH CONTROLS ================= */
+.touchControls{
+    position:absolute;
+    inset:0;
+    z-index:10;
+    pointer-events:none;
+    display:none;
+}
+.joystick{
+    position:absolute;
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    border:2px solid rgba(255,255,255,.25);
+    background:rgba(20,35,23,.45);
+    pointer-events:auto;
+    touch-action:none;
+}
+.joystickKnob{
+    position:absolute;
+    width:52px;
+    height:52px;
+    left:34px;
+    top:34px;
+    border-radius:50%;
+    background:rgba(140,255,130,.7);
+    border:2px solid rgba(255,255,255,.5);
+}
+#moveStick{left:18px;bottom:22px}
+#aimStick{right:18px;bottom:22px}
+.touchHint{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:8px;
+    padding:5px 9px;
+    border-radius:8px;
+    background:rgba(0,0,0,.4);
+    font-size:11px;
+    color:#d9e4da;
+}
+
 /* ================= MOBILE ================= */
 
 @media(max-width:700px){
+
+    .touchControls{display:block;}
 
     .panel{
         padding:15px;
@@ -622,9 +666,13 @@ Every class has its own signature weapon and ability.
 <div id="gameMessage"></div>
 
 <div class="controls">
-WASD / Arrow Keys = Move |
-Mouse = Aim |
-Click = Shoot
+WASD / Arrow Keys = Move | Mouse = Aim | Click = Shoot
+</div>
+
+<div class="touchControls" id="touchControls">
+    <div class="joystick" id="moveStick"><div class="joystickKnob"></div></div>
+    <div class="joystick" id="aimStick"><div class="joystickKnob"></div></div>
+    <div class="touchHint">LEFT: MOVE &nbsp; • &nbsp; RIGHT: AIM + FIRE</div>
 </div>
 
 </section>
@@ -1294,6 +1342,10 @@ const game={
 
     nightTimer:0,
 
+    waveSpawned:false,
+
+    bossActive:false,
+
     player:{
 
         x:500,
@@ -1316,13 +1368,15 @@ const game={
 ========================================================= */
 
 function resizeCanvas(){
-
-    canvas.width=
-        Math.max(320,window.innerWidth);
-
-    canvas.height=
-        Math.max(240,window.innerHeight);
-
+    /* Keep the internal render resolution small so old PCs do not
+       have to redraw a 1080p canvas every frame. CSS still scales it
+       to the full screen. */
+    const maxPixels = 520000;
+    const w = Math.max(320, window.innerWidth);
+    const h = Math.max(240, window.innerHeight);
+    const scale = Math.min(1, Math.sqrt(maxPixels/(w*h)));
+    canvas.width = Math.max(320, Math.floor(w*scale));
+    canvas.height = Math.max(240, Math.floor(h*scale));
 }
 
 
@@ -1336,13 +1390,16 @@ window.addEventListener(
    MOUSE
 ========================================================= */
 
+function setAimFromClient(clientX, clientY){
+    const r=canvas.getBoundingClientRect();
+    mouse.x=(clientX-r.left)*(canvas.width/r.width);
+    mouse.y=(clientY-r.top)*(canvas.height/r.height);
+}
+
 canvas.addEventListener(
     "mousemove",
     function(e){
-
-        mouse.x=e.clientX;
-        mouse.y=e.clientY;
-
+        setAimFromClient(e.clientX,e.clientY);
     }
 );
 
@@ -1374,6 +1431,53 @@ window.addEventListener(
     }
 );
 
+
+/* =========================================================
+   MOBILE TOUCH CONTROLS
+========================================================= */
+
+const touchState={
+    moveX:0, moveY:0, aimX:0, aimY:0, aiming:false,
+    moveId:null, aimId:null
+};
+
+function setupJoystick(id, side){
+    const stick=document.getElementById(id);
+    if(!stick) return;
+    const knob=stick.querySelector('.joystickKnob');
+    const max=34;
+
+    function update(e){
+        const r=stick.getBoundingClientRect();
+        const cx=r.left+r.width/2, cy=r.top+r.height/2;
+        let dx=e.clientX-cx, dy=e.clientY-cy;
+        const d=Math.hypot(dx,dy);
+        if(d>max){ dx=dx/d*max; dy=dy/d*max; }
+        knob.style.transform=`translate(${dx}px,${dy}px)`;
+        if(side==='move'){ touchState.moveX=dx/max; touchState.moveY=dy/max; }
+        else { touchState.aimX=dx/max; touchState.aimY=dy/max; touchState.aiming=d>8; }
+    }
+    function reset(){
+        knob.style.transform='translate(0,0)';
+        if(side==='move'){touchState.moveX=0;touchState.moveY=0;}
+        else {touchState.aimX=0;touchState.aimY=0;touchState.aiming=false;}
+    }
+    stick.addEventListener('pointerdown',e=>{
+        e.preventDefault();
+        stick.setPointerCapture(e.pointerId);
+        if(side==='move') touchState.moveId=e.pointerId;
+        else touchState.aimId=e.pointerId;
+        update(e);
+    });
+    stick.addEventListener('pointermove',e=>{
+        if((side==='move' && touchState.moveId===e.pointerId) || (side==='aim' && touchState.aimId===e.pointerId)) update(e);
+    });
+    stick.addEventListener('pointerup',e=>{ reset(); });
+    stick.addEventListener('pointercancel',e=>{ reset(); });
+}
+
+setupJoystick('moveStick','move');
+setupJoystick('aimStick','aim');
 
 /* =========================================================
    KEYBOARD
@@ -1448,6 +1552,9 @@ function startGame(){
 
     game.enemyTimer=0;
 
+    game.waveSpawned=false;
+    game.bossActive=false;
+
     game.bullets=[];
 
     game.enemies=[];
@@ -1474,6 +1581,7 @@ function startGame(){
     document.getElementById(
         "playerNameHUD"
     ).textContent=save.nickname;
+
 
     document.getElementById(
         "bossBar"
@@ -1607,6 +1715,10 @@ function enemyCount(){
 
 function spawnEnemy(){
 
+    if(game.bossActive){
+        return;
+    }
+
     if(
         game.enemies.length>=
         enemyCount()
@@ -1724,9 +1836,14 @@ function spawnEnemy(){
 
 function spawnMiniboss(){
 
-    if(game.enemies.length>=enemyCount()){
+    if(save.kills<=20 || game.bossActive){
         return;
     }
+
+    game.enemies.length=0;
+    game.bullets=game.bullets.filter(b=>!b.enemyBullet);
+    game.bossActive=true;
+    game.waveSpawned=false;
 
     const angle=
         Math.random()*Math.PI*2;
@@ -1773,9 +1890,14 @@ function spawnMiniboss(){
 
 function spawnMegaBoss(){
 
-    if(game.enemies.some(e=>e.type==="mega")){
+    if(save.kills<=20 || game.bossActive){
         return;
     }
+
+    game.enemies.length=0;
+    game.bullets=game.bullets.filter(b=>!b.enemyBullet);
+    game.bossActive=true;
+    game.waveSpawned=false;
 
     const angle=
         Math.random()*Math.PI*2;
@@ -1939,8 +2061,8 @@ function shoot(){
 
 function updatePlayer(dt){
 
-    let dx=0;
-    let dy=0;
+    let dx=touchState.moveX;
+    let dy=touchState.moveY;
 
 
     if(
@@ -2016,17 +2138,14 @@ function updatePlayer(dt){
         );
 
 
-    game.player.angle=
-        Math.atan2(
-            mouse.y-game.player.y,
-            mouse.x-game.player.x
-        );
+    if(touchState.aiming){
+        game.player.angle=Math.atan2(touchState.aimY,touchState.aimX);
+    }else{
+        game.player.angle=Math.atan2(mouse.y-game.player.y,mouse.x-game.player.x);
+    }
 
-
-    if(mouse.down){
-
+    if(mouse.down || touchState.aiming){
         shoot();
-
     }
 
 
@@ -2265,7 +2384,7 @@ function killEnemy(e,index){
     createParticles(
         e.x,
         e.y,
-        e.boss?15:5
+        e.boss?22:8
     );
 
 
@@ -2284,6 +2403,9 @@ function killEnemy(e,index){
 
     if(e.type==="mega"){
 
+        game.bossActive=false;
+        game.waveSpawned=false;
+
         document.getElementById(
             "bossBar"
         ).style.display="none";
@@ -2297,6 +2419,9 @@ function killEnemy(e,index){
 
 
     if(e.type==="miniboss"){
+
+        game.bossActive=false;
+        game.waveSpawned=false;
 
         gameMessage(
             "👹 MINIBOSS DEFEATED! +5 🪙",
@@ -2470,32 +2595,50 @@ function updateEnemies(dt){
 
         if(
             dist<
-            e.size+18
+            e.size+18 &&
+            !e.touchCooldown
         ){
 
-            game.player.hp-=
+            e.touchCooldown=45;
 
-                (
-                    e.type==="mega"
-                    ?.45
-                    :e.type==="miniboss"
-                    ?.28
-                    :e.type==="tank"
-                    ?.18
-                    :.12
-                )*dt;
+            const touchDamage =
+                e.type==="mega" ? 30 :
+                e.type==="miniboss" ? 22 :
+                e.type==="tank" ? 16 :
+                10;
 
+            /* ENEMY EXPLODES ON CONTACT */
+            explosion(
+                game.player.x,
+                game.player.y,
+                e.type==="mega" ? 85 : 55,
+                touchDamage * 0.35
+            );
 
-            if(
-                game.player.hp<=0
-            ){
+            createParticles(
+                game.player.x,
+                game.player.y,
+                e.type==="mega" ? 24 : 12
+            );
+
+            game.player.hp -= touchDamage;
+
+            /* Push the enemy away after the explosion. */
+            const push = Math.max(1, dist);
+            e.x -= dx/push * 35;
+            e.y -= dy/push * 35;
+
+            if(game.player.hp<=0){
 
                 gameOver();
 
                 return;
 
             }
+        }
 
+        if(e.touchCooldown){
+            e.touchCooldown -= dt;
         }
 
 
@@ -2535,27 +2678,28 @@ function updateNight(dt){
 
         game.night++;
 
-
         gameMessage(
             "🌙 NIGHT "+game.night,
             1000
         );
 
-
+        /* Only one boss at a time. Mega boss takes priority. */
         if(
-            game.night%3===0
-        ){
-
-            spawnMiniboss();
-
-        }
-
-
-        if(
+            save.kills>20 &&
+            !game.bossActive &&
             game.night%7===0
         ){
 
             spawnMegaBoss();
+
+        }
+        else if(
+            save.kills>20 &&
+            !game.bossActive &&
+            game.night%3===0
+        ){
+
+            spawnMiniboss();
 
         }
 
@@ -2574,6 +2718,8 @@ function createParticles(
     count
 ){
 
+    count=Math.min(count,8);
+    if(game.particles.length>80) return;
     for(
         let i=0;
         i<count;
@@ -2721,7 +2867,7 @@ function drawForest(){
 
     /* LIGHTWEIGHT GRID */
 
-    const grid=100;
+    const grid=80;
 
     ctx.strokeStyle=
         "rgba(45,100,52,.16)";
@@ -2774,13 +2920,13 @@ function drawForest(){
     for(
         let x=50;
         x<canvas.width;
-        x+=220
+        x+=160
     ){
 
         for(
             let y=50;
             y<canvas.height;
-            y+=220
+            y+=160
         ){
 
             ctx.fillStyle="#102719";
@@ -2991,7 +3137,7 @@ function drawBullets(){
 
         ctx.fillStyle=
             b.enemyBullet
-            ?" #ff5555"
+            ?"#ff5555"
             :"#ffe65c";
 
 
@@ -3207,6 +3353,30 @@ function drawParticles(){
    DRAW
 ========================================================= */
 
+
+function drawMediumLighting(){
+    const px=game.player.x;
+    const py=game.player.y;
+
+    const glow=ctx.createRadialGradient(px,py,25,px,py,210);
+    glow.addColorStop(0,"rgba(255,240,170,0.10)");
+    glow.addColorStop(0.45,"rgba(120,220,120,0.035)");
+    glow.addColorStop(1,"rgba(0,0,0,0)");
+
+    ctx.fillStyle=glow;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    const vignette=ctx.createRadialGradient(
+        canvas.width/2,canvas.height/2,Math.min(canvas.width,canvas.height)*0.25,
+        canvas.width/2,canvas.height/2,Math.max(canvas.width,canvas.height)*0.75
+    );
+    vignette.addColorStop(0,"rgba(0,0,0,0)");
+    vignette.addColorStop(1,"rgba(0,0,0,0.25)");
+
+    ctx.fillStyle=vignette;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+}
+
 function draw(){
 
     ctx.clearRect(
@@ -3227,6 +3397,8 @@ function draw(){
 
     drawPlayer();
 
+    drawMediumLighting();
+
 }
 
 
@@ -3244,21 +3416,34 @@ function update(dt){
 
     updateNight(dt);
 
-    game.enemyTimer-=dt*16.67;
+    /*
+       NORMAL WAVES:
+       - Exactly 2 normal enemies at a time.
+       - When both are dead, spawn the next pair.
+       - Never spawn normals while a boss is alive.
+    */
+    if(!game.bossActive){
 
+        if(
+            game.enemies.length===0 &&
+            !game.waveSpawned
+        ){
 
-    if(game.enemyTimer<=0){
+            spawnEnemy();
+            spawnEnemy();
 
-        game.enemyTimer=
-            Math.max(
-                250,
-                850-game.night*20
-            );
+            game.waveSpawned=true;
+        }
 
-        spawnEnemy();
+        if(
+            game.waveSpawned &&
+            game.enemies.length===0
+        ){
+
+            game.waveSpawned=false;
+        }
 
     }
-
 
     updateParticles(dt);
 
@@ -3389,7 +3574,8 @@ function endGame(clear=true){
     game.running=false;
 
     mouse.down=false;
-
+    touchState.moveX=0; touchState.moveY=0;
+    touchState.aimX=0; touchState.aimY=0; touchState.aiming=false;
 
     if(clear){
 
