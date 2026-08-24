@@ -1,3 +1,19 @@
+None selected 
+
+Skip to content
+Using Gmail with screen readers
+in:sent 
+1 of 9
+Please test Cat ops
+
+manas madhusudhan <manas.madhusudhan2014@gmail.com>
+Attachments
+5:40 PM (2 hours ago)
+to nagendra
+
+
+ One attachment
+  •  Scanned by Gmail
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -258,6 +274,10 @@ tr:hover td{
     overflow:hidden;
 }
 
+#gameScreen, #gameCanvas{
+    touch-action:none;
+}
+
 #gameCanvas{
     display:block;
     position:absolute;
@@ -392,9 +412,11 @@ tr:hover td{
 
 /* ================= MOBILE ================= */
 
-@media(max-width:700px){
-
+@media (pointer: coarse) and (hover: none){
     .touchControls{display:block;}
+}
+
+@media(max-width:700px){
 
     .panel{
         padding:15px;
@@ -640,6 +662,10 @@ Every class has its own signature weapon and ability.
 &nbsp; | &nbsp;
 
 🌙 Night <span id="nightText">1</span>
+
+&nbsp; | &nbsp;
+
+🔫 <span id="ammoText">12/12</span>
 
 </div>
 
@@ -926,6 +952,24 @@ function showClasses(){
         .classList.remove("hidden");
 
     buildClassTable();
+
+
+window.__controlsTest = {
+    getX: function(){ return game.player.x; },
+    getY: function(){ return game.player.y; },
+    getSpeed: function(){ return playerSpeed(); },
+    setKeys: function(codes){
+        for (const k of Object.keys(keys)) keys[k] = false;
+        for (const c of codes || []) {
+            keys[c] = true;
+            if (c === "KeyA" || c === "a") { keys.a = true; keys.A = true; keys.ArrowLeft = true; }
+            if (c === "KeyD" || c === "d") { keys.d = true; keys.D = true; keys.ArrowRight = true; }
+            if (c === "KeyW" || c === "w") { keys.w = true; keys.W = true; keys.ArrowUp = true; }
+            if (c === "KeyS" || c === "s") { keys.s = true; keys.S = true; keys.ArrowDown = true; }
+        }
+    }
+};
+
 
 }
 
@@ -1358,7 +1402,11 @@ const game={
 
         angle:0,
 
-        shootCooldown:0
+        shootCooldown:0,
+
+        ammo:14,
+
+        reloadTimer:0
 
     }
 
@@ -1394,44 +1442,40 @@ window.addEventListener(
 
 function setAimFromClient(clientX, clientY){
     const r=canvas.getBoundingClientRect();
+    if(!r.width || !r.height) return;
     mouse.x=(clientX-r.left)*(canvas.width/r.width);
     mouse.y=(clientY-r.top)*(canvas.height/r.height);
 }
 
-canvas.addEventListener(
-    "mousemove",
-    function(e){
-        setAimFromClient(e.clientX,e.clientY);
-    }
-);
+function isJoystickEvent(e){
+    const t=e.target;
+    return !!(t && t.closest && t.closest('.joystick'));
+}
 
+function onAimPointerDown(e){
+    if(isJoystickEvent(e)) return;
+    if(e.target && e.target.closest && e.target.closest('button, input, a, .card')) return;
+    if(e.pointerType==='mouse' && e.button!==0) return;
+    setAimFromClient(e.clientX, e.clientY);
+    mouse.down=true;
+}
 
-canvas.addEventListener(
-    "mousedown",
-    function(e){
+function onAimPointerMove(e){
+    if(isJoystickEvent(e)) return;
+    if(touchState.aimId!=null) return;
+    setAimFromClient(e.clientX, e.clientY);
+}
 
-        if(e.button===0){
+function onAimPointerUp(e){
+    if(isJoystickEvent(e)) return;
+    if(e.pointerType==='mouse' && e.button!==0) return;
+    mouse.down=false;
+}
 
-            mouse.down=true;
-
-        }
-
-    }
-);
-
-
-window.addEventListener(
-    "mouseup",
-    function(e){
-
-        if(e.button===0){
-
-            mouse.down=false;
-
-        }
-
-    }
-);
+window.addEventListener('pointerdown', onAimPointerDown);
+window.addEventListener('pointermove', onAimPointerMove);
+window.addEventListener('pointerup', onAimPointerUp);
+window.addEventListener('pointercancel', function(){ mouse.down=false; });
 
 
 /* =========================================================
@@ -1461,8 +1505,8 @@ function setupJoystick(id, side){
     }
     function reset(){
         knob.style.transform='translate(0,0)';
-        if(side==='move'){touchState.moveX=0;touchState.moveY=0;}
-        else {touchState.aimX=0;touchState.aimY=0;touchState.aiming=false;}
+        if(side==='move'){touchState.moveX=0;touchState.moveY=0;touchState.moveId=null;}
+        else {touchState.aimX=0;touchState.aimY=0;touchState.aiming=false;touchState.aimId=null;}
     }
     stick.addEventListener('pointerdown',e=>{
         e.preventDefault();
@@ -1480,6 +1524,28 @@ function setupJoystick(id, side){
 
 setupJoystick('moveStick','move');
 setupJoystick('aimStick','aim');
+
+function isTouchPlay(){
+    try{
+        return window.matchMedia('(pointer: coarse)').matches && navigator.maxTouchPoints>0;
+    }catch(err){
+        return navigator.maxTouchPoints>0 && window.innerWidth<700;
+    }
+}
+
+function syncTouchUI(){
+    const el=document.getElementById('touchControls');
+    if(!el) return;
+    el.style.display = isTouchPlay() ? 'block' : 'none';
+    if(!isTouchPlay()){
+        touchState.moveX=0; touchState.moveY=0;
+        touchState.aimX=0; touchState.aimY=0; touchState.aiming=false;
+        touchState.moveId=null; touchState.aimId=null;
+    }
+}
+
+syncTouchUI();
+window.addEventListener('resize', syncTouchUI);
 
 /* =========================================================
    KEYBOARD
@@ -1580,6 +1646,18 @@ function startGame(){
     game.player.angle=0;
 
     game.player.shootCooldown=0;
+    game.player.reloadTimer=0;
+    game.player.ammo=magSize();
+
+    mouse.down=false;
+    mouse.x=canvas.width*0.75;
+    mouse.y=canvas.height/2;
+    game.player.angle=0;
+
+    syncTouchUI();
+    resizeCanvas();
+    game.player.x=canvas.width/2;
+    game.player.y=canvas.height/2;
 
     document.getElementById(
         "playerNameHUD"
@@ -1826,7 +1904,9 @@ function spawnEnemy(){
 
         boss:false,
 
-        reward:1
+        reward:1,
+
+        touchCooldown:0
 
     });
 
@@ -1848,21 +1928,16 @@ function spawnMiniboss(){
     game.bossActive=true;
     game.waveSpawned=false;
 
-    const angle=
-        Math.random()*Math.PI*2;
+    const pos=spawnAtVisibleEdge(56);
 
     const hp=
         500+game.night*100;
 
     game.enemies.push({
 
-        x:
-            canvas.width/2+
-            Math.cos(angle)*400,
+        x: pos.x,
 
-        y:
-            canvas.height/2+
-            Math.sin(angle)*400,
+        y: pos.y,
 
         type:"miniboss",
 
@@ -1880,9 +1955,14 @@ function spawnMiniboss(){
 
         boss:true,
 
-        reward:5
+        reward:5,
+
+        touchCooldown:0
 
     });
+
+    document.getElementById("bossBar").style.display="block";
+    document.getElementById("bossName").textContent="MINIBOSS";
 
 }
 
@@ -1902,21 +1982,16 @@ function spawnMegaBoss(){
     game.bossActive=true;
     game.waveSpawned=false;
 
-    const angle=
-        Math.random()*Math.PI*2;
+    const pos=spawnAtVisibleEdge(70);
 
     const hp=
         1800+game.night*300;
 
     game.enemies.push({
 
-        x:
-            canvas.width/2+
-            Math.cos(angle)*450,
+        x: pos.x,
 
-        y:
-            canvas.height/2+
-            Math.sin(angle)*450,
+        y: pos.y,
 
         type:"mega",
 
@@ -1934,7 +2009,9 @@ function spawnMegaBoss(){
 
         boss:true,
 
-        reward:10
+        reward:10,
+
+        touchCooldown:0
 
     });
 
@@ -1950,6 +2027,34 @@ function spawnMegaBoss(){
 }
 
 
+function magSize(){
+    const g=guns[save.gun];
+    if(g.name==="Minigun") return 80;
+    if(g.name==="SMG") return 32;
+    if(g.name==="Shotgun") return 8;
+    if(g.name==="Burst Rifle") return 24;
+    if(g.name==="Sniper" || g.name==="Rocket Launcher") return 6;
+    if(g.name==="Plasma Cannon" || g.name==="Thunder Gun") return 10;
+    if(g.name==="Omega Blaster") return 16;
+    return 14;
+}
+
+function spawnAtVisibleEdge(pad){
+    pad = pad || 48;
+    const w=canvas.width, h=canvas.height;
+    const edge=Math.floor(Math.random()*4);
+    if(edge===0) return {x: pad+Math.random()*Math.max(1,w-pad*2), y: pad};
+    if(edge===1) return {x: w-pad, y: pad+Math.random()*Math.max(1,h-pad*2)};
+    if(edge===2) return {x: pad+Math.random()*Math.max(1,w-pad*2), y: h-pad};
+    return {x: pad, y: pad+Math.random()*Math.max(1,h-pad*2)};
+}
+
+function clampToArena(e){
+    const m = (e.size||18) + 6;
+    e.x = Math.max(m, Math.min(canvas.width-m, e.x));
+    e.y = Math.max(m, Math.min(canvas.height-m, e.y));
+}
+
 /* =========================================================
    SHOOT
 ========================================================= */
@@ -1959,12 +2064,24 @@ function shoot(){
     const gun=
         guns[save.gun];
 
+    if(game.player.reloadTimer>0){
+        return;
+    }
+
     if(game.player.shootCooldown>0){
+        return;
+    }
+
+    if(game.player.ammo<=0){
+        game.player.reloadTimer=55;
+        gameMessage("RELOADING", 500);
         return;
     }
 
     game.player.shootCooldown=
         gun.rate;
+
+    game.player.ammo--;
 
 
     const c=
@@ -2020,11 +2137,12 @@ function shoot(){
         }
 
 
+        const barrel=28;
         game.bullets.push({
 
-            x:game.player.x,
+            x:game.player.x+Math.cos(angle)*barrel,
 
-            y:game.player.y,
+            y:game.player.y+Math.sin(angle)*barrel,
 
             vx:Math.cos(angle)*gun.speed,
 
@@ -2157,6 +2275,16 @@ function updatePlayer(dt){
         game.player.shootCooldown-=
             16.67*dt;
 
+    }
+
+    if(game.player.reloadTimer>0){
+        game.player.reloadTimer-=dt;
+        if(game.player.reloadTimer<=0){
+            game.player.reloadTimer=0;
+            game.player.ammo=magSize();
+        }
+    }else if(game.player.ammo<=0){
+        game.player.reloadTimer=55;
     }
 
 
@@ -2435,16 +2563,16 @@ function killEnemy(e,index){
     }
 
 
-    if(
-        index>=0 &&
-        index<game.enemies.length
-    ){
-
-        game.enemies.splice(
-            index,
-            1
-        );
-
+    // Prefer removing by object identity so nested kills (explosion)
+    // do not leave dead enemies in the array or remove the wrong one.
+    let idx = game.enemies.indexOf(e);
+    if(idx < 0 && typeof index === "number" &&
+       index >= 0 && index < game.enemies.length &&
+       game.enemies[index] === e){
+        idx = index;
+    }
+    if(idx >= 0){
+        game.enemies.splice(idx, 1);
     }
 
 
@@ -2470,41 +2598,32 @@ function explosion(
         8
     );
 
+    // Collect victims first so nested splices cannot skip enemies.
+    const toKill = [];
 
-    for(
-        let i=game.enemies.length-1;
-        i>=0;
-        i--
-    ){
+    for(let i = 0; i < game.enemies.length; i++){
 
-        const e=
-            game.enemies[i];
+        const e = game.enemies[i];
+        if(e.hp <= 0) continue;
 
-        const d=
-            Math.hypot(
-                e.x-x,
-                e.y-y
-            );
+        const d = Math.hypot(e.x - x, e.y - y);
 
+        if(d < radius){
 
-        if(d<radius){
+            e.hp -= damage * (1 - d / radius);
 
-            e.hp-=
-                damage*
-                (1-d/radius);
-
-
-            if(e.hp<=0){
-
-                killEnemy(
-                    e,
-                    i
-                );
-
+            if(e.hp <= 0){
+                toKill.push(e);
             }
 
         }
 
+    }
+
+    for(const e of toKill){
+        if(game.enemies.indexOf(e) >= 0){
+            killEnemy(e, -1);
+        }
     }
 
 }
@@ -2547,7 +2666,8 @@ function updateEnemies(dt){
 
         if(
             e.type==="ranged" &&
-            dist<500
+            dist<500 &&
+            dist > 0.001
         ){
 
             e.shoot-=
@@ -2582,7 +2702,7 @@ function updateEnemies(dt){
 
             }
 
-        }else{
+        }else if(dist > 0.001){
 
             e.x+=
                 dx/dist*
@@ -2596,88 +2716,69 @@ function updateEnemies(dt){
 
         }
 
+        if(e.boss){
+            clampToArena(e);
+        }
 
-        /* Swept collision: catch an enemy that moved through the cat
-   during this frame instead of merely checking its final position. */
-const nowDist=Math.hypot(
-    game.player.x-e.x,
-    game.player.y-e.y
-);
-const oldDist=Math.hypot(
-    game.player.x-oldX,
-    game.player.y-oldY
-);
 
-if(
-    oldDist > (e.size+22+(game.player.size||18)) &&
-    nowDist <= (e.size+22+(game.player.size||18)) &&
-    !e.touchCooldown
-){
-    e.x=game.player.x;
-    e.y=game.player.y;
-}
+        /* Recompute distance after movement for accurate collision. */
+        const dx2 = game.player.x - e.x;
+        const dy2 = game.player.y - e.y;
+        const dist2 = Math.hypot(dx2, dy2);
 
-/* Reliable player/enemy collision.
-   Enemy touching the player ALWAYS deals damage, including
-   enemies approaching from below/above/side. */
-const hitRadius =
-    e.size +
-    22 +
-    (game.player.size || 18);
+        const hitRadius = e.size + 22;
 
-if(
-    dist <= hitRadius &&
-    !e.touchCooldown
-){
+        if(dist2 <= hitRadius && !e.touchCooldown){
 
-    e.touchCooldown=45;
+            e.touchCooldown = 45;
 
-    const touchDamage =
-        e.type==="mega" ? 30 :
-        e.type==="miniboss" ? 22 :
-        e.type==="tank" ? 16 :
-        10;
+            const touchDamage =
+                e.type==="mega" ? 30 :
+                e.type==="miniboss" ? 22 :
+                e.type==="tank" ? 16 :
+                10;
 
-    /* Contact explosion */
-    explosion(
-        game.player.x,
-        game.player.y,
-        e.type==="mega" ? 85 : 55,
-        touchDamage * 0.35
-    );
+            /* Contact explosion (small AoE, does not re-damage via nested kill loops unsafely) */
+            explosion(
+                game.player.x,
+                game.player.y,
+                e.type==="mega" ? 85 : 55,
+                touchDamage * 0.35
+            );
 
-    createParticles(
-        game.player.x,
-        game.player.y,
-        e.type==="mega" ? 24 : 12
-    );
+            createParticles(
+                game.player.x,
+                game.player.y,
+                e.type==="mega" ? 24 : 12
+            );
 
-    game.player.hp = Math.max(
-        0,
-        game.player.hp - touchDamage
-    );
+            game.player.hp = Math.max(
+                0,
+                game.player.hp - touchDamage
+            );
 
-    gameMessage("💥 HIT! -"+touchDamage+" HP", 450);
+            gameMessage("💥 HIT! -"+touchDamage+" HP", 450);
 
-    game.timeSinceDamage=0;
+            game.timeSinceDamage = 0;
 
-    /* Push the enemy away safely, even if dist is nearly zero. */
-    const safeDist = Math.max(dist, 0.01);
-    e.x -= dx/safeDist * 40;
-    e.y -= dy/safeDist * 40;
+            /* Push the enemy away safely, even if dist is nearly zero. */
+            const safeDist = Math.max(dist2, 0.01);
+            e.x -= dx2/safeDist * 40;
+            e.y -= dy2/safeDist * 40;
 
-    if(game.player.hp<=0){
+            if(game.player.hp<=0){
 
-        gameOver();
+                gameOver();
 
-        return;
+                return;
 
-    }
-}
+            }
+        }
 
-if(e.touchCooldown){
-    e.touchCooldown -= dt;
-}
+        if(e.touchCooldown){
+            e.touchCooldown -= dt;
+            if(e.touchCooldown < 0) e.touchCooldown = 0;
+        }
 
 
         if(e.boss){
@@ -2893,6 +2994,15 @@ function updateHUD(){
         "nightText"
     ).textContent=
         game.night;
+
+    const ammoEl=document.getElementById("ammoText");
+    if(ammoEl){
+        if(game.player.reloadTimer>0){
+            ammoEl.textContent="REL…";
+        }else{
+            ammoEl.textContent=Math.max(0,game.player.ammo)+"/"+magSize();
+        }
+    }
 
 }
 
@@ -3495,6 +3605,19 @@ function update(dt){
 
     updateParticles(dt);
 
+    // Passive out-of-combat regen (HUD already hints at this)
+    game.timeSinceDamage += dt;
+    if(
+        game.timeSinceDamage >= 360 &&
+        game.player.hp > 0 &&
+        game.player.hp < playerMaxHP()
+    ){
+        game.player.hp = Math.min(
+            playerMaxHP(),
+            game.player.hp + 0.012 * dt
+        );
+    }
+
     updateHUD();
 
 }
@@ -3668,3 +3791,5 @@ setInterval(
 
 </body>
 </html>
+game.html
+Displaying game.html. 
