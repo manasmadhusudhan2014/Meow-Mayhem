@@ -845,7 +845,8 @@ if(!save){
         ownedSkins:[0],
         class:0,
         gun:0,
-        skin:0
+        skin:0,
+        nicknameLocked:false
     };
 
 }
@@ -1363,6 +1364,8 @@ const game={
 
     particles:[],
 
+    hazards:[],
+
     spawnTimer:0,
 
     enemyTimer:0,
@@ -1570,20 +1573,41 @@ function startGame(){
         return;
     }
 
-    const nick=
-        document.getElementById(
-            "nicknameInput"
-        ).value.trim();
+    const nickInput=document.getElementById("nicknameInput");
+    const nick=nickInput.value.trim();
 
-    if(nick){
+    /* FIRST-TIME NICKNAME REGISTRATION
+       Once chosen, the nickname is locked to this browser's save. */
+    if(!save.nicknameLocked){
+
+        if(!nick){
+            alert("Choose a nickname first!");
+            nickInput.focus();
+            return;
+        }
+
+        if(nick.length < 3 || nick.length > 16){
+            alert("Nickname must be 3-16 characters.");
+            nickInput.focus();
+            return;
+        }
+
+        if(!/^[A-Za-z0-9_ ]+$/.test(nick)){
+            alert("Nickname can only use letters, numbers, spaces and _. ");
+            nickInput.focus();
+            return;
+        }
 
         save.nickname=nick;
+        save.nicknameLocked=true;
+        saveGame();
+        lockNicknameInput();
 
-    }
+    }else{
 
-    if(!save.nickname){
-
-        save.nickname="Cat";
+        /* Never accept changes after registration. */
+        nickInput.value=save.nickname;
+        nickInput.disabled=true;
 
     }
 
@@ -1614,6 +1638,7 @@ function startGame(){
     game.enemies=[];
 
     game.particles=[];
+    game.hazards=[];
 
     game.night=1;
 
@@ -1934,7 +1959,7 @@ function spawnMiniboss(){
 
         size:35,
 
-        shoot:0,
+        shoot:450,
 
         freeze:0,
 
@@ -1988,7 +2013,7 @@ function spawnMegaBoss(){
 
         size:55,
 
-        shoot:0,
+        shoot:1200,
 
         freeze:0,
 
@@ -2520,6 +2545,7 @@ function killEnemy(e,index){
 
     if(e.type==="mega"){
 
+        game.hazards=[];
         game.bossActive=false;
         game.waveSpawned=false;
 
@@ -2615,6 +2641,121 @@ function explosion(
 
 
 /* =========================================================
+   MEGA BOSS ROCKET HAZARDS
+========================================================= */
+
+function summonMegaRockets(){
+    if(!game.bossActive) return;
+
+    for(let i=0;i<2;i++){
+        const offset=(i===0?-75:75);
+        const tx=Math.max(45,Math.min(canvas.width-45,game.player.x+offset));
+        const ty=Math.max(45,Math.min(canvas.height-45,game.player.y+(Math.random()-.5)*90));
+
+        game.hazards.push({
+            type:"rocket",
+            x:tx,
+            y:-90,
+            targetY:ty,
+            warning:650,
+            fallSpeed:7.5,
+            damage:32+game.night*2,
+            radius:72
+        });
+    }
+
+    gameMessage("🚀 MEGA BOSS: ROCKET STRIKE!",700);
+}
+
+function updateHazards(dt){
+    for(let i=game.hazards.length-1;i>=0;i--){
+        const h=game.hazards[i];
+
+        if(h.warning>0){
+            h.warning-=16.67*dt;
+            continue;
+        }
+
+        h.y += h.fallSpeed*dt;
+
+        if(h.y>=h.targetY){
+            const d=Math.hypot(
+                game.player.x-h.x,
+                game.player.y-h.targetY
+            );
+
+            if(d<h.radius){
+                game.player.hp=Math.max(
+                    0,
+                    game.player.hp-h.damage
+                );
+                game.timeSinceDamage=0;
+                gameMessage("🚀 ROCKET HIT! -"+h.damage+" HP",650);
+
+                if(game.player.hp<=0){
+                    game.hazards.splice(i,1);
+                    gameOver();
+                    return;
+                }
+            }
+
+            explosion(h.x,h.targetY,h.radius,h.damage*.15);
+            createParticles(h.x,h.targetY,8);
+            game.hazards.splice(i,1);
+        }
+    }
+}
+
+function drawHazards(){
+    for(const h of game.hazards){
+        if(h.type!=="rocket") continue;
+
+        ctx.save();
+
+        ctx.strokeStyle=h.warning>0 ? "#ff3333" : "#ff7a22";
+        ctx.fillStyle=h.warning>0
+            ? "rgba(255,40,40,.12)"
+            : "rgba(255,120,20,.18)";
+        ctx.lineWidth=4;
+
+        ctx.beginPath();
+        ctx.arc(h.x,h.targetY,h.radius,0,Math.PI*2);
+        ctx.fill();
+        ctx.stroke();
+
+        if(h.warning>0){
+            ctx.strokeStyle="#ffdddd";
+            ctx.lineWidth=2;
+            ctx.beginPath();
+            ctx.arc(
+                h.x,h.targetY,
+                18+Math.max(0,h.warning)/650*30,
+                0,Math.PI*2
+            );
+            ctx.stroke();
+        }
+
+        ctx.translate(h.x,h.y);
+
+        ctx.fillStyle="#c7c7c7";
+        ctx.fillRect(-7,-22,14,34);
+
+        ctx.fillStyle="#ef3030";
+        ctx.beginPath();
+        ctx.moveTo(0,-34);
+        ctx.lineTo(-10,-18);
+        ctx.lineTo(10,-18);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle="#ff9b25";
+        ctx.fillRect(-5,12,10,27);
+
+        ctx.restore();
+    }
+}
+
+/* =========================================================
    UPDATE ENEMIES
 ========================================================= */
 
@@ -2648,6 +2789,36 @@ function updateEnemies(dt){
         const dist=
             Math.hypot(dx,dy);
 
+
+        /* MINIBOSS: throw a visible knife directly at the player. */
+        if(e.type==="miniboss" && dist > 0.001){
+            e.shoot -= 16.67*dt;
+            if(e.shoot <= 0){
+                e.shoot = 900;
+                const angle = Math.atan2(dy,dx);
+                game.bullets.push({
+                    x:e.x + Math.cos(angle)*28,
+                    y:e.y + Math.sin(angle)*28,
+                    vx:Math.cos(angle)*10,
+                    vy:Math.sin(angle)*10,
+                    damage:16 + game.night,
+                    life:150,
+                    enemyBullet:true,
+                    kind:"knife",
+                    angle:angle
+                });
+                createParticles(e.x,e.y,3);
+            }
+        }
+
+        /* MEGA BOSS: periodically summons two falling rockets. */
+        if(e.type==="mega"){
+            e.shoot -= 16.67*dt;
+            if(e.shoot<=0){
+                e.shoot=2600;
+                summonMegaRockets();
+            }
+        }
 
         if(
             e.type==="ranged" &&
@@ -3278,6 +3449,30 @@ function drawBullets(){
             game.bullets[i];
 
 
+        if(b.enemyBullet && b.kind==="knife"){
+            ctx.save();
+            ctx.translate(b.x,b.y);
+            ctx.rotate(b.angle||0);
+
+            ctx.shadowBlur=10;
+            ctx.shadowColor="#ffffff";
+            ctx.fillStyle="#f4f4f4";
+            ctx.beginPath();
+            ctx.moveTo(18,0);
+            ctx.lineTo(-5,-7);
+            ctx.lineTo(0,0);
+            ctx.lineTo(-5,7);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.shadowBlur=0;
+            ctx.fillStyle="#7b2f2f";
+            ctx.fillRect(-11,-4,8,8);
+
+            ctx.restore();
+            continue;
+        }
+
         ctx.fillStyle=
             b.enemyBullet
             ?"#ff5555"
@@ -3352,18 +3547,30 @@ function drawEnemies(){
 
         else if(e.type==="miniboss"){
 
-            ctx.fillStyle="#a54c22";
-
-            ctx.beginPath();
-
-            ctx.arc(
-                0,
-                0,
-                e.size,
-                0,
-                Math.PI*2
+            ctx.fillStyle="#8f9692";
+            ctx.fillRect(
+                -e.size,
+                -e.size,
+                e.size*2,
+                e.size*2
             );
 
+            ctx.strokeStyle="#d8dedb";
+            ctx.lineWidth=3;
+            ctx.strokeRect(
+                -e.size,
+                -e.size,
+                e.size*2,
+                e.size*2
+            );
+
+            ctx.fillStyle="#2d332f";
+            ctx.fillRect(-4,-18,8,30);
+            ctx.beginPath();
+            ctx.moveTo(0,-25);
+            ctx.lineTo(-8,-12);
+            ctx.lineTo(8,-12);
+            ctx.closePath();
             ctx.fill();
 
         }
@@ -3533,6 +3740,7 @@ function draw(){
     drawForest();
 
     drawParticles();
+    drawHazards();
 
     drawEnemies();
 
@@ -3554,6 +3762,7 @@ function update(dt){
     updatePlayer(dt);
 
     updateBullets(dt);
+    updateHazards(dt);
 
     updateEnemies(dt);
 
@@ -3750,11 +3959,31 @@ function endGame(clear=true){
    INITIALIZE
 ========================================================= */
 
-document.getElementById(
-    "nicknameInput"
-).value=
-    save.nickname;
+function lockNicknameInput(){
+    const input=document.getElementById("nicknameInput");
+    if(!input) return;
+    input.value=save.nickname || "";
+    input.disabled=!!save.nicknameLocked;
+    input.title=save.nicknameLocked
+        ? "Nickname is permanently locked for this account."
+        : "Choose your nickname once.";
+}
 
+/* Existing saves from older versions remain compatible.
+   If an old save already has a nickname, lock it now. */
+if(save.nickname && save.nickname.trim()){
+    save.nicknameLocked=true;
+}
+
+if(!save.accountId){
+    save.accountId="CAT-"+Math.random().toString(36).slice(2,10).toUpperCase();
+}
+
+if(typeof save.isAdmin!=="boolean"){
+    save.isAdmin=false;
+}
+
+lockNicknameInput();
 
 updateDisplays();
 
