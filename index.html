@@ -455,10 +455,6 @@ tr:hover td{
         font-size:10px;
     }
 }
-
-.upgrade-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;z-index:9999;}
-.upgrade-panel{width:min(760px,92vw);background:#18201c;border:2px solid #8ee68a;border-radius:16px;padding:22px;text-align:center;box-shadow:0 0 40px rgba(100,255,120,.2)}
-.upgrade-panel h2{margin:0 0 8px}.upgrade-panel p{opacity:.85}.upgrade-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:18px}.upgrade-option{padding:16px;border:1px solid #4f6b56;background:#243028;color:#fff;border-radius:12px;cursor:pointer;font-size:15px}.upgrade-option:hover{background:#304337;border-color:#9cff9c}.upgrade-option b{display:block;font-size:18px;margin-bottom:6px}
 </style>
 </head>
 
@@ -496,10 +492,6 @@ tr:hover td{
     <label for="languageSelect" id="languageLabel">🌐 Language</label>
     <select id="languageSelect" onchange="setLanguage(this.value)">
         <option value="en">English</option>
-        <option value="es">Español</option>
-        <option value="fr">Français</option>
-        <option value="de">Deutsch</option>
-        <option value="it">Italiano</option>
         <option value="kn">ಕನ್ನಡ</option>
         <option value="hi">हिन्दी</option>
         <option value="te">తెలుగు</option>
@@ -556,7 +548,7 @@ tr:hover td{
 
 </div>
 
-<div id="homeInfo"><small>⭐ 10 kills = 1 level • Waves • Bosses • Enemy types • Run upgrades</small></div>
+<div id="homeInfo"></div>
 
 </div>
 
@@ -700,7 +692,11 @@ Every class has its own signature weapon and ability.
 
 &nbsp; | &nbsp;
 
-💀 <span id="gameKills">0</span> &nbsp; ⭐ Level: <span id="gameLevel">1</span> &nbsp; 🌊 Wave: <span id="gameWave">0</span>
+💀 <span id="gameKills">0</span>
+
+&nbsp; | &nbsp;
+
+⭐ Level <span id="gameLevel">1</span>
 
 &nbsp; | &nbsp;
 
@@ -765,11 +761,17 @@ const classes = [
 
 {name:"Rookie",weapon:"Starter Pistol",ability:"Balanced",cost:0},
 
+{name:"Runner Cat",weapon:"Speed SMG",ability:"+20% movement speed",cost:25},
+{name:"Ice Cat",weapon:"Ice Blaster",ability:"Slows enemies",cost:100},
+{name:"Fire Cat",weapon:"Flame Gun",ability:"Burns enemies",cost:150},
+{name:"Bomber Cat",weapon:"Bomb Launcher",ability:"Bigger explosions",cost:250},
+{name:"Shield Cat",weapon:"Shield Blaster",ability:"Damage reduction",cost:800},
+
 {name:"Scout",weapon:"Scout SMG",ability:"Speed +15%",cost:250},
 
 {name:"Hunter",weapon:"Hunting Rifle",ability:"Critical shots",cost:500},
 
-{name:"Medic",weapon:"Healing Blaster",ability:"Regenerate HP",cost:750},
+{name:"Medic",weapon:"Healing Blaster",ability:"FAST HP regeneration",cost:750},
 
 {name:"Ranger",weapon:"Ranger Bow",ability:"Long range",cost:950},
 
@@ -789,7 +791,7 @@ const classes = [
 
 {name:"Storm",weapon:"Lightning Gun",ability:"Chain lightning",cost:50000},
 
-{name:"Ninja",weapon:"Shuriken Cannon",ability:"Rapid projectiles",cost:70000},
+{name:"Ninja",weapon:"Shuriken Cannon",ability:"Rapid projectiles + dash",cost:70000},
 
 {name:"Berserker",weapon:"Rage Shotgun",ability:"More damage at low HP",cost:90000},
 
@@ -916,15 +918,12 @@ if(!save){
         skin:0,
         nicknameLocked:false,
         customGuns:[],
-        language:"en",
-        upgrades:{hp:0,damage:0,fireRate:0,speed:0,reduction:0,explosion:0,coins:0}
+        language:"en"
     };
 
 }
 
 if(!Array.isArray(save.customGuns)) save.customGuns=[];
-if(!save.upgrades) save.upgrades={hp:0,damage:0,fireRate:0,speed:0,reduction:0,explosion:0,coins:0};
-for(const k of ["hp","damage","fireRate","speed","reduction","explosion","coins"]) if(typeof save.upgrades[k]!=="number") save.upgrades[k]=0;
 if(!save.language) save.language="en";
 
 /* Restore crafted guns into the gun list. */
@@ -1535,10 +1534,6 @@ function craftGun(){
 
 const translations={
   en:{play:"PLAY",how:"❓ HOW TO PLAY",craft:"🛠️ CRAFTING — LEVEL 1000",lang:"🌐 Language",classes:"📋 ALL 30 CLASSES",shop:"🛒 SHOP",reserved:"Creator nickname M_A_N_A_S is reserved."},
-  es:{play:"JUGAR",how:"❓ CÓMO JUGAR",craft:"🛠️ CREACIÓN — NIVEL 1000",lang:"🌐 Idioma",classes:"📋 LAS 30 CLASES",shop:"🛒 TIENDA",reserved:"El nombre del creador M_A_N_A_S está reservado."},
-  fr:{play:"JOUER",how:"❓ COMMENT JOUER",craft:"🛠️ FABRICATION — NIVEAU 1000",lang:"🌐 Langue",classes:"📋 LES 30 CLASSES",shop:"🛒 BOUTIQUE",reserved:"Le pseudo créateur M_A_N_A_S est réservé."},
-  de:{play:"SPIELEN",how:"❓ SO WIRD GESPIELT",craft:"🛠️ HERSTELLEN — LEVEL 1000",lang:"🌐 Sprache",classes:"📋 ALLE 30 KLASSEN",shop:"🛒 SHOP",reserved:"Der Erstellername M_A_N_A_S ist reserviert."},
-  it:{play:"GIOCA",how:"❓ COME GIOCARE",craft:"🛠️ CREAZIONE — LIVELLO 1000",lang:"🌐 Lingua",classes:"📋 TUTTE LE 30 CLASSI",shop:"🛒 NEGOZIO",reserved:"Il nome del creatore M_A_N_A_S è riservato."},
   kn:{play:"ಆಟ ಪ್ರಾರಂಭಿಸಿ",how:"❓ ಹೇಗೆ ಆಡುವುದು",craft:"🛠️ ಕ್ರಾಫ್ಟಿಂಗ್ — ಮಟ್ಟ 1000",lang:"🌐 ಭಾಷೆ",classes:"📋 ಎಲ್ಲಾ 30 ಕ್ಲಾಸ್‌ಗಳು",shop:"🛒 ಅಂಗಡಿ",reserved:"ಸೃಷ್ಟಿಕರ್ತರ ಹೆಸರು M_A_N_A_S ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ."},
   hi:{play:"खेलें",how:"❓ कैसे खेलें",craft:"🛠️ क्राफ्टिंग — लेवल 1000",lang:"🌐 भाषा",classes:"📋 सभी 30 क्लास",shop:"🛒 दुकान",reserved:"क्रिएटर का नाम M_A_N_A_S आरक्षित है।"},
   te:{play:"ఆడండి",how:"❓ ఎలా ఆడాలి",craft:"🛠️ క్రాఫ్టింగ్ — లెవల్ 1000",lang:"🌐 భాష",classes:"📋 అన్ని 30 క్లాసులు",shop:"🛒 షాప్",reserved:"క్రియేటర్ పేరు M_A_N_A_S రిజర్వ్ చేయబడింది."}
@@ -1657,9 +1652,7 @@ const game={
 
     bossActive:false,
 
-    wave:0,
     timeSinceDamage:0,
-    runUpgradePending:false,
 
     player:{
 
@@ -1964,7 +1957,6 @@ function nicknameTaken(nick){
 }
 
 function startGame(){
-    game.wave=0; game.waveSpawned=false; game.bossActive=false; game.runUpgradePending=false; game.hazards=[];
 
     if(game.running){ return; }
 
@@ -2091,7 +2083,7 @@ function playerMaxHP(){
         hp=120;
     }
 
-    return hp + save.upgrades.hp*25;
+    return hp;
 
 }
 
@@ -2112,7 +2104,7 @@ function playerSpeed(){
         speed*=1.1;
     }
 
-    return speed * (1 + save.upgrades.speed*.10);
+    return speed;
 
 }
 
@@ -2192,28 +2184,122 @@ function enemyCount(){
    SPAWN NORMAL ENEMY
 ========================================================= */
 
-function spawnEnemy(typeOverride){
-    if(game.bossActive || game.enemies.length>=enemyCount()) return;
-    const edge=Math.floor(Math.random()*4);
-    let x,y;
-    if(edge===0){x=Math.random()*canvas.width;y=-40;}
-    if(edge===1){x=canvas.width+40;y=Math.random()*canvas.height;}
-    if(edge===2){x=Math.random()*canvas.width;y=canvas.height+40;}
-    if(edge===3){x=-40;y=Math.random()*canvas.height;}
+function spawnEnemy(){
 
-    let type=typeOverride||"basic";
-    if(!typeOverride){
-        const roll=Math.random();
-        if(roll<.16) type="runner";
-        else if(roll<.27) type="tank";
-        else if(roll<.38) type="shooter";
-        else if(roll<.48) type="bomber";
-        else if(roll<.56) type="shadow";
+    if(game.bossActive){
+        return;
     }
-    const hp=type==="tank"?120+game.night*20:type==="bomber"?55+game.night*5:type==="basic"?30+game.night*4:40+game.night*5;
-    const speed=type==="runner"?3.5:type==="tank"?1.0:type==="shooter"?1.25:type==="bomber"?1.8:type==="shadow"?2.2:1.6;
-    const size=type==="tank"?25:type==="runner"?13:type==="bomber"?18:type==="shadow"?16:17;
-    game.enemies.push({x,y,type,hp,maxHp:hp,speed,size,shoot:Math.random()*1200,freeze:0,boss:false,reward:1,touchCooldown:0,shadowTimer:0,hidden:false});
+
+    if(
+        game.enemies.length>=
+        enemyCount()
+    ){
+
+        return;
+
+    }
+
+    const edge=
+        Math.floor(Math.random()*4);
+
+    let x,y;
+
+    if(edge===0){
+
+        x=Math.random()*canvas.width;
+        y=-40;
+
+    }
+
+    if(edge===1){
+
+        x=canvas.width+40;
+        y=Math.random()*canvas.height;
+
+    }
+
+    if(edge===2){
+
+        x=Math.random()*canvas.width;
+        y=canvas.height+40;
+
+    }
+
+    if(edge===3){
+
+        x=-40;
+        y=Math.random()*canvas.height;
+
+    }
+
+
+    let roll=
+        Math.random();
+
+    let type="basic";
+
+    if(roll<.10){
+
+        type="fast";
+
+    }else if(roll<.17){
+
+        type="tank";
+
+    }else if(roll<.22){
+
+        type="ranged";
+
+    }
+
+
+    const hp=
+        type==="tank"
+        ?120+game.night*20
+        :30+game.night*4;
+
+
+    game.enemies.push({
+
+        x:x,
+
+        y:y,
+
+        type:type,
+
+        hp:hp,
+
+        maxHp:hp,
+
+        speed:
+            type==="fast"
+            ?2.7
+            :type==="tank"
+            ?1.0
+            :type==="ranged"
+            ?1.3
+            :1.6,
+
+        size:
+            type==="tank"
+            ?25
+            :type==="fast"
+            ?13
+            :17,
+
+        shoot:
+            Math.random()*2000,
+
+        freeze:0,
+
+        boss:false,
+
+        reward:1,
+
+        touchCooldown:0
+
+    });
+
 }
 
 
@@ -2261,15 +2347,12 @@ function spawnMiniboss(){
 
         reward:5,
 
-        touchCooldown:0,
-        dashTimer:4200
+        touchCooldown:0
 
     });
 
     document.getElementById("bossBar").style.display="block";
     document.getElementById("bossName").textContent="MINIBOSS";
-    bossSound("mini");
-    gameMessage("🔲 MINIBOSS INCOMING!",900);
 
 }
 
@@ -2318,10 +2401,7 @@ function spawnMegaBoss(){
 
         reward:10,
 
-        touchCooldown:0,
-        shieldTimer:0,
-        shield:false,
-        spawnAnim:1100
+        touchCooldown:0
 
     });
 
@@ -2333,8 +2413,6 @@ function spawnMegaBoss(){
         "bossName"
     ).textContent=
         "👑 MEGA BOSS";
-    bossSound("mega");
-    gameMessage("🔴 MEGA BOSS INCOMING!",1200);
 
 }
 
@@ -2616,7 +2694,7 @@ function updatePlayer(dt){
             Math.min(
                 playerMaxHP(),
                 game.player.hp+
-                .018*dt
+                .12*dt
             );
 
     }
@@ -2657,7 +2735,7 @@ function updateBullets(dt){
                 )<20
             ){
 
-                game.player.hp-=b.damage * (1 - Math.min(.70,save.upgrades.reduction*.08));
+                game.player.hp-=b.damage;
                 game.timeSinceDamage=0;
 
                 game.bullets.splice(i,1);
@@ -2704,8 +2782,7 @@ function updateBullets(dt){
                     e.size+5
                 ){
 
-                    const incomingDamage=e.shield ? b.damage*.15 : b.damage;
-                    e.hp-=incomingDamage;
+                    e.hp-=b.damage;
 
                     hit=true;
 
@@ -2829,7 +2906,7 @@ function killEnemy(e,index){
     }
 
 
-    save.coins+=Math.floor(reward*(1+save.upgrades.coins*.10));
+    save.coins+=reward;
 
     const oldLevel=getPlayerLevel();
     save.kills++;
@@ -2837,7 +2914,6 @@ function killEnemy(e,index){
 
     if(newLevel>oldLevel){
         gameMessage("⭐ LEVEL UP! You reached Level "+newLevel+"!");
-        showUpgradeChoices();
     }
 
 
@@ -2937,9 +3013,9 @@ function explosion(
 
         const d = Math.hypot(e.x - x, e.y - y);
 
-        if(d < radius*(1+save.upgrades.explosion*.12)){
+        if(d < radius){
 
-            e.hp -= (e.shield ? damage*.15 : damage) * (1 - d / radius);
+            e.hp -= damage * (1 - d / radius);
 
             if(e.hp <= 0){
                 toKill.push(e);
@@ -2989,20 +3065,6 @@ function updateHazards(dt){
     for(let i=game.hazards.length-1;i>=0;i--){
         const h=game.hazards[i];
 
-        if(h.type==="shockwave") {
-            h.radius += h.grow*dt;
-            const d=Math.hypot(game.player.x-h.x,game.player.y-h.y);
-            if(Math.abs(d-h.radius)<18){
-                const dmg=h.damage*(1-Math.min(.70,save.upgrades.reduction*.08));
-                game.player.hp=Math.max(0,game.player.hp-dmg);
-                game.timeSinceDamage=0;
-                gameMessage("💥 SHOCKWAVE HIT! -"+Math.ceil(dmg)+" HP",500);
-                if(game.player.hp<=0){ game.hazards.splice(i,1); gameOver(); return; }
-            }
-            if(h.radius>=h.maxRadius){ game.hazards.splice(i,1); }
-            continue;
-        }
-
         if(h.warning>0){
             h.warning-=16.67*dt;
             continue;
@@ -3019,7 +3081,7 @@ function updateHazards(dt){
             if(d<h.radius){
                 game.player.hp=Math.max(
                     0,
-                    game.player.hp-h.damage*(1-Math.min(.70,save.upgrades.reduction*.08))
+                    game.player.hp-h.damage
                 );
                 game.timeSinceDamage=0;
                 gameMessage("🚀 ROCKET HIT! -"+h.damage+" HP",650);
@@ -3040,10 +3102,6 @@ function updateHazards(dt){
 
 function drawHazards(){
     for(const h of game.hazards){
-        if(h.type==="shockwave"){
-            ctx.save(); ctx.strokeStyle="#ff3d3d"; ctx.lineWidth=5; ctx.globalAlpha=.75;
-            ctx.beginPath(); ctx.arc(h.x,h.y,h.radius,0,Math.PI*2); ctx.stroke(); ctx.restore(); continue;
-        }
         if(h.type!=="rocket") continue;
 
         ctx.save();
@@ -3125,39 +3183,6 @@ function updateEnemies(dt){
         const dist=
             Math.hypot(dx,dy);
 
-        if(e.boss && e.spawnAnim>0){ e.spawnAnim-=16.67*dt; }
-
-        if(e.type==="miniboss") {
-            e.dashTimer-=16.67*dt;
-            if(e.dashTimer<=0 && dist>80){
-                e.dashTimer=4200;
-                e.x += dx/Math.max(dist,1)*110;
-                e.y += dy/Math.max(dist,1)*110;
-                createParticles(e.x,e.y,12);
-                gameMessage("🔲 MINIBOSS DASH!",500);
-            }
-        }
-        if(e.type==="mega") {
-            e.shieldTimer=(e.shieldTimer||0)-16.67*dt;
-            if(e.shieldTimer<=0){
-                e.shieldTimer=6000;
-                e.shield=!e.shield;
-                gameMessage(e.shield?"🛡️ MEGA BOSS SHIELD!":"⚔️ MEGA BOSS SHIELD DOWN!",700);
-            }
-        }
-
-        if(e.type==="shadow") {
-            e.shadowTimer-=16.67*dt;
-            if(e.shadowTimer<=0){ e.shadowTimer=e.hidden?1100:2800; e.hidden=!e.hidden; }
-        }
-
-        if(e.type==="bomber" && dist<85){
-            const dmg=28+game.night*2;
-            explosion(e.x,e.y,75,dmg);
-            createParticles(e.x,e.y,20);
-            killEnemy(e,i);
-            continue;
-        }
 
         /* MINIBOSS: throw a visible knife directly at the player. */
         if(e.type==="miniboss" && dist > 0.001){
@@ -3183,20 +3208,14 @@ function updateEnemies(dt){
         /* MEGA BOSS: periodically summons two falling rockets. */
         if(e.type==="mega"){
             e.shoot -= 16.67*dt;
-            e.patternTimer=(e.patternTimer||5000)-16.67*dt;
             if(e.shoot<=0){
                 e.shoot=2600;
                 summonMegaRockets();
             }
-            if(e.patternTimer<=0){
-                e.patternTimer=6500;
-                game.hazards.push({type:"shockwave",x:e.x,y:e.y,radius:25,maxRadius:230,grow:8,damage:24+game.night*2});
-                gameMessage("🔴 MEGA BOSS: SHOCKWAVE!",700);
-            }
         }
 
         if(
-            (e.type==="ranged" || e.type==="shooter") &&
+            e.type==="ranged" &&
             dist<500 &&
             dist > 0.001
         ){
@@ -3267,7 +3286,6 @@ function updateEnemies(dt){
                 e.type==="mega" ? 30 :
                 e.type==="miniboss" ? 22 :
                 e.type==="tank" ? 16 :
-                e.type==="bomber" ? 24 :
                 10;
 
             /* Contact explosion (small AoE, does not re-damage via nested kill loops unsafely) */
@@ -3286,7 +3304,7 @@ function updateEnemies(dt){
 
             game.player.hp = Math.max(
                 0,
-                game.player.hp - touchDamage*(1-Math.min(.70,save.upgrades.reduction*.08))
+                game.player.hp - touchDamage
             );
 
             gameMessage("💥 HIT! -"+touchDamage+" HP", 450);
@@ -3520,8 +3538,7 @@ function updateHUD(){
         "gameKills"
     ).textContent=
         save.kills.toLocaleString();
-    const lvlEl=document.getElementById("gameLevel"); if(lvlEl) lvlEl.textContent=getPlayerLevel();
-    const waveEl=document.getElementById("gameWave"); if(waveEl) waveEl.textContent=game.wave;
+
 
     document.getElementById(
         "nightText"
@@ -3929,12 +3946,7 @@ function drawEnemies(){
             e.x,
             e.y
         );
-        if(e.boss && e.spawnAnim>0){
-            const maxAnim=e.type==="mega"?1400:1100;
-            const t=Math.max(0,Math.min(1,1-e.spawnAnim/maxAnim));
-            const scale=.35+.65*(t*t*(3-2*t));
-            ctx.scale(scale,scale);
-        }
+
 
         if(e.type==="mega"){
 
@@ -4004,9 +4016,9 @@ function drawEnemies(){
 
         }
 
-        else if(e.type==="fast" || e.type==="runner"){
+        else if(e.type==="fast"){
 
-            ctx.fillStyle="#38d86b";
+            ctx.fillStyle="#c64b4b";
 
             ctx.beginPath();
 
@@ -4022,22 +4034,6 @@ function drawEnemies(){
 
         }
 
-        else if(e.type==="shooter" || e.type==="ranged"){
-            ctx.fillStyle="#8b5cf6";
-            ctx.beginPath(); ctx.arc(0,0,e.size,0,Math.PI*2); ctx.fill();
-            ctx.fillStyle="#d8b4fe"; ctx.fillRect(-4,-4,8,8);
-        }
-        else if(e.type==="bomber"){
-            ctx.fillStyle="#e6c229";
-            ctx.beginPath(); ctx.arc(0,0,e.size,0,Math.PI*2); ctx.fill();
-            ctx.fillStyle="#5a4300"; ctx.fillRect(-4,-e.size-7,8,8);
-        }
-        else if(e.type==="shadow"){
-            if(e.hidden){ ctx.globalAlpha=.12; }
-            ctx.fillStyle="#171717";
-            ctx.beginPath(); ctx.arc(0,0,e.size,0,Math.PI*2); ctx.fill();
-            ctx.globalAlpha=1;
-        }
         else{
 
             ctx.fillStyle="#a83f3f";
@@ -4200,31 +4196,34 @@ function update(dt){
 
     updateNight(dt);
 
-    /* WAVE SYSTEM: fixed compositions, bosses on waves 5 and 10. */
-    if(!game.bossActive && game.enemies.length===0 && !game.waveSpawned){
-        game.wave++;
-        if(game.wave===5){ spawnMiniboss(); }
-        else if(game.wave===10){ spawnMegaBoss(); }
-        else {
-            const w=game.wave;
-            if(w===1) { spawnEnemy("basic"); spawnEnemy("basic"); }
-            else if(w===2) { spawnEnemy("runner"); spawnEnemy("runner"); }
-            else if(w===3) { spawnEnemy("tank"); spawnEnemy("basic"); }
-            else if(w===4) { spawnEnemy("shooter"); spawnEnemy("shooter"); }
-            else if(w>=6 && w<=9){
-                const sets={6:["runner","tank"],7:["shooter","runner"],8:["bomber","tank"],9:["shadow","shooter"]};
-                const set=sets[w]||["runner","shooter"];
-                spawnEnemy(set[0]); spawnEnemy(set[1]);
-            } else if(w>10){
-                const pool=["runner","tank","shooter","bomber","shadow"];
-                const count=Math.min(5,2+Math.floor((w-10)/3));
-                for(let k=0;k<count;k++) spawnEnemy(pool[Math.floor(Math.random()*pool.length)]);
-            }
+    /*
+       NORMAL WAVES:
+       - Exactly 2 normal enemies at a time.
+       - When both are dead, spawn the next pair.
+       - Never spawn normals while a boss is alive.
+    */
+    if(!game.bossActive){
+
+        if(
+            game.enemies.length===0 &&
+            !game.waveSpawned
+        ){
+
+            spawnEnemy();
+            spawnEnemy();
+
             game.waveSpawned=true;
         }
-    }
-    if(game.waveSpawned && game.enemies.length===0 && !game.bossActive){ game.waveSpawned=false; }
 
+        if(
+            game.waveSpawned &&
+            game.enemies.length===0
+        ){
+
+            game.waveSpawned=false;
+        }
+
+    }
 
     updateParticles(dt);
 
@@ -4246,41 +4245,9 @@ function update(dt){
 }
 
 
-function showUpgradeChoices(){
-    if(game.runUpgradePending) return;
-    game.runUpgradePending=true;
-    game.running=false;
-    const choices=[
-      ["hp","❤️ +25 Max HP","Increase maximum health by 25."],
-      ["damage","🔫 +10% Damage","All player shots deal 10% more damage."],
-      ["fireRate","⚡ +10% Fire Rate","Shoot 10% faster."],
-      ["speed","🏃 +10% Speed","Move 10% faster."],
-      ["reduction","🛡️ Damage Reduction","Reduce incoming damage by 8%."],
-      ["explosion","💥 Bigger Explosions","Explosion radius increases by 12%."],
-      ["coins","🪙 More Coins","Earn 10% more coins from kills." ]
-    ];
-    const box=document.getElementById("upgradeOptions");
-    box.innerHTML=choices.map(c=>`<button class="upgrade-option" onclick="takeUpgrade('${c[0]}')"><b>${c[1]}</b>${c[2]}</button>`).join("");
-    document.getElementById("upgradeOverlay").style.display="flex";
-}
-function takeUpgrade(key){
-    save.upgrades[key]++;
-    saveGame();
-    document.getElementById("upgradeOverlay").style.display="none";
-    game.runUpgradePending=false;
-    game.player.hp=Math.min(playerMaxHP(),game.player.hp+25);
-    game.running=true;
-    game.lastTime=performance.now();
-    gameMessage("✨ Upgrade applied!",700);
-}
-
 /* =========================================================
    MESSAGE
 ========================================================= */
-
-function bossSound(type){
-    try{ const a=new (window.AudioContext||window.webkitAudioContext)(); const o=a.createOscillator(); const g=a.createGain(); o.connect(g);g.connect(a.destination); o.frequency.value=type==="mega"?120:220; g.gain.value=.04; o.start(); o.stop(a.currentTime+.18); }catch(e){}
-}
 
 function gameMessage(
     text,
