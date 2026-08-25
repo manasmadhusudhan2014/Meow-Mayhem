@@ -456,9 +456,102 @@ tr:hover td{
     }
 }
 </style>
+
+<style id="catops-organized-main">
+/* CAT OPS organized main screen */
+#mainScreen, .main-screen {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.catops-main-grid {
+  display:grid;
+  grid-template-columns: 1.15fr .85fr;
+  gap:16px;
+  align-items:start;
+}
+.catops-card {
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;
+  padding:14px;
+  background:rgba(20,20,25,.72);
+  box-sizing:border-box;
+}
+.catops-card h2,.catops-card h3 {
+  margin:0 0 10px;
+}
+.catops-actions {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.catops-actions button { width:100%; min-height:44px; }
+.catops-profile {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.catops-stat {
+  padding:10px;
+  border-radius:10px;
+  background:rgba(255,255,255,.06);
+}
+.catops-stat small { display:block; opacity:.7; }
+.catops-language select { width:100%; min-height:42px; }
+.catops-shop { margin-top:16px; }
+.catops-full { grid-column:1 / -1; }
+@media(max-width:760px){
+  .catops-main-grid { grid-template-columns:1fr; }
+  .catops-full { grid-column:auto; }
+}
+</style>
+
 </head>
 
 <body>
+<div id="catopsQuickMenu" class="catops-card" style="max-width:1100px;margin:12px auto;">
+  <h2>🐱 CAT OPS</h2>
+  <div class="catops-main-grid">
+    <div class="catops-card">
+      <h3>🎮 Quick Start</h3>
+      <div class="catops-actions">
+        <button type="button" onclick="document.getElementById('playBtn')?.click()">▶️ PLAY</button>
+        <button type="button" onclick="document.getElementById('shopBtn')?.click()">🛒 SHOP</button>
+        <button type="button" onclick="document.getElementById('craftBtn')?.click()">🛠️ CRAFTING</button>
+        <button type="button" onclick="document.getElementById('classBtn')?.click()">🐱 CLASSES</button>
+      </div>
+    </div>
+
+    <div class="catops-card">
+      <h3>👤 Profile</h3>
+      <div class="catops-profile">
+        <div class="catops-stat"><small>Nickname</small><b id="catopsQuickNickname">—</b></div>
+        <div class="catops-stat"><small>Coins</small><b id="catopsQuickCoins">0</b></div>
+        <div class="catops-stat"><small>Level</small><b id="catopsQuickLevel">1</b></div>
+        <div class="catops-stat"><small>Class</small><b id="catopsQuickClass">Rookie</b></div>
+      </div>
+    </div>
+
+    <div class="catops-card catops-language">
+      <h3>🌍 Language</h3>
+      <div id="catopsLanguageHost"></div>
+    </div>
+
+    <div class="catops-card">
+      <h3>⚙️ Important</h3>
+      <div class="catops-actions">
+        <button type="button" onclick="document.getElementById('changeNickname')?.scrollIntoView({behavior:'smooth'})">👤 CHANGE NICKNAME</button>
+        <button type="button" onclick="document.getElementById('adminBtn')?.click()">👑 ADMIN</button>
+      </div>
+    </div>
+
+    <div class="catops-card catops-full">
+      <h3>📢 Events</h3>
+      <p style="margin:0">🎄 Christmas Event • 🎅 Santa Cat • 🛠️ Level 1000 Crafting</p>
+    </div>
+  </div>
+</div>
+
+
 
 <div id="app">
 
@@ -490,13 +583,36 @@ tr:hover td{
 
 <div class="language-box">
     <label for="languageSelect" id="languageLabel">🌐 Language</label>
-    <select id="languageSelect" onchange="setLanguage(this.value)">
-        <option value="en">English</option>
-        <option value="kn">ಕನ್ನಡ</option>
-        <option value="hi">हिन्दी</option>
-        <option value="te">తెలుగు</option>
-    </select>
+    <select id="languageSelect" aria-label="Language" style="width:100%;padding:10px;font-size:16px;">
+    <option value="en">🇬🇧 English</option>
+    <option value="es">🇪🇸 Español</option>
+    <option value="fr">🇫🇷 Français</option>
+    <option value="de">🇩🇪 Deutsch</option>
+    <option value="it">🇮🇹 Italiano</option>
+    <option value="pt">🇵🇹 Português</option>
+    <option value="ru">🇷🇺 Русский</option>
+    <option value="zh">🇨🇳 中文</option>
+    <option value="ja">🇯🇵 日本語</option>
+    <option value="ko">🇰🇷 한국어</option>
+    <option value="hi">🇮🇳 हिन्दी</option>
+    <option value="kn">🇮🇳 ಕನ್ನಡ</option>
+    <option value="te">🇮🇳 తెలుగు</option>
+    <option value="ta">🇮🇳 தமிழ்</option>
+    <option value="ml">🇮🇳 മലയാളം</option>
+    <option value="id">🇮🇩 Bahasa Indonesia</option>
+    <option value="tr">🇹🇷 Türkçe</option>
+    <option value="vi">🇻🇳 Tiếng Việt</option>
+    <option value="th">🇹🇭 ไทย</option>
+    <option value="ar">🇸🇦 العربية</option>
+</select>
 </div>
+<div id="changeNicknamePanel" class="panel" style="margin-top:10px">
+  <h3>👤 Change Nickname</h3>
+  <input id="newNickname" type="text" maxlength="20" placeholder="Enter new nickname">
+  <button id="changeNickname">Change Nickname</button>
+  <div id="nicknameMessage" style="margin-top:6px"></div>
+</div>
+
 
 <div style="margin-top:8px;font-size:12px;opacity:.8;">
     Creator nickname <b>M_A_N_A_S</b> is reserved.
@@ -756,6 +872,27 @@ WASD / Arrow Keys = Move | Mouse = Aim | Click = Shoot
 /* =========================================================
    DATA
 ========================================================= */
+
+
+/* OP-class alternating special shots:
+   each OP class gets 1 special shot, then 1 normal shot. */
+const OP_ALTERNATING = {
+  "Ice Cat": "ice",
+  "Fire Cat": "fire",
+  "Bomber Cat": "bomb",
+  "Shield Cat": "shield",
+  "Hunter": "crit",
+  "Medic": "heal",
+  "Runner Cat": "speed",
+  "Ninja": "dash",
+  "Sniper": "sniper"
+};
+
+function getOpShotType(className){
+  if(!OP_ALTERNATING[className]) return "normal";
+  specialAltShot[className] = !specialAltShot[className];
+  return specialAltShot[className] ? OP_ALTERNATING[className] : "normal";
+}
 
 const classes = [
 
@@ -4546,7 +4683,204 @@ setInterval(
 
 </script>
 
+
+<script>
+(function(){
+  const names = {
+    en:"English", es:"Español", fr:"Français", de:"Deutsch", it:"Italiano",
+    pt:"Português", ru:"Русский", zh:"中文", ja:"日本語", ko:"한국어",
+    hi:"हिन्दी", kn:"ಕನ್ನಡ", te:"తెలుగు", ta:"தமிழ்", ml:"മലയാളം",
+    id:"Bahasa Indonesia", tr:"Türkçe", vi:"Tiếng Việt", th:"ไทย", ar:"العربية"
+  };
+  const dict = {
+    en:{language:"Language",shop:"SHOP",play:"PLAY",craft:"CRAFTING",classes:"CLASSES",
+        nickname:"Nickname",coins:"Coins",level:"Level",wave:"Wave",start:"Start Game"},
+    es:{language:"Idioma",shop:"TIENDA",play:"JUGAR",craft:"FABRICACIÓN",classes:"CLASES",
+        nickname:"Apodo",coins:"Monedas",level:"Nivel",wave:"Oleada",start:"Iniciar partida"},
+    fr:{language:"Langue",shop:"BOUTIQUE",play:"JOUER",craft:"FABRICATION",classes:"CLASSES",
+        nickname:"Pseudo",coins:"Pièces",level:"Niveau",wave:"Vague",start:"Commencer"},
+    de:{language:"Sprache",shop:"SHOP",play:"SPIELEN",craft:"HERSTELLEN",classes:"KLASSEN",
+        nickname:"Spitzname",coins:"Münzen",level:"Level",wave:"Welle",start:"Spiel starten"},
+    it:{language:"Lingua",shop:"NEGOZIO",play:"GIOCA",craft:"CREAZIONE",classes:"CLASSI",
+        nickname:"Nickname",coins:"Monete",level:"Livello",wave:"Ondata",start:"Inizia partita"},
+    pt:{language:"Idioma",shop:"LOJA",play:"JOGAR",craft:"CRIAÇÃO",classes:"CLASSES",
+        nickname:"Apelido",coins:"Moedas",level:"Nível",wave:"Onda",start:"Começar jogo"},
+    ru:{language:"Язык",shop:"МАГАЗИН",play:"ИГРАТЬ",craft:"КРАФТ",classes:"КЛАССЫ",
+        nickname:"Никнейм",coins:"Монеты",level:"Уровень",wave:"Волна",start:"Начать игру"},
+    zh:{language:"语言",shop:"商店",play:"开始游戏",craft:"制作",classes:"职业",
+        nickname:"昵称",coins:"金币",level:"等级",wave:"波次",start:"开始"},
+    ja:{language:"言語",shop:"ショップ",play:"プレイ",craft:"クラフト",classes:"クラス",
+        nickname:"ニックネーム",coins:"コイン",level:"レベル",wave:"ウェーブ",start:"ゲーム開始"},
+    ko:{language:"언어",shop:"상점",play:"플레이",craft:"제작",classes:"클래스",
+        nickname:"닉네임",coins:"코인",level:"레벨",wave:"웨이브",start:"게임 시작"},
+    hi:{language:"भाषा",shop:"दुकान",play:"खेलें",craft:"क्राफ्टिंग",classes:"क्लास",
+        nickname:"उपनाम",coins:"सिक्के",level:"लेवल",wave:"वेव",start:"गेम शुरू करें"},
+    kn:{language:"ಭಾಷೆ",shop:"ಅಂಗಡಿ",play:"ಆಡಿ",craft:"ಕ್ರಾಫ್ಟಿಂಗ್",classes:"ಕ್ಲಾಸ್‌ಗಳು",
+        nickname:"ಅಡ್ಡಹೆಸರು",coins:"ನಾಣ್ಯಗಳು",level:"ಲೆವೆಲ್",wave:"ವೇವ್",start:"ಆಟ ಪ್ರಾರಂಭಿಸಿ"},
+    te:{language:"భాష",shop:"షాప్",play:"ఆడండి",craft:"క్రాఫ్టింగ్",classes:"క్లాసులు",
+        nickname:"ముద్దుపేరు",coins:"నాణేలు",level:"లెవల్",wave:"వేవ్",start:"గేమ్ ప్రారంభించండి"},
+    ta:{language:"மொழி",shop:"கடை",play:"விளையாடு",craft:"கிராஃப்டிங்",classes:"வகுப்புகள்",
+        nickname:"புனைப்பெயர்",coins:"நாணயங்கள்",level:"நிலை",wave:"அலை",start:"விளையாட்டை தொடங்கு"},
+    ml:{language:"ഭാഷ",shop:"കട",play:"കളിക്കുക",craft:"ക്രാഫ്റ്റിംഗ്",classes:"ക്ലാസുകൾ",
+        nickname:"വിളിപ്പേര്",coins:"നാണയങ്ങൾ",level:"ലെവൽ",wave:"വേവ്",start:"ഗെയിം ആരംഭിക്കുക"},
+    id:{language:"Bahasa",shop:"TOKO",play:"MAIN",craft:"MEMBUAT",classes:"KELAS",
+        nickname:"Nama panggilan",coins:"Koin",level:"Level",wave:"Gelombang",start:"Mulai Game"},
+    tr:{language:"Dil",shop:"MAĞAZA",play:"OYNA",craft:"ÜRETİM",classes:"SINIFLAR",
+        nickname:"Takma ad",coins:"Paralar",level:"Seviye",wave:"Dalga",start:"Oyunu Başlat"},
+    vi:{language:"Ngôn ngữ",shop:"CỬA HÀNG",play:"CHƠI",craft:"CHẾ TẠO",classes:"LỚP",
+        nickname:"Biệt danh",coins:"Xu",level:"Cấp",wave:"Làn sóng",start:"Bắt đầu game"},
+    th:{language:"ภาษา",shop:"ร้านค้า",play:"เล่น",craft:"คราฟต์",classes:"คลาส",
+        nickname:"ชื่อเล่น",coins:"เหรียญ",level:"เลเวล",wave:"เวฟ",start:"เริ่มเกม"},
+    ar:{language:"اللغة",shop:"المتجر",play:"العب",craft:"التصنيع",classes:"الفئات",
+        nickname:"اللقب",coins:"العملات",level:"المستوى",wave:"الموجة",start:"ابدأ اللعبة"}
+  };
+
+  function applyLanguage(code){
+    code = dict[code] ? code : "en";
+    localStorage.setItem("catopsLanguage", code);
+    const s=document.getElementById("languageSelect");
+    const status=document.getElementById("languageStatus");
+    if(s) s.value=code;
+    if(status) status.textContent=names[code];
+
+    // Translate elements that opt into CAT OPS language keys.
+    document.querySelectorAll("[data-i18n]").forEach(el=>{
+      const key=el.getAttribute("data-i18n");
+      if(dict[code][key]) el.textContent=dict[code][key];
+    });
+    document.documentElement.lang=code;
+    document.documentElement.dir=(code==="ar" ? "rtl" : "ltr");
+  }
+
+  window.catopsSetLanguage=applyLanguage;
+  document.addEventListener("DOMContentLoaded",()=>{
+    const s=document.getElementById("languageSelect");
+    if(s) s.addEventListener("change",()=>applyLanguage(s.value));
+    applyLanguage(localStorage.getItem("catopsLanguage") || "en");
+  });
+})();
+</script>
+
+
+<script>
+(function(){
+  const languageNames = {
+    en:"English", es:"Español", fr:"Français", de:"Deutsch", it:"Italiano",
+    pt:"Português", ru:"Русский", zh:"中文", ja:"日本語", ko:"한국어",
+    hi:"हिन्दी", kn:"ಕನ್ನಡ", te:"తెలుగు", ta:"தமிழ்", ml:"മലയാളം",
+    id:"Bahasa Indonesia", tr:"Türkçe", vi:"Tiếng Việt", th:"ไทย", ar:"العربية"
+  };
+
+  function setCATOPSLanguage(code){
+    if(!languageNames[code]) code="en";
+    localStorage.setItem("catopsLanguage", code);
+    const select=document.getElementById("languageSelect");
+    if(select) select.value=code;
+    const status=document.getElementById("languageStatus");
+    if(status) status.textContent=languageNames[code];
+    document.documentElement.lang=code;
+    document.documentElement.dir=(code==="ar" ? "rtl" : "ltr");
+    window.catopsLanguage=code;
+  }
+
+  window.setCATOPSLanguage=setCATOPSLanguage;
+
+  document.addEventListener("DOMContentLoaded", function(){
+    const select=document.getElementById("languageSelect");
+    if(select){
+      select.addEventListener("change", function(){
+        setCATOPSLanguage(this.value);
+      });
+    }
+    setCATOPSLanguage(localStorage.getItem("catopsLanguage") || "en");
+  });
+})();
+</script>
+
+
+<script>
+(function(){
+  function getCurrentNickname(){
+    return localStorage.getItem("catopsNickname") || "";
+  }
+
+  function setNicknameEverywhere(name){
+    // Common nickname variables/DOM elements used by the game.
+    try { if(typeof player !== "undefined" && player) player.nickname = name; } catch(e){}
+    try { if(typeof nickname !== "undefined") nickname = name; } catch(e){}
+    document.querySelectorAll("[data-nickname], #nicknameDisplay, #playerNickname").forEach(el=>{
+      el.textContent = name;
+    });
+    document.querySelectorAll("input[id*='nickname'], input[name*='nickname']").forEach(el=>{
+      if(el.id !== "newNickname") el.value = name;
+    });
+  }
+
+  function changeCATOPSNickname(){
+    const input=document.getElementById("newNickname");
+    const msg=document.getElementById("nicknameMessage");
+    if(!input) return;
+    const name=input.value.trim();
+
+    if(!name){
+      if(msg) msg.textContent="Enter a nickname.";
+      return;
+    }
+    if(name.length < 2){
+      if(msg) msg.textContent="Nickname must be at least 2 characters.";
+      return;
+    }
+    if(name.toUpperCase()==="M_A_N_A_S"){
+      if(msg) msg.textContent="Nickname taken.";
+      return;
+    }
+
+    // Keep nickname available after reload.
+    localStorage.setItem("catopsNickname", name);
+    setNicknameEverywhere(name);
+    if(msg) msg.textContent="Nickname changed to " + name + "!";
+    input.value="";
+  }
+
+  window.changeCATOPSNickname=changeCATOPSNickname;
+
+  document.addEventListener("DOMContentLoaded",()=>{
+    const btn=document.getElementById("changeNickname");
+    if(btn) btn.addEventListener("click", changeCATOPSNickname);
+
+    const saved=getCurrentNickname();
+    if(saved) setNicknameEverywhere(saved);
+  });
+})();
+</script>
+
+
+<script id="catops-organizer-script">
+document.addEventListener("DOMContentLoaded", function(){
+  const host=document.getElementById("catopsLanguageHost");
+  const oldLang=document.getElementById("languageSelect");
+  if(host && oldLang && !host.contains(oldLang)) host.appendChild(oldLang);
+
+  function sync(){
+    const n=localStorage.getItem("catopsNickname") || "Not set";
+    const qn=document.getElementById("catopsQuickNickname");
+    if(qn) qn.textContent=n;
+    try {
+      const c = typeof coins !== "undefined" ? coins : 0;
+      const l = typeof level !== "undefined" ? level : 1;
+      const cl = typeof selectedClass !== "undefined" ? selectedClass : "Rookie";
+      document.getElementById("catopsQuickCoins").textContent=c;
+      document.getElementById("catopsQuickLevel").textContent=l;
+      document.getElementById("catopsQuickClass").textContent=cl;
+    } catch(e){}
+  }
+  sync();
+  setInterval(sync,1000);
+});
+</script>
+
 </body>
 </html>
 game.html
 Displaying game.html. 
+
