@@ -457,99 +457,77 @@ tr:hover td{
 }
 </style>
 
-<style id="catops-organized-main">
-/* CAT OPS organized main screen */
-#mainScreen, .main-screen {
-  max-width: 1100px;
-  margin: 0 auto;
+
+
+
+<style id="catops-clean-main">
+/* Organize existing main screen without creating a second screen */
+.main-screen, #mainScreen {
+  max-width:1100px;
+  margin:0 auto;
 }
-.catops-main-grid {
-  display:grid;
-  grid-template-columns: 1.15fr .85fr;
-  gap:16px;
-  align-items:start;
+.main-screen > .panel, #mainScreen > .panel {
+  margin:12px auto;
 }
-.catops-card {
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:14px;
-  padding:14px;
-  background:rgba(20,20,25,.72);
-  box-sizing:border-box;
+.main-screen .panel:first-child, #mainScreen .panel:first-child {
+  margin-top:0;
 }
-.catops-card h2,.catops-card h3 {
-  margin:0 0 10px;
-}
-.catops-actions {
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:10px;
-}
-.catops-actions button { width:100%; min-height:44px; }
-.catops-profile {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-}
-.catops-stat {
-  padding:10px;
-  border-radius:10px;
-  background:rgba(255,255,255,.06);
-}
-.catops-stat small { display:block; opacity:.7; }
-.catops-language select { width:100%; min-height:42px; }
-.catops-shop { margin-top:16px; }
-.catops-full { grid-column:1 / -1; }
 @media(max-width:760px){
-  .catops-main-grid { grid-template-columns:1fr; }
-  .catops-full { grid-column:auto; }
+  .main-screen, #mainScreen { width:100%; padding:8px; box-sizing:border-box; }
+  .main-screen .panel, #mainScreen .panel { width:100%; box-sizing:border-box; }
+}
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style id="catops-final-compact-ui">
+/* FINAL compact controls */
+#changeNickname{
+  display:inline-block !important;
+  width:125px !important;
+  min-width:125px !important;
+  max-width:125px !important;
+  height:36px !important;
+  min-height:36px !important;
+  padding:6px 8px !important;
+  margin:4px !important;
+  font-size:13px !important;
+  white-space:nowrap !important;
+}
+#newNickname{
+  display:inline-block !important;
+  width:200px !important;
+  max-width:100% !important;
+  height:36px !important;
+  min-height:36px !important;
+  box-sizing:border-box !important;
+}
+#changeNicknamePanel{
+  padding:9px !important;
+}
+#changeNicknamePanel h3{
+  margin:2px 0 6px !important;
+}
+#changeNicknamePanel #nicknameMessage{
+  font-size:12px !important;
 }
 </style>
 
 </head>
 
 <body>
-<div id="catopsQuickMenu" class="catops-card" style="max-width:1100px;margin:12px auto;">
-  <h2>🐱 CAT OPS</h2>
-  <div class="catops-main-grid">
-    <div class="catops-card">
-      <h3>🎮 Quick Start</h3>
-      <div class="catops-actions">
-        <button type="button" onclick="document.getElementById('playBtn')?.click()">▶️ PLAY</button>
-        <button type="button" onclick="document.getElementById('shopBtn')?.click()">🛒 SHOP</button>
-        <button type="button" onclick="document.getElementById('craftBtn')?.click()">🛠️ CRAFTING</button>
-        <button type="button" onclick="document.getElementById('classBtn')?.click()">🐱 CLASSES</button>
-      </div>
-    </div>
 
-    <div class="catops-card">
-      <h3>👤 Profile</h3>
-      <div class="catops-profile">
-        <div class="catops-stat"><small>Nickname</small><b id="catopsQuickNickname">—</b></div>
-        <div class="catops-stat"><small>Coins</small><b id="catopsQuickCoins">0</b></div>
-        <div class="catops-stat"><small>Level</small><b id="catopsQuickLevel">1</b></div>
-        <div class="catops-stat"><small>Class</small><b id="catopsQuickClass">Rookie</b></div>
-      </div>
-    </div>
-
-    <div class="catops-card catops-language">
-      <h3>🌍 Language</h3>
-      <div id="catopsLanguageHost"></div>
-    </div>
-
-    <div class="catops-card">
-      <h3>⚙️ Important</h3>
-      <div class="catops-actions">
-        <button type="button" onclick="document.getElementById('changeNickname')?.scrollIntoView({behavior:'smooth'})">👤 CHANGE NICKNAME</button>
-        <button type="button" onclick="document.getElementById('adminBtn')?.click()">👑 ADMIN</button>
-      </div>
-    </div>
-
-    <div class="catops-card catops-full">
-      <h3>📢 Events</h3>
-      <p style="margin:0">🎄 Christmas Event • 🎅 Santa Cat • 🛠️ Level 1000 Crafting</p>
-    </div>
-  </div>
-</div>
 
 
 
@@ -614,9 +592,7 @@ tr:hover td{
 </div>
 
 
-<div style="margin-top:8px;font-size:12px;opacity:.8;">
-    Creator nickname <b>M_A_N_A_S</b> is reserved.
-</div>
+
 
 </div>
 
@@ -1670,7 +1646,7 @@ function craftGun(){
 ========================================================= */
 
 const translations={
-  en:{play:"PLAY",how:"❓ HOW TO PLAY",craft:"🛠️ CRAFTING — LEVEL 1000",lang:"🌐 Language",classes:"📋 ALL 30 CLASSES",shop:"🛒 SHOP",reserved:"Creator nickname M_A_N_A_S is reserved."},
+  en:{play:"PLAY",how:"❓ HOW TO PLAY",craft:"🛠️ CRAFTING — LEVEL 1000",lang:"🌐 Language",classes:"📋 ALL 30 CLASSES",shop:"🛒 SHOP",reserved:""},
   kn:{play:"ಆಟ ಪ್ರಾರಂಭಿಸಿ",how:"❓ ಹೇಗೆ ಆಡುವುದು",craft:"🛠️ ಕ್ರಾಫ್ಟಿಂಗ್ — ಮಟ್ಟ 1000",lang:"🌐 ಭಾಷೆ",classes:"📋 ಎಲ್ಲಾ 30 ಕ್ಲಾಸ್‌ಗಳು",shop:"🛒 ಅಂಗಡಿ",reserved:"ಸೃಷ್ಟಿಕರ್ತರ ಹೆಸರು M_A_N_A_S ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ."},
   hi:{play:"खेलें",how:"❓ कैसे खेलें",craft:"🛠️ क्राफ्टिंग — लेवल 1000",lang:"🌐 भाषा",classes:"📋 सभी 30 क्लास",shop:"🛒 दुकान",reserved:"क्रिएटर का नाम M_A_N_A_S आरक्षित है।"},
   te:{play:"ఆడండి",how:"❓ ఎలా ఆడాలి",craft:"🛠️ క్రాఫ్టింగ్ — లెవల్ 1000",lang:"🌐 భాష",classes:"📋 అన్ని 30 క్లాసులు",shop:"🛒 షాప్",reserved:"క్రియేటర్ పేరు M_A_N_A_S రిజర్వ్ చేయబడింది."}
@@ -4855,29 +4831,7 @@ setInterval(
 </script>
 
 
-<script id="catops-organizer-script">
-document.addEventListener("DOMContentLoaded", function(){
-  const host=document.getElementById("catopsLanguageHost");
-  const oldLang=document.getElementById("languageSelect");
-  if(host && oldLang && !host.contains(oldLang)) host.appendChild(oldLang);
 
-  function sync(){
-    const n=localStorage.getItem("catopsNickname") || "Not set";
-    const qn=document.getElementById("catopsQuickNickname");
-    if(qn) qn.textContent=n;
-    try {
-      const c = typeof coins !== "undefined" ? coins : 0;
-      const l = typeof level !== "undefined" ? level : 1;
-      const cl = typeof selectedClass !== "undefined" ? selectedClass : "Rookie";
-      document.getElementById("catopsQuickCoins").textContent=c;
-      document.getElementById("catopsQuickLevel").textContent=l;
-      document.getElementById("catopsQuickClass").textContent=cl;
-    } catch(e){}
-  }
-  sync();
-  setInterval(sync,1000);
-});
-</script>
 
 </body>
 </html>
