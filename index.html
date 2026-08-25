@@ -188,6 +188,29 @@ tr:hover td{
 
 /* ================= SHOP ================= */
 
+
+.coming-soon{
+    margin:18px 0;
+    padding:16px;
+    border:2px dashed #f2c94c;
+    border-radius:14px;
+    background:rgba(255,215,80,.08);
+    text-align:center;
+}
+
+.coming-soon h3{
+    margin:0 0 8px;
+}
+
+.coming-soon p{
+    margin:6px 0;
+}
+
+#christmasEventStatus{
+    font-weight:bold;
+    margin-top:8px;
+}
+
 .shop-tabs{
     display:flex;
     gap:8px;
@@ -465,6 +488,10 @@ tr:hover td{
     PLAY
 </button>
 
+<div style="margin-top:8px;font-size:12px;opacity:.8;">
+    Creator nickname <b>M_A_N_A_S</b> is reserved.
+</div>
+
 </div>
 
 <div class="stats">
@@ -582,6 +609,15 @@ Every class has its own signature weapon and ability.
 
 </div>
 
+<!-- =========================================================
+     COMING SOON EVENT
+========================================================= -->
+<div class="coming-soon" id="christmasEventBox">
+    <h3>🎄 CHRISTMAS EVENT — COMING SOON</h3>
+    <p>On <b>December 25</b>, from <b>4:20 PM to 4:40 PM</b>, every class, gun and skin in the shop will be <b>FREE</b>!</p>
+    <div id="christmasEventStatus">Event is coming soon...</div>
+</div>
+
 <div class="shop-tabs">
 
 <button class="active"
@@ -680,6 +716,12 @@ Every class has its own signature weapon and ability.
 WASD / Arrow Keys = Move | Mouse = Aim | Click = Shoot
 </div>
 
+<div id="adminConsole" style="display:none;position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:50;background:rgba(10,10,15,.95);padding:10px;border:2px solid #ffd54a;border-radius:10px;box-shadow:0 0 18px rgba(255,213,74,.25);width:min(92vw,560px);pointer-events:auto">
+  <div style="color:#ffd54a;font-weight:bold;margin-bottom:6px">👑 ADMIN COMMANDS</div>
+  <input id="adminCommandInput" autocomplete="off" placeholder="/help" style="width:100%;box-sizing:border-box;padding:9px;background:#15151c;color:white;border:1px solid #555;border-radius:6px">
+  <div id="adminConsoleOutput" style="font-size:12px;color:#ddd;margin-top:6px;min-height:18px">Type /help for commands</div>
+</div>
+
 <div class="touchControls" id="touchControls">
     <div class="joystick" id="moveStick"><div class="joystickKnob"></div></div>
     <div class="joystick" id="aimStick"><div class="joystickKnob"></div></div>
@@ -757,7 +799,9 @@ const classes = [
 
 {name:"God Cat",weapon:"Divine Cannon",ability:"Massive power",cost:970000},
 
-{name:"OMEGA CAT",weapon:"Omega Destroyer",ability:"Ultimate weapon",cost:999999}
+{name:"OMEGA CAT",weapon:"Omega Destroyer",ability:"Ultimate weapon",cost:999999},
+
+{name:"Santa Cat",weapon:"Gift Box Launcher",ability:"Explosive gift boxes • Christmas only",cost:100000,christmasOnly:true}
 
 ];
 
@@ -840,6 +884,8 @@ if(!save){
         coins:0,
         kills:0,
         nickname:"",
+        christmasFreeClaimed:false,
+        christmasFreeClaimDate:"",
         ownedClasses:[0],
         ownedGuns:[0],
         ownedSkins:[0],
@@ -996,7 +1042,7 @@ function buildClassTable(){
         </td>
 
         <td class="price">
-            ${c.cost.toLocaleString()} 🪙
+            ${c.christmasOnly ? "🎄 DEC 25 ONLY" : c.cost.toLocaleString()+" 🪙"}
         </td>
 
         <td class="${owned?"unlocked":"locked"}">
@@ -1013,6 +1059,65 @@ function buildClassTable(){
 
 
 /* =========================================================
+   CHRISTMAS SHOP EVENT
+========================================================= */
+
+function isChristmasDay(){
+    const now=new Date();
+    return now.getMonth()===11 && now.getDate()===25;
+}
+
+function isChristmasFreeShop(){
+    const now=new Date();
+    const month=now.getMonth(); // December = 11
+    const day=now.getDate();
+    const minutes=now.getHours()*60+now.getMinutes();
+
+    return month===11 && day===25 && minutes>=16*60+20 && minutes<16*60+40;
+}
+
+function christmasEventText(){
+    const status=document.getElementById("christmasEventStatus");
+    if(!status) return;
+
+    if(isChristmasFreeShop()){
+        status.textContent=christmasFreeItemAvailable() ? "🎁 EVENT LIVE! CHOOSE 1 FREE ITEM!" : "🎁 EVENT LIVE! YOUR 1 FREE ITEM HAS ALREADY BEEN CLAIMED.";
+        return;
+    }
+
+    const now=new Date();
+    if(now.getMonth()===11 && now.getDate()===25 && now.getHours()<16){
+        status.textContent="🎄 Starts at 4:20 PM and ends at 4:40 PM.";
+    }else if(now.getMonth()===11 && now.getDate()===25 && now.getHours()>=16 && (now.getHours()<16 || (now.getHours()===16 && now.getMinutes()<40))){
+        status.textContent="🎄 Starts at 4:20 PM — get ready!";
+    }else{
+        status.textContent="🎄 December 25 • 4:20 PM–4:40 PM";
+    }
+}
+
+setInterval(christmasEventText,1000);
+
+/* =========================================================
+   CHRISTMAS FREE ITEM LIMIT
+========================================================= */
+
+function christmasEventKey(){
+    const now=new Date();
+    return now.getFullYear()+"-"+(now.getMonth()+1)+"-"+now.getDate();
+}
+
+function christmasFreeItemAvailable(){
+    return isChristmasFreeShop() &&
+        !(save.christmasFreeClaimed && save.christmasFreeClaimDate===christmasEventKey());
+}
+
+function claimChristmasFreeItem(){
+    save.christmasFreeClaimed=true;
+    save.christmasFreeClaimDate=christmasEventKey();
+    saveGame();
+}
+
+/* =========================================================
    SHOP
 ========================================================= */
 
@@ -1022,6 +1127,8 @@ function openShop(){
 
     document.getElementById("shopScreen")
         .classList.remove("hidden");
+
+    christmasEventText();
 
     shopTab(
         "classes",
@@ -1059,7 +1166,9 @@ function shopTab(tab,button){
                 item.cost,
                 save.ownedClasses.includes(i),
                 save.class===i,
-                ()=>buyClass(i)
+                ()=>buyClass(i),
+                !!item.christmasOnly && !isChristmasDay(),
+                !!item.christmasOnly
             );
 
         });
@@ -1117,7 +1226,9 @@ function addShopCard(
     cost,
     owned,
     equipped,
-    action
+    action,
+    unavailable=false,
+    christmasOnly=false
 ){
 
     const card=
@@ -1125,10 +1236,16 @@ function addShopCard(
 
     card.className="card";
 
-    let text="BUY";
+    const christmasFree=christmasFreeItemAvailable();
+    const displayCost=christmasFree ? 0 : cost;
+
+    let text=christmasFree ? "FREE" : "BUY";
     let cls="buy";
 
-    if(equipped){
+    if(unavailable){
+        text="CHRISTMAS ONLY";
+        cls="cant";
+    }else if(equipped){
 
         text="EQUIPPED";
         cls="equipped";
@@ -1137,7 +1254,7 @@ function addShopCard(
 
         text="EQUIP";
 
-    }else if(save.coins<cost){
+    }else if(!christmasFree && save.coins<cost){
 
         text=
             "NEED "+
@@ -1155,7 +1272,7 @@ function addShopCard(
     <p>${description}</p>
 
     <div class="price">
-        ${cost.toLocaleString()} 🪙
+        ${unavailable ? "🎄 DECEMBER 25 ONLY" : (christmasFree ? "FREE 🎁 (1 ITEM ONLY)" : cost.toLocaleString()+" 🪙")}
     </div>
 
     <br>
@@ -1182,6 +1299,11 @@ function buyClass(i){
 
     const c=classes[i];
 
+    if(c.christmasOnly && !isChristmasDay()){
+        gameMessage("🎄 Santa Cat is available only on December 25!",1200);
+        return;
+    }
+
     if(save.ownedClasses.includes(i)){
 
         save.class=i;
@@ -1194,13 +1316,19 @@ function buyClass(i){
 
     }
 
-    if(save.coins<c.cost){
+    if(!christmasFreeItemAvailable() && save.coins<c.cost){
 
         return;
 
     }
 
-    save.coins-=c.cost;
+    if(!christmasFreeItemAvailable()){
+        save.coins-=c.cost;
+    }
+
+    if(isChristmasFreeShop()){
+        claimChristmasFreeItem();
+    }
 
     save.ownedClasses.push(i);
 
@@ -1229,13 +1357,19 @@ function buyGun(i){
 
     }
 
-    if(save.coins<g.cost){
+    if(!christmasFreeItemAvailable() && save.coins<g.cost){
 
         return;
 
     }
 
-    save.coins-=g.cost;
+    if(!christmasFreeItemAvailable()){
+        save.coins-=g.cost;
+    }
+
+    if(isChristmasFreeShop()){
+        claimChristmasFreeItem();
+    }
 
     save.ownedGuns.push(i);
 
@@ -1264,13 +1398,19 @@ function buySkin(i){
 
     }
 
-    if(save.coins<s.cost){
+    if(!christmasFreeItemAvailable() && save.coins<s.cost){
 
         return;
 
     }
 
-    save.coins-=s.cost;
+    if(!christmasFreeItemAvailable()){
+        save.coins-=s.cost;
+    }
+
+    if(isChristmasFreeShop()){
+        claimChristmasFreeItem();
+    }
 
     save.ownedSkins.push(i);
 
@@ -1399,6 +1539,84 @@ const game={
     }
 
 };
+
+/* =========================================================
+   LOCAL CREATOR ADMIN
+   IMPORTANT: this is only secure for your own local/private build.
+   Anyone who receives the HTML can inspect the key. For a real public
+   game, admin permissions must be checked on a server.
+========================================================= */
+const CREATOR_ADMIN_KEY = "CATOPS-CREATOR-CHANGE-ME";
+let adminMode = false;
+
+function adminOutput(text){
+    const el=document.getElementById("adminConsoleOutput");
+    if(el) el.textContent=text;
+}
+
+function setAdminMode(on){
+    adminMode=!!on;
+    const box=document.getElementById("adminConsole");
+    if(box) box.style.display=adminMode ? "block" : "none";
+    if(adminMode) adminOutput("Admin enabled. Type /help");
+}
+
+function adminHelp(){
+    return "/coins N | /kills N | /heal | /god | /ungod | /night N | /spawn miniboss | /spawn mega | /killall | /unlockall | /free | /exitadmin";
+}
+
+function handleAdminCommand(raw){
+    const text=(raw||"").trim();
+    if(!text) return;
+    const parts=text.split(/\s+/);
+    const cmd=parts[0].toLowerCase();
+    const arg=parts[1];
+
+    if(cmd==="/admin") {
+        if(arg===CREATOR_ADMIN_KEY){ setAdminMode(true); adminOutput("👑 Creator admin enabled"); }
+        else adminOutput("❌ Wrong creator key");
+        return;
+    }
+
+    if(!adminMode){ adminOutput("❌ Admin only. Use /admin YOUR_KEY"); return; }
+
+    if(cmd==="/help"){ adminOutput(adminHelp()); return; }
+    if(cmd==="/exitadmin"){ setAdminMode(false); return; }
+    if(cmd==="/coins"){
+        const n=Math.max(0,Number(arg));
+        if(!Number.isFinite(n)){adminOutput("Usage: /coins 1000");return;}
+        save.coins=Math.floor(n); saveGame(); adminOutput("🪙 Coins set to "+save.coins); return;
+    }
+    if(cmd==="/kills"){
+        const n=Math.max(0,Number(arg));
+        if(!Number.isFinite(n)){adminOutput("Usage: /kills 100");return;}
+        save.kills=Math.floor(n); saveGame(); adminOutput("💀 Kills set to "+save.kills); return;
+    }
+    if(cmd==="/heal"){ game.player.hp=playerMaxHP(); game.timeSinceDamage=0; adminOutput("❤️ Fully healed"); return; }
+    if(cmd==="/god"){ game.player.adminGod=true; adminOutput("🛡️ God mode ON"); return; }
+    if(cmd==="/ungod"){ game.player.adminGod=false; adminOutput("🛡️ God mode OFF"); return; }
+    if(cmd==="/night"){
+        const n=Math.max(1,Math.floor(Number(arg)));
+        if(!Number.isFinite(n)){adminOutput("Usage: /night 10");return;}
+        game.night=n; game.nightTimer=0; updateHUD(); adminOutput("🌙 Night set to "+n); return;
+    }
+    if(cmd==="/spawn"){
+        if(arg==="miniboss"){ game.bossActive=false; spawnMiniboss(); adminOutput("👹 Miniboss spawned"); return; }
+        if(arg==="mega"){ game.bossActive=false; spawnMegaBoss(); adminOutput("👑 Mega Boss spawned"); return; }
+        adminOutput("Usage: /spawn miniboss OR /spawn mega"); return;
+    }
+    if(cmd==="/killall"){
+        game.enemies.length=0; game.bullets=game.bullets.filter(b=>!b.enemyBullet); game.hazards=[]; game.bossActive=false; game.waveSpawned=false;
+        document.getElementById("bossBar").style.display="none"; adminOutput("💥 All enemies removed"); return;
+    }
+    if(cmd==="/unlockall"){
+        save.ownedClasses=classes.map((_,i)=>i); save.ownedGuns=guns.map((_,i)=>i); save.ownedSkins=skins.map((_,i)=>i); saveGame(); buildClassTable(); adminOutput("🔓 All classes, guns and skins unlocked"); return;
+    }
+    if(cmd==="/free"){
+        save.coins=999999999; saveGame(); adminOutput("🪙 Free-shop mode: 999,999,999 coins"); return;
+    }
+    adminOutput("❓ Unknown command. Type /help");
+}
 
 
 /* =========================================================
@@ -1535,6 +1753,32 @@ function syncTouchUI(){
 syncTouchUI();
 window.addEventListener('resize', syncTouchUI);
 
+/* Admin command input */
+document.addEventListener("keydown",function(e){
+    const input=document.getElementById("adminCommandInput");
+    if(!input) return;
+    if(e.key==="Enter" && document.activeElement===input){
+        handleAdminCommand(input.value);
+        input.value="";
+        e.preventDefault();
+    }
+});
+
+/* F8 opens the local creator command box. */
+window.addEventListener("keydown",function(e){
+    if(e.key==="F8"){
+        e.preventDefault();
+        if(adminMode) setAdminMode(false);
+        else {
+            const input=document.getElementById("adminCommandInput");
+            if(input){
+                document.getElementById("adminConsole").style.display="block";
+                input.focus();
+            }
+        }
+    }
+});
+
 /* =========================================================
    KEYBOARD
 ========================================================= */
@@ -1567,6 +1811,17 @@ window.addEventListener(
    START GAME
 ========================================================= */
 
+/* =========================================================
+   RESERVED CREATOR NICKNAME
+========================================================= */
+
+const RESERVED_CREATOR_NICKNAME = "M_A_N_A_S";
+
+function nicknameTaken(nick){
+    return nick.trim().toLowerCase() === RESERVED_CREATOR_NICKNAME.toLowerCase()
+        && (save.nickname || "").trim().toLowerCase() !== RESERVED_CREATOR_NICKNAME.toLowerCase();
+}
+
 function startGame(){
 
     if(game.running){
@@ -1594,6 +1849,12 @@ function startGame(){
 
         if(!/^[A-Za-z0-9_ ]+$/.test(nick)){
             alert("Nickname can only use letters, numbers, spaces and _. ");
+            nickInput.focus();
+            return;
+        }
+
+        if(nicknameTaken(nick)){
+            alert("Nickname taken!");
             nickInput.focus();
             return;
         }
@@ -2100,6 +2361,10 @@ function shoot(){
     let shots=
         gun.shots;
 
+    if(c==="Santa Cat"){
+        shots=1;
+        game.player.shootCooldown=380;
+    }
 
     if(c==="Ninja"){
         shots+=1;
@@ -2165,8 +2430,12 @@ function shoot(){
             explosive:
                 c==="Dragon" ||
                 c==="Inferno King" ||
+                c==="Santa Cat" ||
                 gun.name==="Rocket Launcher" ||
                 gun.name==="Plasma Cannon",
+
+            giftBox:
+                c==="Santa Cat",
 
             freeze:
                 c==="Frost",
@@ -3416,6 +3685,22 @@ function drawPlayer(){
     ctx.fill();
 
 
+    /* SANTA HAT */
+    if(classes[save.class].name==="Santa Cat"){
+        ctx.fillStyle="#d92727";
+        ctx.beginPath();
+        ctx.moveTo(-14,-18);
+        ctx.lineTo(8,-38);
+        ctx.lineTo(15,-18);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle="#ffffff";
+        ctx.fillRect(-15,-20,31,6);
+        ctx.beginPath();
+        ctx.arc(9,-39,5,0,Math.PI*2);
+        ctx.fill();
+    }
+
     /* WEAPON */
 
     ctx.fillStyle="#555";
@@ -3448,6 +3733,24 @@ function drawBullets(){
         const b=
             game.bullets[i];
 
+
+        if(!b.enemyBullet && b.giftBox){
+            ctx.save();
+            ctx.translate(b.x,b.y);
+            ctx.rotate((b.life*0.08)%(Math.PI*2));
+            ctx.shadowBlur=12;
+            ctx.shadowColor="#ffdd55";
+            ctx.fillStyle="#d93636";
+            ctx.fillRect(-9,-9,18,18);
+            ctx.fillStyle="#fff4c2";
+            ctx.fillRect(-2,-9,4,18);
+            ctx.fillRect(-9,-2,18,4);
+            ctx.fillStyle="#ffd84a";
+            ctx.fillRect(-3,-3,6,6);
+            ctx.shadowBlur=0;
+            ctx.restore();
+            continue;
+        }
 
         if(b.enemyBullet && b.kind==="knife"){
             ctx.save();
@@ -3975,14 +4278,6 @@ if(save.nickname && save.nickname.trim()){
     save.nicknameLocked=true;
 }
 
-if(!save.accountId){
-    save.accountId="CAT-"+Math.random().toString(36).slice(2,10).toUpperCase();
-}
-
-if(typeof save.isAdmin!=="boolean"){
-    save.isAdmin=false;
-}
-
 lockNicknameInput();
 
 updateDisplays();
@@ -4006,4 +4301,4 @@ setInterval(
 </body>
 </html>
 game.html
-Displaying game.html. 
+Displaying game.html. c
