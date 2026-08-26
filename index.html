@@ -1,16 +1,13 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>CAT OPS - Medium Graphics - Forest Survival</title>
-
 <style>
 *{
     box-sizing:border-box;
 }
-
 html,body{
     margin:0;
     width:100%;
@@ -20,11 +17,9 @@ html,body{
     color:white;
     font-family:Arial,Helvetica,sans-serif;
 }
-
 button,input{
     font:inherit;
 }
-
 button{
     cursor:pointer;
     border:0;
@@ -32,18 +27,14 @@ button{
     padding:10px 15px;
     font-weight:bold;
 }
-
 .hidden{
     display:none!important;
 }
-
 /* ================= HOME ================= */
-
 #app{
     width:100vw;
     height:100vh;
 }
-
 .screen{
     width:100%;
     height:100%;
@@ -51,7 +42,6 @@ button{
     align-items:center;
     justify-content:center;
 }
-
 .panel{
     width:min(1100px,94vw);
     max-height:94vh;
@@ -62,7 +52,6 @@ button{
     padding:25px;
     box-shadow:0 0 30px #000;
 }
-
 .logo{
     text-align:center;
     font-size:clamp(38px,7vw,58px);
@@ -70,20 +59,17 @@ button{
     text-shadow:0 0 15px #29a52d;
     margin:10px 0 0;
 }
-
 .subtitle{
     text-align:center;
     color:#9eaf9f;
     margin-bottom:25px;
 }
-
 .nickname{
     display:flex;
     justify-content:center;
     gap:10px;
     margin:20px 0;
 }
-
 .nickname input{
     width:300px;
     padding:13px;
@@ -93,20 +79,16 @@ button{
     color:white;
     outline:none;
 }
-
 .primary{
     background:#52d653;
     color:#071008;
 }
-
 .primary:hover{
     background:#72ed72;
 }
-
 .gold{
     color:#ffd84a;
 }
-
 .home-buttons{
     display:flex;
     justify-content:center;
@@ -114,17 +96,14 @@ button{
     gap:12px;
     margin:25px 0;
 }
-
 .home-buttons button{
     background:#17271a;
     color:#fff;
     border:1px solid #46634a;
 }
-
 .home-buttons button:hover{
     background:#27452b;
 }
-
 .stats{
     display:flex;
     justify-content:center;
@@ -132,35 +111,29 @@ button{
     flex-wrap:wrap;
     margin:20px 0;
 }
-
 .stat{
     background:#111c13;
     border:1px solid #334c37;
     border-radius:10px;
     padding:12px 20px;
 }
-
 /* ================= TABLE ================= */
-
 .table-wrap{
     overflow:auto;
     max-height:65vh;
     border:1px solid #304a34;
     border-radius:10px;
 }
-
 table{
     border-collapse:collapse;
     width:100%;
     min-width:850px;
 }
-
 th,td{
     border-bottom:1px solid #263b29;
     padding:10px;
     text-align:left;
 }
-
 th{
     position:sticky;
     top:0;
@@ -168,27 +141,20 @@ th{
     color:#9cff92;
     z-index:2;
 }
-
 tr:hover td{
     background:#142217;
 }
-
 .price{
     color:#ffd84a;
     font-weight:bold;
 }
-
 .locked{
     color:#ff7777;
 }
-
 .unlocked{
     color:#78ed78;
 }
-
 /* ================= SHOP ================= */
-
-
 .coming-soon{
     margin:18px 0;
     padding:16px;
@@ -197,82 +163,66 @@ tr:hover td{
     background:rgba(255,215,80,.08);
     text-align:center;
 }
-
 .coming-soon h3{
     margin:0 0 8px;
 }
-
 .coming-soon p{
     margin:6px 0;
 }
-
 #christmasEventStatus{
     font-weight:bold;
     margin-top:8px;
 }
-
 .shop-tabs{
     display:flex;
     gap:8px;
     flex-wrap:wrap;
     margin-bottom:15px;
 }
-
 .shop-tabs button{
     background:#17271a;
     color:#fff;
 }
-
 .shop-tabs button.active{
     background:#58d85a;
     color:#071008;
 }
-
 .shop-grid{
     display:grid;
     grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
     gap:12px;
 }
-
 .card{
     background:#111b13;
     border:1px solid #314a35;
     border-radius:12px;
     padding:15px;
 }
-
 .card h3{
     margin-top:0;
     color:#a2ff9a;
 }
-
 .card p{
     color:#a8b5aa;
     min-height:40px;
 }
-
 .card button{
     width:100%;
     background:#263b29;
     color:white;
 }
-
 .card button.buy{
     background:#4bc84d;
     color:#071008;
 }
-
 .card button.equipped{
     background:#6e7c70;
     color:#fff;
 }
-
 .card button.cant{
     background:#542b2b;
 }
-
 /* ================= GAME ================= */
-
 #gameScreen{
     display:block;
     position:relative;
@@ -281,11 +231,9 @@ tr:hover td{
     background:#071009;
     overflow:hidden;
 }
-
 #gameScreen, #gameCanvas{
     touch-action:none;
 }
-
 #gameCanvas{
     display:block;
     position:absolute;
@@ -294,7 +242,6 @@ tr:hover td{
     width:100%;
     height:100%;
 }
-
 .hud{
     position:absolute;
     top:10px;
@@ -305,14 +252,12 @@ tr:hover td{
     pointer-events:none;
     z-index:5;
 }
-
 .hudBox{
     background:rgba(5,12,7,.85);
     border:1px solid #426446;
     border-radius:9px;
     padding:8px 12px;
 }
-
 .bar{
     width:190px;
     height:15px;
@@ -321,12 +266,10 @@ tr:hover td{
     overflow:hidden;
     margin-top:4px;
 }
-
 .bar div{
     height:100%;
     background:#56e55b;
 }
-
 #bossBar{
     position:absolute;
     top:82px;
@@ -341,13 +284,11 @@ tr:hover td{
     border-radius:8px;
     display:none;
 }
-
 #bossFill{
     height:12px;
     background:#ef4444;
     border-radius:5px;
 }
-
 #gameMessage{
     position:absolute;
     top:42%;
@@ -357,13 +298,11 @@ tr:hover td{
     pointer-events:none;
     z-index:7;
 }
-
 .bigMessage{
     font-size:48px;
     font-weight:bold;
     text-shadow:0 3px 15px #000;
 }
-
 .controls{
     position:absolute;
     bottom:12px;
@@ -375,7 +314,6 @@ tr:hover td{
     z-index:5;
     font-size:13px;
 }
-
 /* ================= TOUCH CONTROLS ================= */
 .touchControls{
     position:absolute;
@@ -417,49 +355,35 @@ tr:hover td{
     font-size:11px;
     color:#d9e4da;
 }
-
 /* ================= MOBILE ================= */
-
 @media (pointer: coarse) and (hover: none){
     .touchControls{display:block;}
 }
-
 @media(max-width:700px){
-
     .panel{
         padding:15px;
     }
-
     .nickname{
         flex-direction:column;
         align-items:center;
     }
-
     .nickname input{
         width:90%;
     }
-
     .hud{
         font-size:11px;
     }
-
     .bar{
         width:120px;
     }
-
     .bigMessage{
         font-size:34px;
     }
-
     .controls{
         font-size:10px;
     }
 }
 </style>
-
-
-
-
 <style id="catops-clean-main">
 /* Organize existing main screen without creating a second screen */
 .main-screen, #mainScreen {
@@ -477,20 +401,6 @@ tr:hover td{
   .main-screen .panel, #mainScreen .panel { width:100%; box-sizing:border-box; }
 }
 </style>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <style id="catops-final-compact-ui">
 /* FINAL compact controls */
 #changeNickname{
@@ -523,42 +433,27 @@ tr:hover td{
   font-size:12px !important;
 }
 </style>
-
 </head>
-
 <body>
-
-
-
-
 <div id="app">
-
 <!-- =========================================================
      HOME
 ========================================================= -->
-
 <section id="homeScreen" class="screen">
-
 <div class="panel">
-
 <h1 class="logo">🐱 CAT OPS</h1>
-
 <div class="subtitle">
     FOREST SURVIVAL
 </div>
-
 <div class="nickname">
-
 <input
     id="nicknameInput"
     maxlength="16"
     placeholder="Enter your nickname"
 >
-
 <button class="primary" onclick="startGame()" id="playButton">
     PLAY
 </button>
-
 <div class="language-box">
     <label for="languageSelect" id="languageLabel">🌐 Language</label>
     <select id="languageSelect" aria-label="Language" style="width:100%;padding:10px;font-size:16px;">
@@ -590,83 +485,54 @@ tr:hover td{
   <button id="changeNickname">Change Nickname</button>
   <div id="nicknameMessage" style="margin-top:6px"></div>
 </div>
-
-
-
-
 </div>
-
 <div class="stats">
-
 <div class="stat">
     🪙 Coins:
     <b id="coinDisplay" class="gold">0</b>
 </div>
-
 <div class="stat">
     💀 Kills:
     <b id="killDisplay">0</b>
 </div>
-
 <div class="stat">
     ⭐ Class:
     <b id="classDisplay">Rookie</b>
 </div>
-
 <div class="stat">
     🔫 Gun:
     <b id="gunDisplay">Pistol</b>
 </div>
-
 </div>
-
 <div class="home-buttons">
-
 <button onclick="showClasses()">
     📋 ALL 36 classes
 </button>
-
 <button onclick="openShop()">
     🛒 SHOP
 </button>
-
 <button onclick="showInstructions()" id="howToButton">
     ❓ HOW TO PLAY
 </button>
-
 <button onclick="openCrafting()" id="craftButton">
     🛠️ CRAFTING — LEVEL 1000
 </button>
-
 </div>
-
 <div id="homeInfo"></div>
-
 </div>
-
 </section>
-
-
 <!-- =========================================================
      CLASS TABLE
 ========================================================= -->
-
 <section id="classesScreen" class="screen hidden">
-
 <div class="panel">
-
 <h2>📋 ALL 36 classes</h2>
-
 <p>
 Every class has its own signature weapon and ability.
 </p>
-
 <div class="table-wrap">
-
 <table>
-
 <thead>
-
 <tr>
 <th>#</th>
 <th>Class</th>
@@ -675,46 +541,29 @@ Every class has its own signature weapon and ability.
 <th>Cost</th>
 <th>Status</th>
 </tr>
-
 </thead>
-
 <tbody id="classTable"></tbody>
-
 </table>
-
 </div>
-
 <br>
-
 <button onclick="goHome()">
     ← BACK
 </button>
-
 </div>
-
 </section>
-
-
 <!-- =========================================================
      SHOP
 ========================================================= -->
-
 <section id="shopScreen" class="screen hidden">
-
 <div class="panel">
-
 <h2>🛒 CAT OPS SHOP</h2>
-
 <div class="stats">
-
 <div class="stat">
     🪙
     <span id="shopCoins">0</span>
     coins
 </div>
-
 </div>
-
 <!-- =========================================================
      COMING SOON EVENT
 ========================================================= -->
@@ -723,134 +572,85 @@ Every class has its own signature weapon and ability.
     <p>On <b>December 25</b>, from <b>4:20 PM to 4:40 PM</b>, every class, gun and skin in the shop will be <b>FREE</b>!</p>
     <div id="christmasEventStatus">Event is coming soon...</div>
 </div>
-
 <div class="shop-tabs">
-
 <button class="active"
         onclick="shopTab('classes',this)">
     Classes
 </button>
-
 <button onclick="shopTab('guns',this)">
     Guns
 </button>
-
 <button onclick="shopTab('skins',this)">
     Skins / Colour
 </button>
-
 </div>
-
 <div style="font-size:12px;opacity:.75;margin:6px 0">💸 Cheap guns start at 50 coins.</div>
 <div id="shopGrid" class="shop-grid"></div>
-
 <br>
-
 <button onclick="goHome()">
     ← BACK
 </button>
-
 </div>
-
 </section>
-
-
 <!-- =========================================================
      GAME
 ========================================================= -->
-
 <section id="gameScreen" class="hidden">
-
 <canvas id="gameCanvas"></canvas>
-
 <div class="hud">
-
 <div class="hudBox">
-
 🐱 <b id="playerNameHUD">Cat</b>
-
 <br>
-
 ❤️ <span id="hpText">100/100</span>
-
 <div class="bar">
     <div id="hpFill" style="width:100%"></div>
 </div>
-
 </div>
-
 <div class="hudBox">
-
 🪙 <span id="gameCoins">0</span>
-
 &nbsp; | &nbsp;
-
 💀 <span id="gameKills">0</span>
-
 &nbsp; | &nbsp;
-
 ⭐ Level <span id="gameLevel">1</span>
-
 &nbsp; | &nbsp;
-
 🌙 Night <span id="nightText">1</span> <span style="margin-left:12px">🌊 Wave <span id="waveText">1</span></span>
-
 &nbsp; | &nbsp;
-
 🔫 <span id="ammoText">12/12</span>
-
 </div>
-
 <button
     onclick="endGame()"
     style="pointer-events:auto;background:#17271a;color:white">
     🏠 EXIT
 </button>
-
 </div>
-
 <div id="bossBar">
-
 <b id="bossName">
     BOSS
 </b>
-
 <div id="bossFill"
      style="width:100%">
 </div>
-
 </div>
-
 <div id="gameMessage"></div>
-
 <div class="controls">
 WASD / Arrow Keys = Move | Mouse = Aim | Click = Shoot
 </div>
-
 <div id="adminConsole" style="display:none;position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:50;background:rgba(10,10,15,.95);padding:10px;border:2px solid #ffd54a;border-radius:10px;box-shadow:0 0 18px rgba(255,213,74,.25);width:min(92vw,560px);pointer-events:auto">
   <div style="color:#ffd54a;font-weight:bold;margin-bottom:6px">👑 ADMIN COMMANDS</div>
   <input id="adminCommandInput" autocomplete="off" placeholder="/help" style="width:100%;box-sizing:border-box;padding:9px;background:#15151c;color:white;border:1px solid #555;border-radius:6px">
   <div id="adminConsoleOutput" style="font-size:12px;color:#ddd;margin-top:6px;min-height:18px">Type /help for commands</div>
 </div>
-
 <div class="touchControls" id="touchControls">
     <div class="joystick" id="moveStick"><div class="joystickKnob"></div></div>
     <div class="joystick" id="aimStick"><div class="joystickKnob"></div></div>
     <div class="touchHint">LEFT: MOVE &nbsp; • &nbsp; RIGHT: AIM + FIRE</div>
 </div>
-
 </section>
-
 </div>
-
-
 <script>
-
 /* =========================================================
    DATA
 ========================================================= */
-
-
 /* OP-class alternating special shots:
    each OP class gets 1 special shot, then 1 normal shot. */
 const OP_ALTERNATING = {
@@ -864,85 +664,50 @@ const OP_ALTERNATING = {
   "Ninja": "dash",
   "Sniper": "sniper"
 };
-
+const specialAltShot = {};
 function getOpShotType(className){
   if(!OP_ALTERNATING[className]) return "normal";
   specialAltShot[className] = !specialAltShot[className];
   return specialAltShot[className] ? OP_ALTERNATING[className] : "normal";
 }
-
 const classes = [
-
 {name:"Rookie",weapon:"Starter Pistol",ability:"Balanced",cost:0},
-
 {name:"Runner Cat",weapon:"Speed SMG",ability:"+20% movement speed",cost:25},
 {name:"Ice Cat",weapon:"Ice Blaster",ability:"Slows enemies",cost:100},
 {name:"Fire Cat",weapon:"Flame Gun",ability:"Orange fire zones burn enemies",cost:150},
 {name:"Bomber Cat",weapon:"Bomb Launcher",ability:"Bigger explosions",cost:250},
 {name:"Shield Cat",weapon:"Shield Blaster",ability:"Damage reduction",cost:800},
-
 {name:"Scout",weapon:"Scout SMG",ability:"Speed +15%",cost:250},
-
 {name:"Hunter",weapon:"Hunting Rifle",ability:"Critical shots",cost:500},
-
 {name:"Medic",weapon:"Healing Blaster",ability:"FAST HP regeneration",cost:750},
-
 {name:"Ranger",weapon:"Ranger Bow",ability:"Long range",cost:950},
-
 {name:"Gunner",weapon:"Heavy MG",ability:"High fire rate",cost:8500},
-
 {name:"Sniper",weapon:"Wolf Sniper",ability:"Huge damage",cost:12000},
-
 {name:"Pyro",weapon:"Flame Cannon",ability:"Burn enemies",cost:18000},
-
 {name:"Frost",weapon:"Ice Rifle",ability:"Freeze enemies",cost:24000},
-
 {name:"Vampire",weapon:"Blood Blaster",ability:"Lifesteal",cost:30000},
-
 {name:"Assassin",weapon:"Shadow SMG",ability:"Triple damage",cost:40000},
-
 {name:"Engineer",weapon:"Turret Gun",ability:"Deploy turrets",cost:45000},
-
 {name:"Storm",weapon:"Lightning Gun",ability:"Chain lightning",cost:50000},
-
 {name:"Ninja",weapon:"Shuriken Cannon",ability:"Rapid projectiles + dash",cost:70000},
-
 {name:"Berserker",weapon:"Rage Shotgun",ability:"More damage at low HP",cost:90000},
-
 {name:"Paladin",weapon:"Holy Cannon",ability:"Shield + damage",cost:110000},
-
 {name:"Necromancer",weapon:"Soul Rifle",ability:"Summon minions",cost:140000},
-
 {name:"Druid",weapon:"Nature Launcher",ability:"Healing vines",cost:170000},
-
 {name:"Samurai",weapon:"Blade Blaster",ability:"Dash strike",cost:200000},
-
 {name:"Cyber Cat",weapon:"Plasma Rifle",ability:"Energy shots",cost:250000},
-
 {name:"Void Walker",weapon:"Void Cannon",ability:"Black holes",cost:320000},
-
 {name:"Dragon",weapon:"Dragonfire",ability:"Explosive fire",cost:400000},
-
 {name:"Titan",weapon:"Titan Minigun",ability:"Massive HP",cost:500000},
-
 {name:"Shadow Lord",weapon:"Dark Matter Gun",ability:"Darkness field",cost:600000},
-
 {name:"Galaxy",weapon:"Star Cannon",ability:"Meteor shots",cost:700000},
-
 {name:"Time Cat",weapon:"Chrono Rifle",ability:"Slow enemies",cost:780000},
-
 {name:"Inferno King",weapon:"Inferno Launcher",ability:"Fire explosions",cost:850000},
-
 {name:"Death Cat",weapon:"Death Ray",ability:"Instant criticals",cost:920000},
-
 {name:"God Cat",weapon:"Divine Cannon",ability:"Massive power",cost:970000},
-
 {name:"OMEGA CAT",weapon:"Omega Destroyer",ability:"Ultimate weapon",cost:999999},
-
 {name:"Santa Cat",weapon:"Gift Box Launcher",ability:"Explosive gift boxes • Christmas only",cost:100000,christmasOnly:true}
 ];
-
-
 const guns = [
 {name:"Pistol",cost:0,damage:18,rate:320,speed:11,shots:1,shape:"circle",color:"#ffffff"},
 {name:"Pocket SMG",cost:50,damage:8,rate:140,speed:12,shots:1,shape:"square",color:"#ffd166"},
@@ -968,57 +733,31 @@ const guns = [
 {name:"Overdrive Cannon",cost:400000,damage:85,rate:40,speed:23,shots:1,shape:"needle",color:"#15aabf"},
 {name:"Lightning MG",cost:600000,damage:100,rate:35,speed:24,shots:1,shape:"wave",color:"#da77f2"},
 {name:"Omega Rapid Gun",cost:900000,damage:120,rate:30,speed:25,shots:1,shape:"crown",color:"#fab005"}
-
-
-
 ];
-
-
 const skins = [
-
 {name:"Classic Brown",cost:0,color:"#b97845"},
-
 {name:"Snow Cat",cost:1000,color:"#eeeeee"},
-
 {name:"Midnight",cost:5000,color:"#252532"},
-
 {name:"Golden",cost:15000,color:"#e9c84c"},
-
 {name:"Toxic Green",cost:25000,color:"#6ce05e"},
-
 {name:"Electric Blue",cost:50000,color:"#4bc9e8"},
-
 {name:"Ruby",cost:90000,color:"#d64242"},
-
 {name:"Void Purple",cost:150000,color:"#7042b5"},
-
 {name:"Rainbow",cost:300000,color:"rainbow"},
-
 {name:"Diamond",cost:750000,color:"#bff7ff"}
-
 ];
-
-
 /* =========================================================
    SAVE DATA
 ========================================================= */
-
 let save;
-
 try{
-
     save=JSON.parse(
         localStorage.getItem("catOpsSave")
     );
-
 }catch(error){
-
     save=null;
-
 }
-
 if(!save){
-
     save={
         coins:0,
         kills:0,
@@ -1035,12 +774,9 @@ if(!save){
         customGuns:[],
         language:"en"
     };
-
 }
-
 if(!Array.isArray(save.customGuns)) save.customGuns=[];
 if(!save.language) save.language="en";
-
 /* Restore crafted guns into the gun list. */
 function loadCustomGuns(){
     save.customGuns.forEach(g=>{
@@ -1048,106 +784,65 @@ function loadCustomGuns(){
     });
 }
 loadCustomGuns();
-
-
 /* =========================================================
    SAVE FUNCTIONS
 ========================================================= */
-
 function getPlayerLevel(){
     return Math.floor(save.kills / 10) + 1;
 }
-
 function saveGame(){
-
     try{
-
         localStorage.setItem(
             "catOpsSave",
             JSON.stringify(save)
         );
-
     }catch(error){
-
         console.log("Saving unavailable");
-
     }
-
     updateDisplays();
 }
-
-
 function updateDisplays(){
-
     document.getElementById("coinDisplay").textContent=
         save.coins.toLocaleString();
-
     document.getElementById("killDisplay").textContent=
         save.kills.toLocaleString();
-
     const craftButton=document.getElementById("craftButton");
     if(craftButton){
         craftButton.textContent = getPlayerLevel()>=1000 ? "🛠️ CRAFT CUSTOM GUN" : "🛠️ CRAFTING — LEVEL 1000";
         craftButton.disabled = getPlayerLevel()<1000;
     }
-
     document.getElementById("classDisplay").textContent=
         classes[save.class].name;
-
     document.getElementById("gunDisplay").textContent=
         guns[save.gun].name;
-
     document.getElementById("shopCoins").textContent=
         save.coins.toLocaleString();
-
 }
-
-
 /* =========================================================
    SCREEN FUNCTIONS
 ========================================================= */
-
 function hideScreens(){
-
     document.getElementById("homeScreen")
         .classList.add("hidden");
-
     document.getElementById("classesScreen")
         .classList.add("hidden");
-
     document.getElementById("shopScreen")
         .classList.add("hidden");
-
     document.getElementById("gameScreen")
         .classList.add("hidden");
-
 }
-
-
 function goHome(){
-
     endGame(false);
-
     hideScreens();
-
     document.getElementById("homeScreen")
         .classList.remove("hidden");
-
     updateDisplays();
-
 }
-
-
 function showClasses(){
-
     hideScreens();
-
     document.getElementById("classesScreen")
         .classList.remove("hidden");
-
     buildClassTable();
-
-
 window.__controlsTest = {
     getX: function(){ return game.player.x; },
     getY: function(){ return game.player.y; },
@@ -1163,90 +858,61 @@ window.__controlsTest = {
         }
     }
 };
-
-
 }
-
-
 /* =========================================================
    CLASS TABLE
 ========================================================= */
-
 function buildClassTable(){
-
     const tbody=
         document.getElementById("classTable");
-
     tbody.innerHTML="";
-
     classes.forEach((c,i)=>{
-
         const owned=
             save.ownedClasses.includes(i);
-
         const tr=
             document.createElement("tr");
-
         tr.innerHTML=`
-
         <td>${i+1}</td>
-
         <td>
             <b>${c.name}</b>
         </td>
-
         <td>
             🔫 ${c.weapon}
         </td>
-
         <td>
             ${c.ability}
         </td>
-
         <td class="price">
             ${c.christmasOnly ? "🎄 DEC 25 ONLY" : c.cost.toLocaleString()+" 🪙"}
         </td>
-
         <td class="${owned?"unlocked":"locked"}">
             ${owned?"OWNED":"LOCKED"}
         </td>
-
         `;
-
         tbody.appendChild(tr);
-
     });
-
 }
-
-
 /* =========================================================
    CHRISTMAS SHOP EVENT
 ========================================================= */
-
 function isChristmasDay(){
     const now=new Date();
     return now.getMonth()===11 && now.getDate()===25;
 }
-
 function isChristmasFreeShop(){
     const now=new Date();
     const month=now.getMonth(); // December = 11
     const day=now.getDate();
     const minutes=now.getHours()*60+now.getMinutes();
-
     return month===11 && day===25 && minutes>=16*60+20 && minutes<16*60+40;
 }
-
 function christmasEventText(){
     const status=document.getElementById("christmasEventStatus");
     if(!status) return;
-
     if(isChristmasFreeShop()){
         status.textContent=christmasFreeItemAvailable() ? "🎁 EVENT LIVE! CHOOSE 1 FREE ITEM!" : "🎁 EVENT LIVE! YOUR 1 FREE ITEM HAS ALREADY BEEN CLAIMED.";
         return;
     }
-
     const now=new Date();
     if(now.getMonth()===11 && now.getDate()===25 && now.getHours()<16){
         status.textContent="🎄 Starts at 4:20 PM and ends at 4:40 PM.";
@@ -1256,70 +922,48 @@ function christmasEventText(){
         status.textContent="🎄 December 25 • 4:20 PM–4:40 PM";
     }
 }
-
 setInterval(christmasEventText,1000);
-
 /* =========================================================
    CHRISTMAS FREE ITEM LIMIT
 ========================================================= */
-
 function christmasEventKey(){
     const now=new Date();
     return now.getFullYear()+"-"+(now.getMonth()+1)+"-"+now.getDate();
 }
-
 function christmasFreeItemAvailable(){
     return isChristmasFreeShop() &&
         !(save.christmasFreeClaimed && save.christmasFreeClaimDate===christmasEventKey());
 }
-
 function claimChristmasFreeItem(){
     save.christmasFreeClaimed=true;
     save.christmasFreeClaimDate=christmasEventKey();
     saveGame();
 }
-
 /* =========================================================
    SHOP
 ========================================================= */
-
 function openShop(){
-
     hideScreens();
-
     document.getElementById("shopScreen")
         .classList.remove("hidden");
-
     christmasEventText();
-
     shopTab(
         "classes",
         document.querySelector(".shop-tabs button")
     );
-
 }
-
-
 function shopTab(tab,button){
-
     document
         .querySelectorAll(".shop-tabs button")
         .forEach(b=>b.classList.remove("active"));
-
     if(button){
         button.classList.add("active");
     }
-
     const grid=
         document.getElementById("shopGrid");
-
     grid.innerHTML="";
-
-
     if(tab==="classes"){
-
         classes.forEach((item,i)=>{
-
             addShopCard(
                 grid,
                 item.name,
@@ -1332,16 +976,10 @@ function shopTab(tab,button){
                 !!item.christmasOnly && !isChristmasDay(),
                 !!item.christmasOnly
             );
-
         });
-
     }
-
-
     if(tab==="guns"){
-
         guns.forEach((item,i)=>{
-
             addShopCard(
                 grid,
                 item.name,
@@ -1354,16 +992,10 @@ function shopTab(tab,button){
                 save.gun===i,
                 ()=>buyGun(i)
             );
-
         });
-
     }
-
-
     if(tab==="skins"){
-
         skins.forEach((item,i)=>{
-
             addShopCard(
                 grid,
                 item.name,
@@ -1373,14 +1005,9 @@ function shopTab(tab,button){
                 save.skin===i,
                 ()=>buySkin(i)
             );
-
         });
-
     }
-
 }
-
-
 function addShopCard(
     grid,
     name,
@@ -1392,215 +1019,129 @@ function addShopCard(
     unavailable=false,
     christmasOnly=false
 ){
-
     const card=
         document.createElement("div");
-
     card.className="card";
-
     const christmasFree=christmasFreeItemAvailable();
     const displayCost=christmasFree ? 0 : cost;
-
     let text=christmasFree ? "FREE" : "BUY";
     let cls="buy";
-
     if(unavailable){
         text="CHRISTMAS ONLY";
         cls="cant";
     }else if(equipped){
-
         text="EQUIPPED";
         cls="equipped";
-
     }else if(owned){
-
         text="EQUIP";
-
     }else if(!christmasFree && save.coins<cost){
-
         text=
             "NEED "+
             (cost-save.coins).toLocaleString()+
             " MORE";
-
         cls="cant";
-
     }
-
     card.innerHTML=`
-
     <h3>${name}</h3>
-
     <p>${description}</p>
-
     <div class="price">
         ${unavailable ? "🎄 DECEMBER 25 ONLY" : (christmasFree ? "FREE 🎁 (1 ITEM ONLY)" : cost.toLocaleString()+" 🪙")}
     </div>
-
     <br>
-
     <button class="${cls}">
         ${text}
     </button>
-
     `;
-
     card.querySelector("button")
         .onclick=action;
-
     grid.appendChild(card);
-
 }
-
-
 /* =========================================================
    BUY FUNCTIONS
 ========================================================= */
-
 function buyClass(i){
-
     const c=classes[i];
-
     if(c.christmasOnly && !isChristmasDay()){
         gameMessage("🎄 Santa Cat is available only on December 25!",1200);
         return;
     }
-
     if(save.ownedClasses.includes(i)){
-
         save.class=i;
-
         saveGame();
-
         openShop();
-
         return;
-
     }
-
     if(!christmasFreeItemAvailable() && save.coins<c.cost){
-
         return;
-
     }
-
     if(!christmasFreeItemAvailable()){
         save.coins-=c.cost;
     }
-
     if(isChristmasFreeShop()){
         claimChristmasFreeItem();
     }
-
     save.ownedClasses.push(i);
-
     save.class=i;
-
     saveGame();
-
     openShop();
-
 }
-
-
 function buyGun(i){
-
     const g=guns[i];
-
     if(save.ownedGuns.includes(i)){
-
         save.gun=i;
-
         saveGame();
-
         openShop();
-
         return;
-
     }
-
     if(!christmasFreeItemAvailable() && save.coins<g.cost){
-
         return;
-
     }
-
     if(!christmasFreeItemAvailable()){
         save.coins-=g.cost;
     }
-
     if(isChristmasFreeShop()){
         claimChristmasFreeItem();
     }
-
     save.ownedGuns.push(i);
-
     save.gun=i;
-
     saveGame();
-
     openShop();
-
 }
-
-
 function buySkin(i){
-
     const s=skins[i];
-
     if(save.ownedSkins.includes(i)){
-
         save.skin=i;
-
         saveGame();
-
         openShop();
-
         return;
-
     }
-
     if(!christmasFreeItemAvailable() && save.coins<s.cost){
-
         return;
-
     }
-
     if(!christmasFreeItemAvailable()){
         save.coins-=s.cost;
     }
-
     if(isChristmasFreeShop()){
         claimChristmasFreeItem();
     }
-
     save.ownedSkins.push(i);
-
     save.skin=i;
-
     saveGame();
-
     openShop();
-
 }
-
-
 /* =========================================================
    CRAFTING — UNLOCKS AT LEVEL 1000
 ========================================================= */
-
 function openCrafting(){
     if(getPlayerLevel()<1000){
         alert("Crafting unlocks at Level 1000! You are Level "+getPlayerLevel()+".");
         return;
     }
-
     const owned=save.ownedGuns.filter(i=>guns[i]);
     if(owned.length<2){
         document.getElementById("homeInfo").innerHTML='<div class="craft-panel"><h3>🛠️ CUSTOM GUN CRAFTING</h3><p>You need at least 2 owned guns to merge.</p></div>';
         return;
     }
-
     let options=owned.map(i=>'<option value="'+i+'">'+guns[i].name+'</option>').join('');
     document.getElementById("homeInfo").innerHTML=`
       <div class="craft-panel">
@@ -1613,7 +1154,6 @@ function openCrafting(){
         <div class="craft-result">🔓 Unlocked at Level 1000</div>
       </div>`;
 }
-
 function craftGun(){
     if(getPlayerLevel()<1000) return;
     const a=Number(document.getElementById("craftGun1").value);
@@ -1642,23 +1182,19 @@ function craftGun(){
     alert("🛠️ Custom gun created: "+name+"!");
     openCrafting();
 }
-
 /* =========================================================
    MAIN SCREEN LANGUAGE
 ========================================================= */
-
 const translations={
   en:{play:"PLAY",how:"❓ HOW TO PLAY",craft:"🛠️ CRAFTING — LEVEL 1000",lang:"🌐 Language",classes:"📋 ALL 36 classes",shop:"🛒 SHOP",reserved:""},
   kn:{play:"ಆಟ ಪ್ರಾರಂಭಿಸಿ",how:"❓ ಹೇಗೆ ಆಡುವುದು",craft:"🛠️ ಕ್ರಾಫ್ಟಿಂಗ್ — ಮಟ್ಟ 1000",lang:"🌐 ಭಾಷೆ",classes:"📋 ಎಲ್ಲಾ 30 ಕ್ಲಾಸ್‌ಗಳು",shop:"🛒 ಅಂಗಡಿ",reserved:"ಸೃಷ್ಟಿಕರ್ತರ ಹೆಸರು M_A_N_A_S ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ."},
   hi:{play:"खेलें",how:"❓ कैसे खेलें",craft:"🛠️ क्राफ्टिंग — लेवल 1000",lang:"🌐 भाषा",classes:"📋 सभी 30 क्लास",shop:"🛒 दुकान",reserved:"क्रिएटर का नाम M_A_N_A_S आरक्षित है।"},
   te:{play:"ఆడండి",how:"❓ ఎలా ఆడాలి",craft:"🛠️ క్రాఫ్టింగ్ — లెవల్ 1000",lang:"🌐 భాష",classes:"📋 అన్ని 30 క్లాసులు",shop:"🛒 షాప్",reserved:"క్రియేటర్ పేరు M_A_N_A_S రిజర్వ్ చేయబడింది."}
 };
-
 function setLanguage(lang){
     if(!translations[lang]) lang="en";
     save.language=lang; saveGame(); applyLanguage();
 }
-
 function applyLanguage(){
     const t=translations[save.language||"en"];
     const q=id=>document.getElementById(id);
@@ -1671,126 +1207,77 @@ function applyLanguage(){
     const r=document.querySelector('.nickname div'); if(r) r.textContent=t.reserved;
     const sel=q("languageSelect"); if(sel) sel.value=save.language||"en";
 }
-
 /* =========================================================
    INSTRUCTIONS
 ========================================================= */
-
 function showInstructions(){
-
     document.getElementById("homeInfo").innerHTML=`
-
     <div class="card">
-
     <h3>🎮 HOW TO PLAY</h3>
-
     <p>
         Survive the forest and defeat enemies.
     </p>
-
     <p>
         💀 Normal enemy = <b>1 coin</b>
     </p>
-
     <p>
         👹 Miniboss = <b>5 coins</b>
     </p>
-
     <p>
         👑 Mega Boss = <b>10 coins</b>
     </p>
-
     <p>
         Buy classes, guns and skins from the shop.
     </p>
-
     <p>
         WASD / Arrow Keys = Move
     </p>
-
     <p>
         Mouse = Aim
     </p>
-
     <p>
         Mouse Click = Shoot
     </p>
-
     </div>
-
     `;
-
 }
-
-
 /* =========================================================
    GAME
 ========================================================= */
-
 const canvas=
     document.getElementById("gameCanvas");
-
 const ctx=
     canvas.getContext("2d");
-
-
 let mouse={
     x:0,
     y:0,
     down:false
 };
-
-
 const game={
-
     running:false,
-
     lastTime:0,
-
     bullets:[],
-
     enemies:[],
-
     particles:[],
-
     hazards:[],
-
     spawnTimer:0,
-
     enemyTimer:0,
-
     night:1,
-
     nightTimer:0,
-
     waveSpawned:false,
-
     bossActive:false,
-
     timeSinceDamage:0,
-
     player:{
-
         x:500,
-
         y:400,
-
         hp:100,
-
         angle:0,
-
         shootCooldown:0,
-
         ammo:14,
-
         reloadTimer:0,
-
         dashCooldown:0
-
     }
-
 };
-
 /* =========================================================
    LOCAL CREATOR ADMIN
    IMPORTANT: this is only secure for your own local/private build.
@@ -1799,38 +1286,31 @@ const game={
 ========================================================= */
 const CREATOR_ADMIN_KEY = "CATOPS-CREATOR-CHANGE-ME";
 let adminMode = false;
-
 function adminOutput(text){
     const el=document.getElementById("adminConsoleOutput");
     if(el) el.textContent=text;
 }
-
 function setAdminMode(on){
     adminMode=!!on;
     const box=document.getElementById("adminConsole");
     if(box) box.style.display=adminMode ? "block" : "none";
     if(adminMode) adminOutput("Admin enabled. Type /help");
 }
-
 function adminHelp(){
     return "/coins N | /kills N | /heal | /god | /ungod | /night N | /spawn miniboss | /spawn mega | /killall | /unlockall | /free | /exitadmin";
 }
-
 function handleAdminCommand(raw){
     const text=(raw||"").trim();
     if(!text) return;
     const parts=text.split(/\s+/);
     const cmd=parts[0].toLowerCase();
     const arg=parts[1];
-
     if(cmd==="/admin") {
         if(arg===CREATOR_ADMIN_KEY){ setAdminMode(true); adminOutput("👑 Creator admin enabled"); }
         else adminOutput("❌ Wrong creator key");
         return;
     }
-
     if(!adminMode){ adminOutput("❌ Admin only. Use /admin YOUR_KEY"); return; }
-
     if(cmd==="/help"){ adminOutput(adminHelp()); return; }
     if(cmd==="/exitadmin"){ setAdminMode(false); return; }
     if(cmd==="/coins"){
@@ -1868,12 +1348,52 @@ function handleAdminCommand(raw){
     }
     adminOutput("❓ Unknown command. Type /help");
 }
-
-
 /* =========================================================
    CANVAS
 ========================================================= */
-
+let forestCanvas=null;
+function buildForestCanvas(){
+    if(!forestCanvas){
+        forestCanvas=document.createElement("canvas");
+    }
+    forestCanvas.width=canvas.width;
+    forestCanvas.height=canvas.height;
+    const fctx=forestCanvas.getContext("2d");
+    fctx.fillStyle="#08150b";
+    fctx.fillRect(0,0,forestCanvas.width,forestCanvas.height);
+    const grid=80;
+    fctx.strokeStyle="rgba(45,100,52,.16)";
+    fctx.lineWidth=1;
+    for(let x=0;x<forestCanvas.width;x+=grid){
+        fctx.beginPath();
+        fctx.moveTo(x,0);
+        fctx.lineTo(x,forestCanvas.height);
+        fctx.stroke();
+    }
+    for(let y=0;y<forestCanvas.height;y+=grid){
+        fctx.beginPath();
+        fctx.moveTo(0,y);
+        fctx.lineTo(forestCanvas.width,y);
+        fctx.stroke();
+    }
+    for(let x=50;x<forestCanvas.width;x+=160){
+        for(let y=50;y<forestCanvas.height;y+=160){
+            fctx.fillStyle="#102719";
+            fctx.beginPath();
+            fctx.arc(x,y,18,0,Math.PI*2);
+            fctx.fill();
+        }
+    }
+}
+let vignetteGradient=null;
+function buildVignette(){
+    vignetteGradient=ctx.createRadialGradient(
+        canvas.width/2,canvas.height/2,Math.min(canvas.width,canvas.height)*0.25,
+        canvas.width/2,canvas.height/2,Math.max(canvas.width,canvas.height)*0.75
+    );
+    vignetteGradient.addColorStop(0,"rgba(0,0,0,0)");
+    vignetteGradient.addColorStop(1,"rgba(0,0,0,0.25)");
+}
 function resizeCanvas(){
     /* Keep the internal render resolution small so old PCs do not
        have to redraw a 1080p canvas every frame. CSS still scales it
@@ -1884,31 +1404,26 @@ function resizeCanvas(){
     const scale = Math.min(1, Math.sqrt(maxPixels/(w*h)));
     canvas.width = Math.max(320, Math.floor(w*scale));
     canvas.height = Math.max(240, Math.floor(h*scale));
+    buildForestCanvas();
+    buildVignette();
 }
-
-
 window.addEventListener(
     "resize",
     resizeCanvas
 );
-
-
 /* =========================================================
    MOUSE
 ========================================================= */
-
 function setAimFromClient(clientX, clientY){
     const r=canvas.getBoundingClientRect();
     if(!r.width || !r.height) return;
     mouse.x=(clientX-r.left)*(canvas.width/r.width);
     mouse.y=(clientY-r.top)*(canvas.height/r.height);
 }
-
 function isJoystickEvent(e){
     const t=e.target;
     return !!(t && t.closest && t.closest('.joystick'));
 }
-
 function onAimPointerDown(e){
     if(isJoystickEvent(e)) return;
     if(e.target && e.target.closest && e.target.closest('button, input, a, .card')) return;
@@ -1916,40 +1431,32 @@ function onAimPointerDown(e){
     setAimFromClient(e.clientX, e.clientY);
     mouse.down=true;
 }
-
 function onAimPointerMove(e){
     if(isJoystickEvent(e)) return;
     if(touchState.aimId!=null) return;
     setAimFromClient(e.clientX, e.clientY);
 }
-
 function onAimPointerUp(e){
     if(isJoystickEvent(e)) return;
     if(e.pointerType==='mouse' && e.button!==0) return;
     mouse.down=false;
 }
-
 window.addEventListener('pointerdown', onAimPointerDown);
 window.addEventListener('pointermove', onAimPointerMove);
 window.addEventListener('pointerup', onAimPointerUp);
 window.addEventListener('pointercancel', function(){ mouse.down=false; });
-
-
 /* =========================================================
    MOBILE TOUCH CONTROLS
 ========================================================= */
-
 const touchState={
     moveX:0, moveY:0, aimX:0, aimY:0, aiming:false,
     moveId:null, aimId:null
 };
-
 function setupJoystick(id, side){
     const stick=document.getElementById(id);
     if(!stick) return;
     const knob=stick.querySelector('.joystickKnob');
     const max=34;
-
     function update(e){
         const r=stick.getBoundingClientRect();
         const cx=r.left+r.width/2, cy=r.top+r.height/2;
@@ -1978,10 +1485,8 @@ function setupJoystick(id, side){
     stick.addEventListener('pointerup',e=>{ reset(); });
     stick.addEventListener('pointercancel',e=>{ reset(); });
 }
-
 setupJoystick('moveStick','move');
 setupJoystick('aimStick','aim');
-
 function isTouchPlay(){
     try{
         return window.matchMedia('(pointer: coarse)').matches && navigator.maxTouchPoints>0;
@@ -1989,7 +1494,6 @@ function isTouchPlay(){
         return navigator.maxTouchPoints>0 && window.innerWidth<700;
     }
 }
-
 function syncTouchUI(){
     const el=document.getElementById('touchControls');
     if(!el) return;
@@ -2000,10 +1504,8 @@ function syncTouchUI(){
         touchState.moveId=null; touchState.aimId=null;
     }
 }
-
 syncTouchUI();
 window.addEventListener('resize', syncTouchUI);
-
 /* Admin command input */
 document.addEventListener("keydown",function(e){
     const input=document.getElementById("adminCommandInput");
@@ -2014,7 +1516,6 @@ document.addEventListener("keydown",function(e){
         e.preventDefault();
     }
 });
-
 /* F8 opens the local creator command box. */
 window.addEventListener("keydown",function(e){
     if(e.key==="F8"){
@@ -2029,227 +1530,154 @@ window.addEventListener("keydown",function(e){
         }
     }
 });
-
 /* =========================================================
    KEYBOARD
 ========================================================= */
-
 const keys={};
-
 window.addEventListener(
     "keydown",
     function(e){
-
         keys[e.key]=true;
         keys[e.key.toLowerCase()]=true;
-
     }
 );
-
-
 window.addEventListener(
     "keyup",
     function(e){
-
         keys[e.key]=false;
         keys[e.key.toLowerCase()]=false;
-
     }
 );
-
-
 /* =========================================================
    START GAME
 ========================================================= */
-
 /* =========================================================
    RESERVED CREATOR NICKNAME
 ========================================================= */
-
 const RESERVED_CREATOR_NICKNAME = "M_A_N_A_S";
-
 function nicknameTaken(nick){
     return nick.trim().toLowerCase() === RESERVED_CREATOR_NICKNAME.toLowerCase()
         && (save.nickname || "").trim().toLowerCase() !== RESERVED_CREATOR_NICKNAME.toLowerCase();
 }
-
 function startGame(){
-
     if(game.running){ return; }
-
     const nickInput=document.getElementById("nicknameInput");
     const nick=nickInput.value.trim();
-
     if(!nick){
         alert("Choose a nickname first!");
         nickInput.focus();
         return;
     }
-
     if(nick.length < 3 || nick.length > 16){
         alert("Nickname must be 3-16 characters.");
         nickInput.focus();
         return;
     }
-
     if(!/^[A-Za-z0-9_ ]+$/.test(nick)){
         alert("Nickname can only use letters, numbers, spaces and _.");
         nickInput.focus();
         return;
     }
-
     if(nicknameTaken(nick)){
         alert("Nickname taken!");
         nickInput.focus();
         return;
     }
-
     save.nickname=nick;
     save.nicknameLocked=false;
     saveGame();
-
     saveGame();
-
     hideScreens();
-
     document.getElementById("gameScreen")
         .classList.remove("hidden");
-
     resizeCanvas();
-
     game.running=true;
-
     game.lastTime=
         performance.now();
-
     game.spawnTimer=0;
-
     game.enemyTimer=0;
-
     game.waveSpawned=false;
     game.wave=1;
     game.bossActive=false;
     game.timeSinceDamage=0;
-
     game.bullets=[];
-
     game.enemies=[];
-
     game.particles=[];
     game.hazards=[];
-
     game.night=1;
-
     game.nightTimer=0;
-
     game.player.x=
         canvas.width/2;
-
     game.player.y=
         canvas.height/2;
-
     game.player.hp=
         playerMaxHP();
-
     game.player.angle=0;
-
     game.player.shootCooldown=0;
     game.player.reloadTimer=0;
     game.player.ammo=magSize();
-
     mouse.down=false;
     mouse.x=canvas.width*0.75;
     mouse.y=canvas.height/2;
     game.player.angle=0;
-
     syncTouchUI();
     resizeCanvas();
     game.player.x=canvas.width/2;
     game.player.y=canvas.height/2;
-
     document.getElementById(
         "playerNameHUD"
     ).textContent=save.nickname;
-
-
     document.getElementById(
         "bossBar"
     ).style.display="none";
-
     requestAnimationFrame(loop);
-
 }
-
-
 /* =========================================================
    PLAYER STATS
 ========================================================= */
-
 function playerMaxHP(){
-
     let hp=100;
-
     if(classes[save.class].name==="Titan"){
         hp=220;
     }
-
     if(classes[save.class].name==="Paladin"){
         hp=140;
     }
-
     if(classes[save.class].name==="Berserker"){
         hp=120;
     }
-
     return hp;
-
 }
-
-
 function playerSpeed(){
-
     let speed=3.5;
-
     if(classes[save.class].name==="Scout"){
         speed*=1.15;
     }
     if(classes[save.class].name==="Runner Cat"){
         speed*=1.2;
     }
-
     if(classes[save.class].name==="Ninja"){
         speed*=1.3;
     }
-
     if(classes[save.class].name==="Time Cat"){
         speed*=1.1;
     }
-
     return speed;
-
 }
-
-
 function playerDamage(){
-
     let d=
         guns[save.gun].damage;
-
     const c=
         classes[save.class].name;
-
     if(c==="Gunner"){
         d*=1.15;
     }
-
     if(c==="Sniper"){
         d*=1.7;
     }
-
     if(c==="Assassin"){
         d*=1.45;
     }
-
     if(
         c==="Berserker" &&
         game.player.hp<
@@ -2257,149 +1685,91 @@ function playerDamage(){
     ){
         d*=2;
     }
-
     if(c==="Paladin"){
         d*=1.2;
     }
-
     if(c==="Cyber Cat"){
         d*=1.3;
     }
-
     if(c==="Dragon"){
         d*=1.35;
     }
-
     if(c==="Death Cat"){
         d*=1.6;
     }
-
     if(c==="God Cat"){
         d*=2.5;
     }
-
     if(c==="OMEGA CAT"){
         d*=4;
     }
-
     return d;
-
 }
-
-
 /* =========================================================
    ENEMY LIMIT
 ========================================================= */
-
 function enemyCount(){
-
     return Math.min(
         35,
         6+game.night*2
     );
-
 }
-
-
 /* =========================================================
    SPAWN NORMAL ENEMY
 ========================================================= */
-
 function spawnEnemy(){
-
     if(game.bossActive){
         return;
     }
-
     if(
         game.enemies.length>=
         enemyCount()
     ){
-
         return;
-
     }
-
     const edge=
         Math.floor(Math.random()*4);
-
     let x,y;
-
     if(edge===0){
-
         x=Math.random()*canvas.width;
         y=-40;
-
     }
-
     if(edge===1){
-
         x=canvas.width+40;
         y=Math.random()*canvas.height;
-
     }
-
     if(edge===2){
-
         x=Math.random()*canvas.width;
         y=canvas.height+40;
-
     }
-
     if(edge===3){
-
         x=-40;
         y=Math.random()*canvas.height;
-
     }
-
-
     let roll=
         Math.random();
-
     let type="basic";
-
     if(roll<.08){
-
         type="fast";
-
     }else if(roll<.15){
-
         type="tank";
-
     }else if(roll<.20){
-
         type="ranged";
-
     }else if(roll<.25){
-
         type="bomber";
-
     }else if(roll<.29){
-
         type="shadow";
-
     }
-
-
     const hp=
         type==="tank"
         ?120+game.night*20
         :30+game.night*4;
-
-
     game.enemies.push({
-
         x:x,
-
         y:y,
-
         type:type,
-
         hp:hp,
-
         maxHp:hp,
-
         speed:
             type==="fast"
             ?2.7
@@ -2412,7 +1782,6 @@ function spawnEnemy(){
             :type==="shadow"
             ?2.0
             :1.6,
-
         size:
             type==="tank"
             ?25
@@ -2423,144 +1792,88 @@ function spawnEnemy(){
             :type==="shadow"
             ?16
             :17,
-
         shoot:
             Math.random()*2000,
-
         freeze:0,
         burn:0,
         burnDamage:0,
         invisible:false,
         shadowTimer:Math.random()*240,
-
         boss:false,
-
         reward:1,
-
         touchCooldown:0
-
     });
-
 }
-
-
 /* =========================================================
    MINIBOSS
 ========================================================= */
-
 function spawnMiniboss(){
-
     if(game.bossActive){
         return;
     }
-
     game.enemies.length=0;
     game.bullets=game.bullets.filter(b=>!b.enemyBullet);
     game.bossActive=true;
     game.waveSpawned=false;
-
     const pos=spawnAtVisibleEdge(56);
-
     const hp=
         500+game.night*100;
-
     game.enemies.push({
-
         x: pos.x,
-
         y: pos.y,
-
         type:"miniboss",
-
         hp:hp,
-
         maxHp:hp,
-
         speed:1.15,
-
         size:35,
-
         shoot:450,
         dashTimer:3200,
-
         freeze:0,
-
         boss:true,
-
         reward:5,
-
         touchCooldown:0
-
     });
-
     document.getElementById("bossBar").style.display="block";
     document.getElementById("bossName").textContent="MINIBOSS";
-
 }
-
-
 /* =========================================================
    MEGA BOSS
 ========================================================= */
-
 function spawnMegaBoss(){
-
     if(game.bossActive){
         return;
     }
-
     game.enemies.length=0;
     game.bullets=game.bullets.filter(b=>!b.enemyBullet);
     game.bossActive=true;
     game.waveSpawned=false;
-
     const pos=spawnAtVisibleEdge(70);
-
     const hp=
         1800+game.night*300;
-
     game.enemies.push({
-
         x: pos.x,
-
         y: pos.y,
-
         type:"mega",
-
         hp:hp,
-
         maxHp:hp,
-
         speed:.8,
-
         size:55,
-
         shoot:1200,
         shieldTimer:4200,
         shield:0,
-
         freeze:0,
-
         boss:true,
-
         reward:10,
-
         touchCooldown:0
-
     });
-
     document.getElementById(
         "bossBar"
     ).style.display="block";
-
     document.getElementById(
         "bossName"
     ).textContent=
         "👑 MEGA BOSS";
-
 }
-
-
 function magSize(){
     const g=guns[save.gun];
     if(g.name==="Minigun") return 80;
@@ -2572,7 +1885,6 @@ function magSize(){
     if(g.name==="Omega Blaster") return 16;
     return 14;
 }
-
 function spawnAtVisibleEdge(pad){
     pad = pad || 48;
     const w=canvas.width, h=canvas.height;
@@ -2582,228 +1894,154 @@ function spawnAtVisibleEdge(pad){
     if(edge===2) return {x: pad+Math.random()*Math.max(1,w-pad*2), y: h-pad};
     return {x: pad, y: pad+Math.random()*Math.max(1,h-pad*2)};
 }
-
 function clampToArena(e){
     const m = (e.size||18) + 6;
     e.x = Math.max(m, Math.min(canvas.width-m, e.x));
     e.y = Math.max(m, Math.min(canvas.height-m, e.y));
 }
-
 /* =========================================================
    SHOOT
 ========================================================= */
-
 function shoot(){
-
     const gun=
         guns[save.gun];
-
     if(game.player.reloadTimer>0){
         return;
     }
-
     if(game.player.shootCooldown>0){
         return;
     }
-
     if(game.player.ammo<=0){
         game.player.reloadTimer=55;
         gameMessage("RELOADING", 500);
         return;
     }
-
     game.player.shootCooldown=
         gun.rate;
-
     game.player.ammo--;
-
-
     const c=
         classes[save.class].name;
-
     // OP classes alternate: special shot, then normal shot.
     const opShot = getOpShotType(c);
-
     let shots=
         gun.shots;
-
     if(c==="Santa Cat"){
         shots=1;
         game.player.shootCooldown=380;
     }
-
     if(c==="Ninja"){
         shots+=1;
     }
-
     if(c==="OMEGA CAT"){
         shots+=2;
     }
-
-
     for(let i=0;i<shots;i++){
-
         let spread=
             shots===1
             ?0
             :(Math.random()-.5)*.35;
-
-
         let angle=
             game.player.angle+
             spread;
-
-
         let damage=
             playerDamage();
-
-
         if(
             c==="Hunter" &&
             Math.random()<.25
         ){
-
             damage*=2;
-
         }
-
-
         if(
             c==="Death Cat" &&
             Math.random()<.3
         ){
-
             damage*=4;
-
         }
-
-
         const barrel=28;
         game.bullets.push({
-
             x:game.player.x+Math.cos(angle)*barrel,
-
             y:game.player.y+Math.sin(angle)*barrel,
-
             vx:Math.cos(angle)*gun.speed,
-
             vy:Math.sin(angle)*gun.speed,
-
             damage:damage,
-
             life:100,
-
             explosive:
                 c==="Dragon" ||
                 c==="Inferno King" ||
                 c==="Santa Cat" ||
                 gun.name==="Rocket Launcher" ||
                 gun.name==="Plasma Cannon",
-
             giftBox:
                 c==="Santa Cat",
-
             freeze:
                 c==="Ice Cat",
-
             burn:
                 c==="Fire Cat" && opShot==="fire",
-
             fireZone:
                 c==="Fire Cat" && opShot==="fire",
-
             bomber:
                 c==="Bomber Cat",
-
             lightning:
                 c==="Storm" || gun.name==="Thunder Gun",
-
             piercing:
                 gun.name==="Laser Gun" || gun.name==="Omega Blaster",
-
             lifesteal:
                 c==="Vampire",
-
             enemyBullet:false,
             weaponName:gun.name
-
         });
-
     }
-
 }
-
-
 /* =========================================================
    UPDATE PLAYER
 ========================================================= */
-
 function updatePlayer(dt){
-
     let dx=touchState.moveX;
     let dy=touchState.moveY;
-
-
     if(
         keys["w"] ||
         keys["ArrowUp"]
     ){
         dy--;
     }
-
-
     if(
         keys["s"] ||
         keys["ArrowDown"]
     ){
         dy++;
     }
-
-
     if(
         keys["a"] ||
         keys["ArrowLeft"]
     ){
         dx--;
     }
-
-
     if(
         keys["d"] ||
         keys["ArrowRight"]
     ){
         dx++;
     }
-
-
     if(dx||dy){
-
         const len=
             Math.hypot(dx,dy);
-
         dx/=len;
         dy/=len;
-
         game.player.x+=
             dx*
             playerSpeed()*
             dt;
-
         game.player.y+=
             dy*
             playerSpeed()*
             dt;
-
         if(classes[save.class].name==="Ninja" && game.player.dashCooldown<=0){
             game.player.x += dx*95;
             game.player.y += dy*95;
             game.player.dashCooldown=180;
             createParticles(game.player.x,game.player.y,6);
         }
-
     }
-
-
     game.player.x=
         Math.max(
             25,
@@ -2812,8 +2050,6 @@ function updatePlayer(dt){
                 game.player.x
             )
         );
-
-
     game.player.y=
         Math.max(
             25,
@@ -2822,30 +2058,21 @@ function updatePlayer(dt){
                 game.player.y
             )
         );
-
-
     if(touchState.aiming){
         game.player.angle=Math.atan2(touchState.aimY,touchState.aimX);
     }else{
         game.player.angle=Math.atan2(mouse.y-game.player.y,mouse.x-game.player.x);
     }
-
     if(mouse.down || touchState.aiming){
         shoot();
     }
-
-
     if(game.player.shootCooldown>0){
-
         game.player.shootCooldown-=
             16.67*dt;
-
     }
-
     if(game.player.dashCooldown>0){
         game.player.dashCooldown-=dt;
     }
-
     if(game.player.reloadTimer>0){
         game.player.reloadTimer-=dt;
         if(game.player.reloadTimer<=0){
@@ -2855,88 +2082,55 @@ function updatePlayer(dt){
     }else if(game.player.ammo<=0){
         game.player.reloadTimer=55;
     }
-
-
     if(classes[save.class].name==="Medic" && game.timeSinceDamage>=45){
         game.player.hp=Math.min(playerMaxHP(),game.player.hp+.65*dt);
     }
-
 }
-
-
 /* =========================================================
    BULLETS
 ========================================================= */
-
 function updateBullets(dt){
-
     for(
         let i=game.bullets.length-1;
         i>=0;
         i--
     ){
-
         const b=
             game.bullets[i];
-
-
         b.x+=b.vx*dt;
         b.y+=b.vy*dt;
-
         b.life-=dt;
-
-
         /* ENEMY BULLET */
-
         if(b.enemyBullet){
-
             if(
                 Math.hypot(
                     b.x-game.player.x,
                     b.y-game.player.y
                 )<20
             ){
-
                 const reduced = classes[save.class].name==="Shield Cat" ? b.damage*0.65 : b.damage;
                 game.player.hp-=reduced;
                 game.timeSinceDamage=0;
-
                 game.bullets.splice(i,1);
-
                 if(
                     game.player.hp<=0
                 ){
-
                     gameOver();
-
                     return;
-
                 }
-
                 continue;
-
             }
-
         }
-
-
         /* PLAYER BULLET */
-
         else{
-
             let hit=false;
-
-
             for(
                 let j=game.enemies.length-1;
                 j>=0;
                 j--
             ){
-
                 const e=
                     game.enemies[j];
-
-
                 if(
                     Math.hypot(
                         b.x-e.x,
@@ -2944,42 +2138,27 @@ function updateBullets(dt){
                     )<
                     e.size+5
                 ){
-
                     const finalDamage = e.shield>0 ? b.damage*0.25 : b.damage;
                     e.hp-=finalDamage;
-
                     hit=true;
-
-
                     if(b.freeze){
-
                         e.freeze=150;
-
                     }
-
                     if(b.burn){
                         e.burn=180;
                         e.burnDamage=Math.max(2,b.damage*0.08);
                     }
-
-
                     if(b.lifesteal){
-
                         game.player.hp=
                             Math.min(
                                 playerMaxHP(),
                                 game.player.hp+
                                 b.damage*.04
                             );
-
                     }
-
-
                     if(b.lightning){
-
                         game.enemies.forEach(
                             other=>{
-
                                 if(
                                     other!==e &&
                                     Math.hypot(
@@ -2987,55 +2166,34 @@ function updateBullets(dt){
                                         other.y-e.y
                                     )<120
                                 ){
-
                                     other.hp-=
                                         b.damage*.35;
-
                                 }
-
                             }
                         );
-
                     }
-
-
                     if(b.explosive){
-
                         explosion(
                             b.x,
                             b.y,
                             b.bomber ? 105 : 70,
                             b.damage*.45
                         );
-
                     }
-
-
                     if(e.hp<=0){
-
                         killEnemy(
                             e,
                             j
                         );
-
                     }
-
-
                     break;
-
                 }
-
             }
-
-
             if(hit && !b.piercing){
                 game.bullets.splice(i,1);
                 continue;
             }
-
         }
-
-
         if(
             b.life<=0 ||
             b.x<-100 ||
@@ -3043,96 +2201,62 @@ function updateBullets(dt){
             b.y<-100 ||
             b.y>canvas.height+100
         ){
-
             game.bullets.splice(i,1);
-
         }
-
     }
-
 }
-
-
 /* =========================================================
    KILL ENEMY
 ========================================================= */
-
 function killEnemy(e,index){
-
     let reward=1;
-
-
     if(e.type==="miniboss"){
         reward=100;
     }
-
     if(e.type==="mega"){
         reward=150;
     }
-
-
     save.coins+=reward;
-
     const oldLevel=getPlayerLevel();
     save.kills++;
     const newLevel=getPlayerLevel();
-
     if(newLevel>oldLevel){
         gameMessage("⭐ LEVEL UP! You reached Level "+newLevel+"!");
     }
-
-
     createParticles(
         e.x,
         e.y,
         e.boss?22:8
     );
-
-
     if(
         classes[save.class].name==="Vampire"
     ){
-
         game.player.hp=
             Math.min(
                 playerMaxHP(),
                 game.player.hp+10
             );
-
     }
-
-
     if(e.type==="mega"){
-
         game.hazards=[];
         game.bossActive=false;
         game.waveSpawned=true;
-
         document.getElementById(
             "bossBar"
         ).style.display="none";
-
         gameMessage(
             "👑 MEGA BOSS DEFEATED! +150 🪙",
             1800
         );
-
     }
-
-
     if(e.type==="miniboss"){
-
         game.bossActive=false;
         game.waveSpawned=true;
-
         gameMessage(
             "👹 MINIBOSS DEFEATED! +100 🪙",
             1200
         );
-
     }
-
-
     // Prefer removing by object identity so nested kills (explosion)
     // do not leave dead enemies in the array or remove the wrong one.
     let idx = game.enemies.indexOf(e);
@@ -3144,73 +2268,50 @@ function killEnemy(e,index){
     if(idx >= 0){
         game.enemies.splice(idx, 1);
     }
-
-
     saveGame();
-
 }
-
-
 /* =========================================================
    EXPLOSION
 ========================================================= */
-
 function explosion(
     x,
     y,
     radius,
     damage
 ){
-
     createParticles(
         x,
         y,
         8
     );
-
     // Collect victims first so nested splices cannot skip enemies.
     const toKill = [];
-
     for(let i = 0; i < game.enemies.length; i++){
-
         const e = game.enemies[i];
         if(e.hp <= 0) continue;
-
         const d = Math.hypot(e.x - x, e.y - y);
-
         if(d < radius){
-
             e.hp -= damage * (1 - d / radius);
-
             if(e.hp <= 0){
                 toKill.push(e);
             }
-
         }
-
     }
-
     for(const e of toKill){
         if(game.enemies.indexOf(e) >= 0){
             killEnemy(e, -1);
         }
     }
-
 }
-
-
 /* =========================================================
    MEGA BOSS ROCKET HAZARDS
 ========================================================= */
-
 function summonMegaRockets(){
     if(!game.bossActive) return;
-
     for(let i=0;i<2;i++){
         const offset=(i===0?-75:75);
         const tx=Math.max(45,Math.min(canvas.width-45,game.player.x+offset));
         const ty=Math.max(45,Math.min(canvas.height-45,game.player.y+(Math.random()-.5)*90));
-
         game.hazards.push({
             type:"rocket",
             x:tx,
@@ -3222,19 +2323,15 @@ function summonMegaRockets(){
             radius:72
         });
     }
-
     gameMessage("🚀 MEGA BOSS: ROCKET STRIKE!",700);
 }
-
 function updateHazards(dt){
     for(let i=game.hazards.length-1;i>=0;i--){
         const h=game.hazards[i];
-
         // Fire Cat: orange circle damages enemies standing inside.
         if(h.type==="fireZone"){
             h.life-=16.67*dt;
             h.tick-=16.67*dt;
-
             if(h.tick<=0){
                 h.tick=250;
                 for(let j=game.enemies.length-1;j>=0;j--){
@@ -3249,38 +2346,31 @@ function updateHazards(dt){
                     }
                 }
             }
-
             if(h.life<=0) game.hazards.splice(i,1);
             continue;
         }
-
         // Mega Boss rocket
         if(h.warning>0){
             h.warning-=16.67*dt;
             continue;
         }
-
         h.y+=h.fallSpeed*dt;
-
         if(h.y>=h.targetY){
             const d=Math.hypot(
                 game.player.x-h.x,
                 game.player.y-h.targetY
             );
-
             if(d<h.radius){
                 const rocketDamage=classes[save.class].name==="Shield Cat"?h.damage*0.65:h.damage;
                 game.player.hp=Math.max(0,game.player.hp-rocketDamage);
                 game.timeSinceDamage=0;
                 gameMessage("🚀 ROCKET HIT! -"+Math.ceil(rocketDamage)+" HP",650);
-
                 if(game.player.hp<=0){
                     game.hazards.splice(i,1);
                     gameOver();
                     return;
                 }
             }
-
             explosion(h.x,h.targetY,h.radius,h.damage*.15);
             createParticles(h.x,h.targetY,8);
             game.hazards.splice(i,1);
@@ -3289,7 +2379,6 @@ function updateHazards(dt){
 }
 function drawHazards(){
     for(const h of game.hazards){
-
         if(h.type==="fireZone"){
             ctx.save();
             const alpha=Math.max(0.08,Math.min(0.28,h.life/1800*0.28));
@@ -3300,7 +2389,6 @@ function drawHazards(){
             ctx.arc(h.x,h.y,h.radius,0,Math.PI*2);
             ctx.fill();
             ctx.stroke();
-
             ctx.strokeStyle="rgba(255,210,60,.8)";
             ctx.lineWidth=2;
             ctx.beginPath();
@@ -3313,22 +2401,17 @@ function drawHazards(){
             ctx.restore();
             continue;
         }
-
         if(h.type!=="rocket") continue;
-
         ctx.save();
-
         ctx.strokeStyle=h.warning>0 ? "#ff3333" : "#ff7a22";
         ctx.fillStyle=h.warning>0
             ? "rgba(255,40,40,.12)"
             : "rgba(255,120,20,.18)";
         ctx.lineWidth=4;
-
         ctx.beginPath();
         ctx.arc(h.x,h.targetY,h.radius,0,Math.PI*2);
         ctx.fill();
         ctx.stroke();
-
         if(h.warning>0){
             ctx.strokeStyle="#ffdddd";
             ctx.lineWidth=2;
@@ -3340,12 +2423,9 @@ function drawHazards(){
             );
             ctx.stroke();
         }
-
         ctx.translate(h.x,h.y);
-
         ctx.fillStyle="#c7c7c7";
         ctx.fillRect(-7,-22,14,34);
-
         ctx.fillStyle="#ef3030";
         ctx.beginPath();
         ctx.moveTo(0,-34);
@@ -3353,38 +2433,26 @@ function drawHazards(){
         ctx.lineTo(10,-18);
         ctx.closePath();
         ctx.fill();
-
         ctx.fillStyle="#ff9b25";
         ctx.fillRect(-5,12,10,27);
-
         ctx.restore();
     }
 }
-
 /* =========================================================
    UPDATE ENEMIES
 ========================================================= */
-
 function updateEnemies(dt){
-
     for(
         let i=game.enemies.length-1;
         i>=0;
         i--
     ){
-
         const e=
             game.enemies[i];
-
-
         if(e.freeze>0){
-
             e.freeze-=dt;
-
             if(e.freeze<0) e.freeze=0;
-
         }
-
         if(e.burn>0){
             e.burn-=dt;
             e.hp-= (e.burnDamage||1) * 0.016 * dt;
@@ -3393,12 +2461,9 @@ function updateEnemies(dt){
                 continue;
             }
         }
-
         if(e.freeze>0){
             continue;
         }
-
-
         if(e.type==="shadow"){
             e.shadowTimer-=dt;
             if(e.shadowTimer<=0){
@@ -3406,17 +2471,12 @@ function updateEnemies(dt){
                 e.invisible=!e.invisible;
             }
         }
-
         const dx=
             game.player.x-e.x;
-
         const dy=
             game.player.y-e.y;
-
         const dist=
             Math.hypot(dx,dy);
-
-
         /* MINIBOSS: throw a visible knife directly at the player. */
         if(e.type==="miniboss" && dist > 0.001){
             e.shoot -= 16.67*dt;
@@ -3437,9 +2497,7 @@ function updateEnemies(dt){
                 createParticles(e.x,e.y,3);
             }
         }
-
         /* Status effects are rendered by drawEnemies(). */
-
         if(e.type==="mega"){
             e.shoot -= 16.67*dt;
             if(e.shoot<=0){
@@ -3447,81 +2505,53 @@ function updateEnemies(dt){
                 summonMegaRockets();
             }
         }
-
         if(
             e.type==="ranged" &&
             dist<500 &&
             dist > 0.001
         ){
-
             e.shoot-=
                 16.67*dt;
-
-
             if(e.shoot<=0){
-
                 e.shoot=1500;
-
-
                 game.bullets.push({
-
                     x:e.x,
-
                     y:e.y,
-
                     vx:
                         dx/dist*5,
-
                     vy:
                         dy/dist*5,
-
                     damage:
                         8+game.night,
-
                     life:120,
-
                     enemyBullet:true
-
                 });
-
             }
-
         }else if(dist > 0.001){
-
             e.x+=
                 dx/dist*
                 e.speed*
                 dt;
-
             e.y+=
                 dy/dist*
                 e.speed*
                 dt;
-
         }
-
         if(e.boss){
             clampToArena(e);
         }
-
-
         /* Recompute distance after movement for accurate collision. */
         const dx2 = game.player.x - e.x;
         const dy2 = game.player.y - e.y;
         const dist2 = Math.hypot(dx2, dy2);
-
         const hitRadius = e.size + 22;
-
         if(dist2 <= hitRadius && !e.touchCooldown && !e.invisible){
-
             e.touchCooldown = 45;
-
             const touchDamage =
                 e.type==="mega" ? 30 :
                 e.type==="miniboss" ? 22 :
                 e.type==="tank" ? 16 :
                 10;
-
             /* Contact explosion (small AoE, does not re-damage via nested kill loops unsafely) */
             explosion(
                 game.player.x,
@@ -3529,119 +2559,81 @@ function updateEnemies(dt){
                 e.type==="mega" ? 85 : 55,
                 touchDamage * 0.35
             );
-
             createParticles(
                 game.player.x,
                 game.player.y,
                 e.type==="mega" ? 24 : 12
             );
-
             const contactDamage = classes[save.class].name==="Shield Cat" ? touchDamage*0.65 : touchDamage;
             game.player.hp = Math.max(
                 0,
                 game.player.hp - contactDamage
             );
-
             gameMessage("💥 HIT! -"+Math.ceil(contactDamage)+" HP", 450);
-
             game.timeSinceDamage = 0;
-
             /* Push the enemy away safely, even if dist is nearly zero. */
             const safeDist = Math.max(dist2, 0.01);
             e.x -= dx2/safeDist * 40;
             e.y -= dy2/safeDist * 40;
-
             if(game.player.hp<=0){
-
                 gameOver();
-
                 return;
-
             }
         }
-
         if(e.touchCooldown){
             e.touchCooldown -= dt;
             if(e.touchCooldown < 0) e.touchCooldown = 0;
         }
-
-
         if(e.boss){
-
             const bossFill=
                 document.getElementById(
                     "bossFill"
                 );
-
-
             bossFill.style.width=
                 Math.max(
                     0,
                     e.hp/e.maxHp*100
                 )+"%";
-
         }
-
     }
-
 }
-
-
 /* =========================================================
    NIGHT
 ========================================================= */
-
 function updateNight(dt){
-
     game.nightTimer+=dt;
-
-
     if(game.nightTimer>1200){
-
         game.nightTimer=0;
-
         game.night++;
-
         gameMessage(
             "🌙 NIGHT "+game.night,
             1000
         );
-
         /* Only one boss at a time. Mega boss takes priority. */
         if(
             save.kills>20 &&
             !game.bossActive &&
             game.night%7===0
         ){
-
             spawnMegaBoss();
-
         }
         else if(
             save.kills>20 &&
             !game.bossActive &&
             game.night%3===0
         ){
-
             spawnMiniboss();
-
         }
-
     }
-
 }
-
-
 /* =========================================================
    PARTICLES
 ========================================================= */
-
 function createParticles(
     x,
     y,
     count
 ){
-
     count=Math.min(count,8);
     if(game.particles.length>80) return;
     for(
@@ -3649,101 +2641,63 @@ function createParticles(
         i<count;
         i++
     ){
-
         const angle=
             Math.random()*
             Math.PI*2;
-
         const speed=
             Math.random()*4+1;
-
-
         game.particles.push({
-
             x:x,
-
             y:y,
-
             vx:
                 Math.cos(angle)*speed,
-
             vy:
                 Math.sin(angle)*speed,
-
             life:
                 30+
                 Math.random()*30,
-
             size:
                 2+
                 Math.random()*4
-
         });
-
     }
-
 }
-
-
 function updateParticles(dt){
-
     for(
         let i=game.particles.length-1;
         i>=0;
         i--
     ){
-
         const p=
             game.particles[i];
-
-
         p.x+=p.vx*dt;
         p.y+=p.vy*dt;
-
-
         p.vx*=.96;
         p.vy*=.96;
-
-
         p.life-=dt;
-
-
         if(p.life<=0){
-
             game.particles.splice(
                 i,
                 1
             );
-
         }
-
     }
-
 }
-
-
 /* =========================================================
    HUD
 ========================================================= */
-
 function updateHUD(){
-
     const hp=
         Math.max(
             0,
             game.player.hp
         );
-
     const max=
         playerMaxHP();
-
-
     document.getElementById(
         "hpText"
     ).textContent=
         Math.ceil(hp)+"/"+max;
-
-
     document.getElementById(
         "hpFill"
     ).style.width=
@@ -3751,41 +2705,29 @@ function updateHUD(){
             0,
             hp/max*100
         )+"%";
-
     const regenActive =
         game.timeSinceDamage >= 360 &&
         hp < max;
-
     const hpText =
         document.getElementById("hpText");
-
     hpText.style.color =
         regenActive ? "#79ff79" : "";
-
-
     document.getElementById(
         "gameCoins"
     ).textContent=
         save.coins.toLocaleString();
-
-
     document.getElementById(
         "gameKills"
     ).textContent=
         save.kills.toLocaleString();
-
     const levelEl=document.getElementById("gameLevel");
     if(levelEl) levelEl.textContent=getPlayerLevel();
-
-
     document.getElementById(
         "nightText"
     ).textContent=
         game.night;
-
     const waveEl=document.getElementById("waveText");
     if(waveEl) waveEl.textContent=game.wave;
-
     const ammoEl=document.getElementById("ammoText");
     if(ammoEl){
         if(game.player.reloadTimer>0){
@@ -3794,141 +2736,33 @@ function updateHUD(){
             ammoEl.textContent=Math.max(0,game.player.ammo)+"/"+magSize();
         }
     }
-
 }
-
-
 /* =========================================================
    DRAW FOREST
 ========================================================= */
-
 function drawForest(){
-
-    ctx.fillStyle="#08150b";
-
-    ctx.fillRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-
-
-    /* LIGHTWEIGHT GRID */
-
-    const grid=80;
-
-    ctx.strokeStyle=
-        "rgba(45,100,52,.16)";
-
-    ctx.lineWidth=1;
-
-
-    for(
-        let x=0;
-        x<canvas.width;
-        x+=grid
-    ){
-
-        ctx.beginPath();
-
-        ctx.moveTo(x,0);
-
-        ctx.lineTo(
-            x,
-            canvas.height
-        );
-
-        ctx.stroke();
-
+    if(!forestCanvas){
+        buildForestCanvas();
     }
-
-
-    for(
-        let y=0;
-        y<canvas.height;
-        y+=grid
-    ){
-
-        ctx.beginPath();
-
-        ctx.moveTo(0,y);
-
-        ctx.lineTo(
-            canvas.width,
-            y
-        );
-
-        ctx.stroke();
-
-    }
-
-
-    /* FEWER TREES FOR OLD PCS */
-
-    for(
-        let x=50;
-        x<canvas.width;
-        x+=160
-    ){
-
-        for(
-            let y=50;
-            y<canvas.height;
-            y+=160
-        ){
-
-            ctx.fillStyle="#102719";
-
-            ctx.beginPath();
-
-            ctx.arc(
-                x,
-                y,
-                18,
-                0,
-                Math.PI*2
-            );
-
-            ctx.fill();
-
-        }
-
-    }
-
+    ctx.drawImage(forestCanvas,0,0);
 }
-
-
 /* =========================================================
    DRAW PLAYER
 ========================================================= */
-
 function drawPlayer(){
-
     const p=
         game.player;
-
-
     ctx.save();
-
-
     ctx.translate(
         p.x,
         p.y
     );
-
-
     ctx.rotate(
         p.angle
     );
-
-
     let color=
         skins[save.skin].color;
-
-
     if(color==="rainbow"){
-
         const grad=
             ctx.createLinearGradient(
                 -20,
@@ -3936,43 +2770,31 @@ function drawPlayer(){
                 20,
                 20
             );
-
         grad.addColorStop(
             0,
             "#ff5555"
         );
-
         grad.addColorStop(
             .25,
             "#ffd84a"
         );
-
         grad.addColorStop(
             .5,
             "#5cff76"
         );
-
         grad.addColorStop(
             .75,
             "#55cfff"
         );
-
         grad.addColorStop(
             1,
             "#c45cff"
         );
-
         color=grad;
-
     }
-
-
     /* CAT BODY */
-
     ctx.fillStyle=color;
-
     ctx.beginPath();
-
     ctx.arc(
         0,
         0,
@@ -3980,58 +2802,39 @@ function drawPlayer(){
         0,
         Math.PI*2
     );
-
     ctx.fill();
-
-
     /* EARS */
-
     ctx.beginPath();
-
     ctx.moveTo(
         -14,
         -10
     );
-
     ctx.lineTo(
         -10,
         -28
     );
-
     ctx.lineTo(
         -2,
         -13
     );
-
     ctx.fill();
-
-
     ctx.beginPath();
-
     ctx.moveTo(
         14,
         -10
     );
-
     ctx.lineTo(
         10,
         -28
     );
-
     ctx.lineTo(
         2,
         -13
     );
-
     ctx.fill();
-
-
     /* EYES */
-
     ctx.fillStyle="#111";
-
     ctx.beginPath();
-
     ctx.arc(
         7,
         -6,
@@ -4039,7 +2842,6 @@ function drawPlayer(){
         0,
         Math.PI*2
     );
-
     ctx.arc(
         7,
         6,
@@ -4047,10 +2849,7 @@ function drawPlayer(){
         0,
         Math.PI*2
     );
-
     ctx.fill();
-
-
     /* SANTA HAT */
     if(classes[save.class].name==="Santa Cat"){
         ctx.fillStyle="#d92727";
@@ -4066,40 +2865,27 @@ function drawPlayer(){
         ctx.arc(9,-39,5,0,Math.PI*2);
         ctx.fill();
     }
-
     /* WEAPON */
-
     ctx.fillStyle="#555";
-
     ctx.fillRect(
         10,
         -4,
         28,
         8
     );
-
-
     ctx.restore();
-
 }
-
-
 /* =========================================================
    DRAW BULLETS
 ========================================================= */
-
 function drawBullets(){
-
     for(
         let i=0;
         i<game.bullets.length;
         i++
     ){
-
         const b=
             game.bullets[i];
-
-
         if(!b.enemyBullet){
             ctx.save();
             ctx.translate(b.x,b.y);
@@ -4108,7 +2894,6 @@ function drawBullets(){
             else if(b.weaponName==="Rocket Launcher" || b.weaponName==="Plasma Cannon"){ ctx.fillStyle="#ff7b39"; ctx.beginPath(); ctx.arc(0,0,6,0,Math.PI*2); ctx.fill(); }
             ctx.restore();
         }
-
         if(!b.enemyBullet && b.giftBox){
             ctx.save();
             ctx.translate(b.x,b.y);
@@ -4126,12 +2911,10 @@ function drawBullets(){
             ctx.restore();
             continue;
         }
-
         if(b.enemyBullet && b.kind==="knife"){
             ctx.save();
             ctx.translate(b.x,b.y);
             ctx.rotate(b.angle||0);
-
             ctx.shadowBlur=10;
             ctx.shadowColor="#ffffff";
             ctx.fillStyle="#f4f4f4";
@@ -4142,23 +2925,17 @@ function drawBullets(){
             ctx.lineTo(-5,7);
             ctx.closePath();
             ctx.fill();
-
             ctx.shadowBlur=0;
             ctx.fillStyle="#7b2f2f";
             ctx.fillRect(-11,-4,8,8);
-
             ctx.restore();
             continue;
         }
-
         ctx.fillStyle=
             b.enemyBullet
             ?"#ff5555"
             :"#ffe65c";
-
-
         ctx.beginPath();
-
         ctx.arc(
             b.x,
             b.y,
@@ -4166,46 +2943,29 @@ function drawBullets(){
             0,
             Math.PI*2
         );
-
         ctx.fill();
-
     }
-
 }
-
-
 /* =========================================================
    DRAW ENEMIES
 ========================================================= */
-
 function drawEnemies(){
-
     for(
         let i=0;
         i<game.enemies.length;
         i++
     ){
-
         const e=
             game.enemies[i];
-
-
         ctx.save();
-
         ctx.globalAlpha = e.invisible ? 0.18 : 1;
-
         ctx.translate(
             e.x,
             e.y
         );
-
-
         if(e.type==="mega"){
-
             ctx.fillStyle="#8d2222";
-
             ctx.beginPath();
-
             ctx.arc(
                 0,
                 0,
@@ -4213,20 +2973,12 @@ function drawEnemies(){
                 0,
                 Math.PI*2
             );
-
             ctx.fill();
-
-
             ctx.strokeStyle="#ff3d3d";
-
             ctx.lineWidth=4;
-
             ctx.stroke();
-
         }
-
         else if(e.type==="miniboss"){
-
             ctx.fillStyle="#8f9692";
             ctx.fillRect(
                 -e.size,
@@ -4234,7 +2986,6 @@ function drawEnemies(){
                 e.size*2,
                 e.size*2
             );
-
             ctx.strokeStyle="#d8dedb";
             ctx.lineWidth=3;
             ctx.strokeRect(
@@ -4243,7 +2994,6 @@ function drawEnemies(){
                 e.size*2,
                 e.size*2
             );
-
             ctx.fillStyle="#2d332f";
             ctx.fillRect(-4,-18,8,30);
             ctx.beginPath();
@@ -4252,40 +3002,29 @@ function drawEnemies(){
             ctx.lineTo(8,-12);
             ctx.closePath();
             ctx.fill();
-
         }
-
         else if(e.type==="tank"){
-
             ctx.fillStyle="#59615b";
-
             ctx.fillRect(
                 -e.size,
                 -e.size,
                 e.size*2,
                 e.size*2
             );
-
         }
-
         else if(e.type==="bomber"){
             ctx.fillStyle="#e4c53d";
             ctx.beginPath(); ctx.arc(0,0,e.size,0,Math.PI*2); ctx.fill();
             ctx.fillStyle="#ff6b35"; ctx.fillRect(-5,-5,10,10);
         }
-
         else if(e.type==="shadow"){
             ctx.fillStyle="#15151f";
             ctx.beginPath(); ctx.arc(0,0,e.size,0,Math.PI*2); ctx.fill();
             ctx.strokeStyle="#8b6cff"; ctx.lineWidth=2; ctx.stroke();
         }
-
         else if(e.type==="fast"){
-
             ctx.fillStyle="#c64b4b";
-
             ctx.beginPath();
-
             ctx.arc(
                 0,
                 0,
@@ -4293,17 +3032,11 @@ function drawEnemies(){
                 0,
                 Math.PI*2
             );
-
             ctx.fill();
-
         }
-
         else{
-
             ctx.fillStyle="#a83f3f";
-
             ctx.beginPath();
-
             ctx.arc(
                 0,
                 0,
@@ -4311,26 +3044,17 @@ function drawEnemies(){
                 0,
                 Math.PI*2
             );
-
             ctx.fill();
-
         }
-
-
         /* HEALTH BAR */
-
         ctx.fillStyle="#111";
-
         ctx.fillRect(
             -e.size,
             -e.size-9,
             e.size*2,
             4
         );
-
-
         ctx.fillStyle="#61e45e";
-
         ctx.fillRect(
             -e.size,
             -e.size-9,
@@ -4341,7 +3065,6 @@ function drawEnemies(){
             ),
             4
         );
-
         if(e.freeze>0){
             ctx.strokeStyle="#68d9ff"; ctx.lineWidth=4;
             ctx.beginPath(); ctx.arc(0,0,e.size+7,0,Math.PI*2); ctx.stroke();
@@ -4355,109 +3078,73 @@ function drawEnemies(){
             ctx.globalAlpha=.75;
             ctx.beginPath(); ctx.arc(0,0,e.size+13,0,Math.PI*2); ctx.stroke();
         }
-
         ctx.restore();
-
     }
-
 }
-
-
 /* =========================================================
    DRAW PARTICLES
 ========================================================= */
-
 function drawParticles(){
-
     for(
         let i=0;
         i<game.particles.length;
         i++
     ){
-
         const p=
             game.particles[i];
-
-
         ctx.globalAlpha=
             Math.max(
                 0,
                 p.life/50
             );
-
-
         ctx.fillStyle="#ffd34d";
-
-
         ctx.fillRect(
             p.x,
             p.y,
             p.size,
             p.size
         );
-
-
         ctx.globalAlpha=1;
-
     }
-
 }
-
-
 /* =========================================================
    DRAW
 ========================================================= */
-
-
 function drawMediumLighting(){
     const px=game.player.x;
     const py=game.player.y;
-
     const glow=ctx.createRadialGradient(px,py,25,px,py,210);
     glow.addColorStop(0,"rgba(255,240,170,0.10)");
     glow.addColorStop(0.45,"rgba(120,220,120,0.035)");
     glow.addColorStop(1,"rgba(0,0,0,0)");
-
     ctx.fillStyle=glow;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-
-    const vignette=ctx.createRadialGradient(
-        canvas.width/2,canvas.height/2,Math.min(canvas.width,canvas.height)*0.25,
-        canvas.width/2,canvas.height/2,Math.max(canvas.width,canvas.height)*0.75
+    ctx.fillRect(
+        Math.max(0,px-220),
+        Math.max(0,py-220),
+        440,
+        440
     );
-    vignette.addColorStop(0,"rgba(0,0,0,0)");
-    vignette.addColorStop(1,"rgba(0,0,0,0.25)");
-
-    ctx.fillStyle=vignette;
+    if(!vignetteGradient){
+        buildVignette();
+    }
+    ctx.fillStyle=vignetteGradient;
     ctx.fillRect(0,0,canvas.width,canvas.height);
 }
-
 function draw(){
-
     ctx.clearRect(
         0,
         0,
         canvas.width,
         canvas.height
     );
-
-
     drawForest();
-
     drawParticles();
     drawHazards();
-
     drawEnemies();
-
     drawBullets();
-
     drawPlayer();
-
     drawMediumLighting();
-
 }
-
-
 /* =========================================================
    WAVE SPAWNER
 ========================================================= */
@@ -4488,22 +3175,15 @@ function spawnCurrentWave(){
     const count=Math.min(8,2+Math.floor(w/4)); const types=["basic","fast","tank","ranged","bomber","shadow"];
     for(let i=0;i<count;i++) spawnEnemyForced(types[Math.floor(Math.random()*types.length)]);
 }
-
 /* =========================================================
    GAME UPDATE
 ========================================================= */
-
 function update(dt){
-
     updatePlayer(dt);
-
     updateBullets(dt);
     updateHazards(dt);
-
     updateEnemies(dt);
-
     updateNight(dt);
-
     /* WAVE SYSTEM: 1-10 fixed patterns, 5 miniboss, 10 mega. */
     if(!game.bossActive && game.enemies.length===0 && !game.waveSpawned){
         spawnCurrentWave();
@@ -4514,9 +3194,7 @@ function update(dt){
         game.waveSpawned=false;
         gameMessage("🌊 WAVE "+game.wave+"!",800);
     }
-
     updateParticles(dt);
-
     // Passive out-of-combat regen (HUD already hints at this)
     game.timeSinceDamage += dt;
     if(
@@ -4529,105 +3207,66 @@ function update(dt){
             game.player.hp + 0.012 * dt
         );
     }
-
     updateHUD();
-
 }
-
-
 /* =========================================================
    MESSAGE
 ========================================================= */
-
 function gameMessage(
     text,
     time
 ){
-
     const el=
         document.getElementById(
             "gameMessage"
         );
-
-
     el.innerHTML=
         `<div class="bigMessage">
             ${text}
         </div>`;
-
-
     setTimeout(
         function(){
-
             if(
                 el.innerHTML.includes(text)
             ){
-
                 el.innerHTML="";
-
             }
-
         },
         time
     );
-
 }
-
-
 /* =========================================================
    GAME LOOP
 ========================================================= */
-
 function loop(time){
-
     if(!game.running){
-
         return;
-
     }
-
-
     const dt=
         Math.min(
             2,
             (time-game.lastTime)/16.67
         );
-
-
     game.lastTime=time;
-
-
-    update(dt);
-
-    draw();
-
-
+    try{
+        update(dt);
+        draw();
+    }catch(err){
+        console.error("CAT OPS frame error (game kept running):",err);
+    }
     requestAnimationFrame(loop);
-
 }
-
-
 /* =========================================================
    GAME OVER
 ========================================================= */
-
 function gameOver(){
-
     if(!game.running){
-
         return;
-
     }
-
-
     game.running=false;
-
     mouse.down=false;
-
-
     setTimeout(
         function(){
-
             alert(
                 "CAT OPS GAME OVER!\n\n"+
                 "Kills: "+
@@ -4637,46 +3276,29 @@ function gameOver(){
                 "\nNight reached: "+
                 game.night
             );
-
-
             goHome();
-
         },
         100
     );
-
 }
-
-
 /* =========================================================
    EXIT
 ========================================================= */
-
 function endGame(clear=true){
-
     game.running=false;
-
     mouse.down=false;
     touchState.moveX=0; touchState.moveY=0;
     touchState.aimX=0; touchState.aimY=0; touchState.aiming=false;
-
     if(clear){
-
         hideScreens();
-
         document.getElementById(
             "homeScreen"
         ).classList.remove("hidden");
-
     }
-
 }
-
-
 /* =========================================================
    INITIALIZE
 ========================================================= */
-
 function lockNicknameInput(){
     const input=document.getElementById("nicknameInput");
     if(!input) return;
@@ -4686,34 +3308,22 @@ function lockNicknameInput(){
         ? "Nickname is permanently locked for this account."
         : "Choose your nickname once.";
 }
-
 /* Existing saves from older versions remain compatible.
    If an old save already has a nickname, lock it now. */
 if(save.nickname && save.nickname.trim()){
     save.nicknameLocked=true;
 }
-
 lockNicknameInput();
-
 updateDisplays();
-
 buildClassTable();
-
-
 /* AUTO SAVE */
-
 setInterval(
     function(){
-
         saveGame();
-
     },
     10000
 );
-
 </script>
-
-
 <script>
 (function(){
   const names = {
@@ -4764,7 +3374,6 @@ setInterval(
     ar:{language:"اللغة",shop:"المتجر",play:"العب",craft:"التصنيع",classes:"الفئات",
         nickname:"اللقب",coins:"العملات",level:"المستوى",wave:"الموجة",start:"ابدأ اللعبة"}
   };
-
   function applyLanguage(code){
     code = dict[code] ? code : "en";
     localStorage.setItem("catopsLanguage", code);
@@ -4772,7 +3381,6 @@ setInterval(
     const status=document.getElementById("languageStatus");
     if(s) s.value=code;
     if(status) status.textContent=names[code];
-
     // Translate elements that opt into CAT OPS language keys.
     document.querySelectorAll("[data-i18n]").forEach(el=>{
       const key=el.getAttribute("data-i18n");
@@ -4781,7 +3389,6 @@ setInterval(
     document.documentElement.lang=code;
     document.documentElement.dir=(code==="ar" ? "rtl" : "ltr");
   }
-
   window.catopsSetLanguage=applyLanguage;
   document.addEventListener("DOMContentLoaded",()=>{
     const s=document.getElementById("languageSelect");
@@ -4790,8 +3397,6 @@ setInterval(
   });
 })();
 </script>
-
-
 <script>
 (function(){
   const languageNames = {
@@ -4800,7 +3405,6 @@ setInterval(
     hi:"हिन्दी", kn:"ಕನ್ನಡ", te:"తెలుగు", ta:"தமிழ்", ml:"മലയാളം",
     id:"Bahasa Indonesia", tr:"Türkçe", vi:"Tiếng Việt", th:"ไทย", ar:"العربية"
   };
-
   function setCATOPSLanguage(code){
     if(!languageNames[code]) code="en";
     localStorage.setItem("catopsLanguage", code);
@@ -4812,9 +3416,7 @@ setInterval(
     document.documentElement.dir=(code==="ar" ? "rtl" : "ltr");
     window.catopsLanguage=code;
   }
-
   window.setCATOPSLanguage=setCATOPSLanguage;
-
   document.addEventListener("DOMContentLoaded", function(){
     const select=document.getElementById("languageSelect");
     if(select){
@@ -4826,14 +3428,11 @@ setInterval(
   });
 })();
 </script>
-
-
 <script>
 (function(){
   function getCurrentNickname(){
     return localStorage.getItem("catopsNickname") || "";
   }
-
   function setNicknameEverywhere(name){
     // Common nickname variables/DOM elements used by the game.
     try { if(typeof player !== "undefined" && player) player.nickname = name; } catch(e){}
@@ -4845,13 +3444,11 @@ setInterval(
       if(el.id !== "newNickname") el.value = name;
     });
   }
-
   function changeCATOPSNickname(){
     const input=document.getElementById("newNickname");
     const msg=document.getElementById("nicknameMessage");
     if(!input) return;
     const name=input.value.trim();
-
     if(!name){
       if(msg) msg.textContent="Enter a nickname.";
       return;
@@ -4864,30 +3461,21 @@ setInterval(
       if(msg) msg.textContent="Nickname taken.";
       return;
     }
-
     // Keep nickname available after reload.
     localStorage.setItem("catopsNickname", name);
     setNicknameEverywhere(name);
     if(msg) msg.textContent="Nickname changed to " + name + "!";
     input.value="";
   }
-
   window.changeCATOPSNickname=changeCATOPSNickname;
-
   document.addEventListener("DOMContentLoaded",()=>{
     const btn=document.getElementById("changeNickname");
     if(btn) btn.addEventListener("click", changeCATOPSNickname);
-
     const saved=getCurrentNickname();
     if(saved) setNicknameEverywhere(saved);
   });
 })();
 </script>
-
-
-
-
-
 <script id="catops-gun-visuals">
 (function(){
   const originalGetGun = window.getGun;
@@ -4902,7 +3490,6 @@ setInterval(
       return g;
     };
   }
-
   window.CATOPSGunVisual = {
     draw(ctx, x, y, gun, angle, size){
       if(!ctx || !gun) return;
@@ -4913,7 +3500,6 @@ setInterval(
       ctx.fillStyle=gun.color || "#fff";
       ctx.strokeStyle=gun.color || "#fff";
       ctx.lineWidth=2;
-
       switch(gun.shape){
         case "square":
           ctx.fillRect(-s,-s,s*2,s*2); break;
@@ -4967,9 +3553,5 @@ setInterval(
   };
 })();
 </script>
-
 </body>
 </html>
-game.html
-Displaying game.html. 
-
