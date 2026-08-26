@@ -1477,6 +1477,39 @@ function setAdminMode(on){
     if(adminMode) adminOutput("Admin enabled. Type /help");
     else adminOutput("Admin off");
 }
+
+function lockAdminUnlockedItems(){
+    const snap = window.__adminUnlockSnapshot;
+    if(snap){
+        save.ownedClasses = snap.ownedClasses && snap.ownedClasses.length ? snap.ownedClasses.slice() : [0];
+        save.ownedGuns = snap.ownedGuns && snap.ownedGuns.length ? snap.ownedGuns.slice() : [0];
+        save.ownedSkins = snap.ownedSkins && snap.ownedSkins.length ? snap.ownedSkins.slice() : [0];
+        save.awakenedClasses = snap.awakenedClasses ? snap.awakenedClasses.slice() : [];
+        save.premiumAwakenedClasses = snap.premiumAwakenedClasses ? snap.premiumAwakenedClasses.slice() : [];
+        save.class = typeof snap.class === "number" ? snap.class : 0;
+        save.gun = typeof snap.gun === "number" ? snap.gun : 0;
+        save.skin = typeof snap.skin === "number" ? snap.skin : 0;
+        window.__adminUnlockSnapshot = null;
+    } else {
+        // No snapshot: lock everything except starters
+        save.ownedClasses = [0];
+        save.ownedGuns = [0];
+        save.ownedSkins = [0];
+        save.awakenedClasses = [];
+        save.premiumAwakenedClasses = [];
+        save.class = 0;
+        save.gun = 0;
+        save.skin = 0;
+    }
+    // Ensure equipped items are still owned
+    if(!save.ownedClasses.includes(save.class)) save.class = 0;
+    if(!save.ownedGuns.includes(save.gun)) save.gun = 0;
+    if(!save.ownedSkins.includes(save.skin)) save.skin = 0;
+    saveGame();
+    if(typeof buildClassTable === "function") buildClassTable();
+    if(typeof updateDisplays === "function") updateDisplays();
+}
+
 function tryAdminLogin(password){
     if(!isAdminNickname()){
         adminOutput("❌ Admin only when nickname is manas");
@@ -1512,7 +1545,13 @@ function handleAdminCommand(raw){
     }
     if(!adminMode){ adminOutput("❌ Admin only. Play as manas with the correct password."); return; }
     if(cmd==="/help"){ adminOutput(adminHelp()); return; }
-    if(cmd==="/exitadmin"){ setAdminMode(false); return; }
+    if(cmd==="/exitadmin"){
+        lockAdminUnlockedItems();
+        if(game.player) game.player.adminGod=false;
+        setAdminMode(false);
+        adminOutput("🔒 Admin off — unlocked items locked again");
+        return;
+    }
     if(cmd==="/coins"){
         const n=Math.max(0,Number(arg));
         if(!Number.isFinite(n)){adminOutput("Usage: /coins 1000");return;}
@@ -1541,7 +1580,25 @@ function handleAdminCommand(raw){
         document.getElementById("bossBar").style.display="none"; adminOutput("💥 All enemies removed"); return;
     }
     if(cmd==="/unlockall"){
-        save.ownedClasses=classes.map((_,i)=>i); save.ownedGuns=guns.map((_,i)=>i); save.ownedSkins=skins.map((_,i)=>i); saveGame(); buildClassTable(); adminOutput("🔓 All classes, guns and skins unlocked"); return;
+        // Snapshot current ownership so /exitadmin can restore
+        window.__adminUnlockSnapshot = {
+            ownedClasses: save.ownedClasses.slice(),
+            ownedGuns: save.ownedGuns.slice(),
+            ownedSkins: save.ownedSkins.slice(),
+            awakenedClasses: (save.awakenedClasses||[]).slice(),
+            premiumAwakenedClasses: (save.premiumAwakenedClasses||[]).slice(),
+            class: save.class,
+            gun: save.gun,
+            skin: save.skin
+        };
+        save.ownedClasses=classes.map((_,i)=>i);
+        save.ownedGuns=guns.map((_,i)=>i);
+        save.ownedSkins=skins.map((_,i)=>i);
+        saveGame();
+        buildClassTable();
+        updateDisplays();
+        adminOutput("🔓 All classes, guns and skins unlocked (will lock on /exitadmin)");
+        return;
     }
     if(cmd==="/free"){
         save.coins=999999999; saveGame(); adminOutput("🪙 Free-shop mode: 999,999,999 coins"); return;
