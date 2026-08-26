@@ -1464,22 +1464,59 @@ function adminOutput(text){
 function isAdminNickname(){
     return (save.nickname || "").trim().toLowerCase() === ADMIN_NICKNAME;
 }
+function takeAdminSnapshot(){
+    // Capture everything that admin might change — restored on /exitadmin
+    window.__adminUnlockSnapshot = {
+        ownedClasses: (save.ownedClasses||[0]).slice(),
+        ownedGuns: (save.ownedGuns||[0]).slice(),
+        ownedSkins: (save.ownedSkins||[0]).slice(),
+        awakenedClasses: (save.awakenedClasses||[]).slice(),
+        premiumAwakenedClasses: (save.premiumAwakenedClasses||[]).slice(),
+        class: save.class|0,
+        gun: save.gun|0,
+        skin: save.skin|0,
+        coins: save.coins|0,
+        kills: save.kills|0
+    };
+    try{
+        localStorage.setItem("catOpsAdminSnap", JSON.stringify(window.__adminUnlockSnapshot));
+    }catch(e){}
+}
+function loadAdminSnapshot(){
+    if(window.__adminUnlockSnapshot) return window.__adminUnlockSnapshot;
+    try{
+        const raw=localStorage.getItem("catOpsAdminSnap");
+        if(raw){
+            window.__adminUnlockSnapshot=JSON.parse(raw);
+            return window.__adminUnlockSnapshot;
+        }
+    }catch(e){}
+    return null;
+}
+function clearAdminSnapshot(){
+    window.__adminUnlockSnapshot=null;
+    try{ localStorage.removeItem("catOpsAdminSnap"); }catch(e){}
+}
 function setAdminMode(on){
+    const turningOn = !!on && !adminMode;
     adminMode=!!on;
     const box=document.getElementById("adminConsole");
     if(box) box.style.display=adminMode ? "block" : "none";
     const homePanel=document.getElementById("homeAdminPanel");
     if(homePanel){
-        // Show command list on main menu when unlocked (hide while in active game to save space)
         const inGame = game && game.running;
         homePanel.style.display = (adminMode && !inGame) ? "block" : "none";
     }
-    if(adminMode) adminOutput("Admin enabled. Type /help");
-    else adminOutput("Admin off");
+    if(turningOn){
+        takeAdminSnapshot(); // always snapshot BEFORE admin changes
+        adminOutput("Admin enabled. Snapshot saved — /exitadmin will restore.");
+    }else if(!adminMode){
+        adminOutput("Admin off");
+    }
 }
 
 function lockAdminUnlockedItems(){
-    const snap = window.__adminUnlockSnapshot;
+    const snap = loadAdminSnapshot();
     if(snap){
         save.ownedClasses = snap.ownedClasses && snap.ownedClasses.length ? snap.ownedClasses.slice() : [0];
         save.ownedGuns = snap.ownedGuns && snap.ownedGuns.length ? snap.ownedGuns.slice() : [0];
@@ -1489,9 +1526,10 @@ function lockAdminUnlockedItems(){
         save.class = typeof snap.class === "number" ? snap.class : 0;
         save.gun = typeof snap.gun === "number" ? snap.gun : 0;
         save.skin = typeof snap.skin === "number" ? snap.skin : 0;
-        window.__adminUnlockSnapshot = null;
+        if(typeof snap.coins === "number") save.coins = snap.coins;
+        if(typeof snap.kills === "number") save.kills = snap.kills;
     } else {
-        // No snapshot: lock everything except starters
+        // No snapshot: hard lock to starters only
         save.ownedClasses = [0];
         save.ownedGuns = [0];
         save.ownedSkins = [0];
@@ -1501,13 +1539,15 @@ function lockAdminUnlockedItems(){
         save.gun = 0;
         save.skin = 0;
     }
-    // Ensure equipped items are still owned
+    clearAdminSnapshot();
     if(!save.ownedClasses.includes(save.class)) save.class = 0;
     if(!save.ownedGuns.includes(save.gun)) save.gun = 0;
     if(!save.ownedSkins.includes(save.skin)) save.skin = 0;
+    if(game && game.player) game.player.adminGod=false;
     saveGame();
     if(typeof buildClassTable === "function") buildClassTable();
     if(typeof updateDisplays === "function") updateDisplays();
+    if(typeof openShop === "function"){ /* refresh if on shop later */ }
 }
 
 function tryAdminLogin(password){
@@ -1547,9 +1587,12 @@ function handleAdminCommand(raw){
     if(cmd==="/help"){ adminOutput(adminHelp()); return; }
     if(cmd==="/exitadmin"){
         lockAdminUnlockedItems();
-        if(game.player) game.player.adminGod=false;
-        setAdminMode(false);
-        adminOutput("🔒 Admin off — unlocked items locked again");
+        adminMode=false;
+        const box=document.getElementById("adminConsole");
+        if(box) box.style.display="none";
+        const homePanel=document.getElementById("homeAdminPanel");
+        if(homePanel) homePanel.style.display="none";
+        adminOutput("🔒 Admin off — all admin unlocks/coins reverted");
         return;
     }
     if(cmd==="/coins"){
@@ -1580,24 +1623,15 @@ function handleAdminCommand(raw){
         document.getElementById("bossBar").style.display="none"; adminOutput("💥 All enemies removed"); return;
     }
     if(cmd==="/unlockall"){
-        // Snapshot current ownership so /exitadmin can restore
-        window.__adminUnlockSnapshot = {
-            ownedClasses: save.ownedClasses.slice(),
-            ownedGuns: save.ownedGuns.slice(),
-            ownedSkins: save.ownedSkins.slice(),
-            awakenedClasses: (save.awakenedClasses||[]).slice(),
-            premiumAwakenedClasses: (save.premiumAwakenedClasses||[]).slice(),
-            class: save.class,
-            gun: save.gun,
-            skin: save.skin
-        };
+        // Keep the snapshot from admin login — do not overwrite with current (already unlocked) state
+        if(!loadAdminSnapshot()) takeAdminSnapshot();
         save.ownedClasses=classes.map((_,i)=>i);
         save.ownedGuns=guns.map((_,i)=>i);
         save.ownedSkins=skins.map((_,i)=>i);
         saveGame();
         buildClassTable();
         updateDisplays();
-        adminOutput("🔓 All classes, guns and skins unlocked (will lock on /exitadmin)");
+        adminOutput("🔓 All unlocked — /exitadmin restores pre-admin state");
         return;
     }
     if(cmd==="/free"){
@@ -1846,6 +1880,7 @@ function startGame(){
         save.nickname=nick;
         save.nicknameLocked=false;
         saveGame();
+        if(adminMode) lockAdminUnlockedItems();
         setAdminMode(false);
     }
     hideScreens();
@@ -4144,7 +4179,7 @@ setInterval(
       }
       if(typeof setAdminMode==="function") setAdminMode(true);
     } else {
-      if(typeof setAdminMode==="function") setAdminMode(false);
+      if(typeof setAdminMode==="function"){ if(adminMode) lockAdminUnlockedItems(); setAdminMode(false); }
     }
     if(typeof save!=="undefined"){
       save.nickname=name;
@@ -4209,39 +4244,4 @@ setInterval(
           ctx.beginPath();ctx.arc(0,0,s,0,Math.PI*2);ctx.stroke();break;
         case "cross":
           ctx.fillRect(-s*.3,-s,s*.6,s*2);ctx.fillRect(-s,-s*.3,s*2,s*.6);break;
-        case "capsule":
-          ctx.beginPath();ctx.roundRect(-s*1.2,-s*.45,s*2.4,s*.9,s*.45);ctx.fill();break;
-        case "arrow":
-          ctx.beginPath();ctx.moveTo(s,0);ctx.lineTo(-s,-s*.7);ctx.lineTo(-s*.35,0);ctx.lineTo(-s,s*.7);ctx.closePath();ctx.fill();break;
-        case "shard":
-          ctx.beginPath();ctx.moveTo(s*1.2,0);ctx.lineTo(-s*.3,s);ctx.lineTo(-s*.8,0);ctx.lineTo(-s*.3,-s);ctx.closePath();ctx.fill();break;
-        case "plus":
-          ctx.fillRect(-s*.25,-s,s*.5,s*2);ctx.fillRect(-s,-s*.25,s*2,s*.5);break;
-        case "flame":
-          ctx.beginPath();ctx.moveTo(0,-s*1.3);ctx.bezierCurveTo(s*1.1,-s*.2,s*.7,s*1.1,0,s*1.2);ctx.bezierCurveTo(-s*.8,s*.7,-s*.7,0,0,-s*1.3);ctx.fill();break;
-        case "ice":
-          ctx.beginPath();ctx.moveTo(0,-s);ctx.lineTo(s*.45,-s*.45);ctx.lineTo(s,0);ctx.lineTo(s*.45,s*.45);ctx.lineTo(0,s);ctx.lineTo(-s*.45,s*.45);ctx.lineTo(-s,0);ctx.lineTo(-s*.45,-s*.45);ctx.closePath();ctx.fill();break;
-        case "gear":
-          ctx.beginPath();ctx.arc(0,0,s*.75,0,Math.PI*2);ctx.fill();ctx.fillStyle="#111";ctx.beginPath();ctx.arc(0,0,s*.3,0,Math.PI*2);ctx.fill();break;
-        case "crescent":
-          ctx.beginPath();ctx.arc(0,0,s,Math.PI*.3,Math.PI*1.7);ctx.arc(s*.35,0,s*.8,Math.PI*1.7,Math.PI*.3,true);ctx.closePath();ctx.fill();break;
-        case "burst":
-          for(let i=0;i<8;i++){ctx.save();ctx.rotate(i*Math.PI/4);ctx.fillRect(0,-s*.18,s*1.4,s*.36);ctx.restore()}break;
-        case "comet":
-          ctx.beginPath();ctx.arc(s*.35,0,s*.55,0,Math.PI*2);ctx.fill();ctx.globalAlpha=.45;ctx.fillRect(-s*1.3,-s*.22,s*1.5,s*.44);break;
-        case "needle":
-          ctx.beginPath();ctx.moveTo(s*1.5,0);ctx.lineTo(-s*.8,s*.25);ctx.lineTo(-s*.8,-s*.25);ctx.closePath();ctx.fill();break;
-        case "wave":
-          ctx.beginPath();ctx.arc(0,0,s,Math.PI*.2,Math.PI*1.8);ctx.stroke();break;
-        case "crown":
-          ctx.beginPath();ctx.moveTo(-s,s*.6);ctx.lineTo(-s,-s*.6);ctx.lineTo(-s*.3,0);ctx.lineTo(0,-s*.7);ctx.lineTo(s*.3,0);ctx.lineTo(s,-s*.6);ctx.lineTo(s,s*.6);ctx.closePath();ctx.fill();break;
-        default:
-          ctx.beginPath();ctx.arc(0,0,s,0,Math.PI*2);ctx.fill();
-      }
-      ctx.restore();
-    }
-  };
-})();
-</script>
-</body>
-</html>
+       
