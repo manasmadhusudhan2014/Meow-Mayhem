@@ -520,6 +520,12 @@ tr:hover td{
 <button onclick="openCrafting()" id="craftButton">
     🛠️ CRAFTING — LEVEL 1000
 </button>
+<button onclick="showAchievements()" id="achievementsButton">
+    🏆 ACHIEVEMENTS
+</button>
+<button onclick="resetSave()" id="resetSaveButton" style="background:#542b2b;border:1px solid #833">
+    🗑️ RESET SAVE
+</button>
 </div>
 <div id="homeInfo"></div>
 </div>
@@ -555,6 +561,22 @@ Every class has a <b>Free Awakening</b> (any level · <b>0 🪙</b>) and a <b>Pr
 <button onclick="goHome()">
     ← BACK
 </button>
+</div>
+</section>
+
+<!-- =========================================================
+     ACHIEVEMENTS
+========================================================= -->
+<section id="achievementsScreen" class="screen hidden">
+<div class="panel">
+<h2>🏆 ACHIEVEMENTS</h2>
+<p style="color:#9eaf9f">Unlock rewards by playing. Progress is saved.</p>
+<div class="stats">
+<div class="stat">Unlocked: <b id="achUnlockedCount" class="gold">0</b> / <span id="achTotalCount">0</span></div>
+</div>
+<div id="achievementsList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;max-height:60vh;overflow:auto;margin:12px 0"></div>
+<br>
+<button onclick="goHome()">← BACK</button>
 </div>
 </section>
 <!-- =========================================================
@@ -649,29 +671,6 @@ WASD / Arrows = Move | Mouse = Aim | Click = Shoot | E = Awakening
     <div class="touchHint">LEFT: MOVE &nbsp; • &nbsp; RIGHT: AIM + FIRE</div>
 </div>
 </section>
-
-<!-- GLOBAL ADMIN (visible on main menu + in-game when unlocked) -->
-<div id="homeAdminPanel" class="panel" style="display:none;position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:60;width:min(94vw,720px);max-height:42vh;overflow:auto;border-color:#ffd54a;box-shadow:0 0 24px rgba(255,213,74,.25)">
-  <h3 style="margin:0 0 8px;color:#ffd54a">👑 ADMIN MODE</h3>
-  <p style="margin:0 0 10px;color:#c7d4c8;font-size:13px">Unlocked for <b>manas</b>. Type a command below or click a quick action.</p>
-  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
-    <button type="button" onclick="handleAdminCommand('/help')" style="background:#17271a;color:#ffd84a;border:1px solid #555">/help</button>
-    <button type="button" onclick="handleAdminCommand('/coins 999999')" style="background:#17271a;color:#fff;border:1px solid #555">/coins 999999</button>
-    <button type="button" onclick="handleAdminCommand('/kills 20000')" style="background:#17271a;color:#fff;border:1px solid #555">/kills 20000</button>
-    <button type="button" onclick="handleAdminCommand('/unlockall')" style="background:#17271a;color:#fff;border:1px solid #555">/unlockall</button>
-    <button type="button" onclick="handleAdminCommand('/free')" style="background:#17271a;color:#fff;border:1px solid #555">/free</button>
-    <button type="button" onclick="handleAdminCommand('/exitadmin')" style="background:#542b2b;color:#fff;border:1px solid #833">/exitadmin</button>
-  </div>
-  <div style="font-size:12px;color:#9eaf9f;line-height:1.5;margin-bottom:8px">
-    <b style="color:#ffd84a">Commands:</b>
-    /coins N · /kills N · /heal · /god · /ungod · /night N · /spawn miniboss · /spawn mega · /killall · /unlockall · /free · /exitadmin
-  </div>
-</div>
-<div id="adminConsole" style="display:none;position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:70;background:rgba(10,10,15,.95);padding:10px;border:2px solid #ffd54a;border-radius:10px;box-shadow:0 0 18px rgba(255,213,74,.25);width:min(92vw,560px);pointer-events:auto">
-  <div style="color:#ffd54a;font-weight:bold;margin-bottom:6px">👑 ADMIN COMMANDS</div>
-  <input id="adminCommandInput" autocomplete="off" placeholder="/help" style="width:100%;box-sizing:border-box;padding:9px;background:#15151c;color:white;border:1px solid #555;border-radius:6px">
-  <div id="adminConsoleOutput" style="font-size:12px;color:#ddd;margin-top:6px;min-height:18px">Type /help for commands</div>
-</div>
 </div>
 <script>
 /* =========================================================
@@ -881,6 +880,7 @@ if(!save){
         ownedSkins:[0],
         awakenedClasses:[],
         premiumAwakenedClasses:[],
+        achievements:[],
         class:0,
         gun:0,
         skin:0,
@@ -892,7 +892,23 @@ if(!save){
 if(!Array.isArray(save.customGuns)) save.customGuns=[];
 if(!Array.isArray(save.awakenedClasses)) save.awakenedClasses=[];
 if(!Array.isArray(save.premiumAwakenedClasses)) save.premiumAwakenedClasses=[];
+if(!Array.isArray(save.achievements)) save.achievements=[];
 if(!save.language) save.language="en";
+/* Old admin /free left 999999999 coins — offer one-time cleanup */
+if(save.coins>=999999999 && !save._adminCoinFixAsked){
+    save._adminCoinFixAsked=true;
+    setTimeout(function(){
+        if(confirm("Your save still has ~1 billion coins from the old admin /free command.\n\nReset coins to 0 now? (Full progress reset is also available via RESET SAVE.)")){
+            save.coins=0;
+            try{ saveGame(); }catch(e){}
+            try{ updateDisplays(); }catch(e){}
+            alert("Coins set to 0.");
+        }else{
+            try{ saveGame(); }catch(e){}
+        }
+    }, 400);
+}
+
 /* Restore crafted guns into the gun list. */
 function loadCustomGuns(){
     save.customGuns.forEach(g=>{
@@ -916,7 +932,50 @@ function saveGame(){
         console.log("Saving unavailable");
     }
     updateDisplays();
+    try{ if(typeof checkAchievements==="function" && !window.__checkingAch) checkAchievements(); }catch(e){}
 }
+function resetSave(){
+    if(!confirm("Reset ALL progress?\n\nCoins, kills, classes, guns, skins, awakens and achievements will be wiped.\nThis cannot be undone.")) return;
+    if(!confirm("Really delete your CAT OPS save?")) return;
+    try{
+        localStorage.removeItem("catOpsSave");
+        localStorage.removeItem("catOpsAdminSnap");
+        localStorage.removeItem("catopsNickname");
+        localStorage.removeItem("catopsLanguage");
+    }catch(e){}
+    save = {
+        coins:0,
+        kills:0,
+        nickname:"",
+        christmasFreeClaimed:false,
+        christmasFreeClaimDate:"",
+        ownedClasses:[0],
+        ownedGuns:[0],
+        ownedSkins:[0],
+        awakenedClasses:[],
+        premiumAwakenedClasses:[],
+        achievements:[],
+        class:0,
+        gun:0,
+        skin:0,
+        nicknameLocked:false,
+        customGuns:[],
+        language:"en"
+    };
+    // drop custom guns from guns list
+    for(let i=guns.length-1;i>=0;i--){
+        if(guns[i].custom) guns.splice(i,1);
+    }
+    saveGame();
+    lockNicknameInput();
+    updateDisplays();
+    buildClassTable();
+    const nick=document.getElementById("nicknameInput");
+    if(nick){ nick.value=""; nick.disabled=false; }
+    document.getElementById("homeInfo").innerHTML='<div class="card"><h3>🗑️ Save reset</h3><p>Progress cleared. Coins are 0 again.</p></div>';
+    alert("Save reset. Coins: 0");
+}
+
 function updateDisplays(){
     document.getElementById("coinDisplay").textContent=
         save.coins.toLocaleString();
@@ -946,6 +1005,8 @@ function hideScreens(){
         .classList.add("hidden");
     document.getElementById("gameScreen")
         .classList.add("hidden");
+    const ach=document.getElementById("achievementsScreen");
+    if(ach) ach.classList.add("hidden");
 }
 function goHome(){
     endGame(false);
@@ -953,7 +1014,6 @@ function goHome(){
     document.getElementById("homeScreen")
         .classList.remove("hidden");
     updateDisplays();
-    if(typeof setAdminMode==="function" && adminMode) setAdminMode(true);
 }
 function showClasses(){
     hideScreens();
@@ -1399,6 +1459,9 @@ function showInstructions(){
     <p>
         <b>E</b> = Class Awakening — Free: any level (0 🪙) · Premium: Level 2000 + 50k 🪙 (after free)
     </p>
+    <p>
+        🏆 Open <b>ACHIEVEMENTS</b> on the home screen to track progress and earn coin rewards.
+    </p>
     </div>
     `;
 }
@@ -1448,197 +1511,6 @@ const game={
         turret:null
     }
 };
-/* =========================================================
-   LOCAL CREATOR ADMIN
-   Only for nickname "manas". Password: Archi is a donkey
-   IMPORTANT: this is only for your own local/private build.
-   Anyone who receives the HTML can inspect the password.
-========================================================= */
-const ADMIN_NICKNAME = "manas";
-const ADMIN_PASSWORD = "Archi is a donkey";
-let adminMode = false;
-function adminOutput(text){
-    const el=document.getElementById("adminConsoleOutput");
-    if(el) el.textContent=text;
-}
-function isAdminNickname(){
-    return (save.nickname || "").trim().toLowerCase() === ADMIN_NICKNAME;
-}
-function takeAdminSnapshot(){
-    // Capture everything that admin might change — restored on /exitadmin
-    window.__adminUnlockSnapshot = {
-        ownedClasses: (save.ownedClasses||[0]).slice(),
-        ownedGuns: (save.ownedGuns||[0]).slice(),
-        ownedSkins: (save.ownedSkins||[0]).slice(),
-        awakenedClasses: (save.awakenedClasses||[]).slice(),
-        premiumAwakenedClasses: (save.premiumAwakenedClasses||[]).slice(),
-        class: save.class|0,
-        gun: save.gun|0,
-        skin: save.skin|0,
-        coins: save.coins|0,
-        kills: save.kills|0
-    };
-    try{
-        localStorage.setItem("catOpsAdminSnap", JSON.stringify(window.__adminUnlockSnapshot));
-    }catch(e){}
-}
-function loadAdminSnapshot(){
-    if(window.__adminUnlockSnapshot) return window.__adminUnlockSnapshot;
-    try{
-        const raw=localStorage.getItem("catOpsAdminSnap");
-        if(raw){
-            window.__adminUnlockSnapshot=JSON.parse(raw);
-            return window.__adminUnlockSnapshot;
-        }
-    }catch(e){}
-    return null;
-}
-function clearAdminSnapshot(){
-    window.__adminUnlockSnapshot=null;
-    try{ localStorage.removeItem("catOpsAdminSnap"); }catch(e){}
-}
-function setAdminMode(on){
-    const turningOn = !!on && !adminMode;
-    adminMode=!!on;
-    const box=document.getElementById("adminConsole");
-    if(box) box.style.display=adminMode ? "block" : "none";
-    const homePanel=document.getElementById("homeAdminPanel");
-    if(homePanel){
-        const inGame = game && game.running;
-        homePanel.style.display = (adminMode && !inGame) ? "block" : "none";
-    }
-    if(turningOn){
-        takeAdminSnapshot(); // always snapshot BEFORE admin changes
-        adminOutput("Admin enabled. Snapshot saved — /exitadmin will restore.");
-    }else if(!adminMode){
-        adminOutput("Admin off");
-    }
-}
-
-function lockAdminUnlockedItems(){
-    const snap = loadAdminSnapshot();
-    if(snap){
-        save.ownedClasses = snap.ownedClasses && snap.ownedClasses.length ? snap.ownedClasses.slice() : [0];
-        save.ownedGuns = snap.ownedGuns && snap.ownedGuns.length ? snap.ownedGuns.slice() : [0];
-        save.ownedSkins = snap.ownedSkins && snap.ownedSkins.length ? snap.ownedSkins.slice() : [0];
-        save.awakenedClasses = snap.awakenedClasses ? snap.awakenedClasses.slice() : [];
-        save.premiumAwakenedClasses = snap.premiumAwakenedClasses ? snap.premiumAwakenedClasses.slice() : [];
-        save.class = typeof snap.class === "number" ? snap.class : 0;
-        save.gun = typeof snap.gun === "number" ? snap.gun : 0;
-        save.skin = typeof snap.skin === "number" ? snap.skin : 0;
-        if(typeof snap.coins === "number") save.coins = snap.coins;
-        if(typeof snap.kills === "number") save.kills = snap.kills;
-    } else {
-        // No snapshot: hard lock to starters only
-        save.ownedClasses = [0];
-        save.ownedGuns = [0];
-        save.ownedSkins = [0];
-        save.awakenedClasses = [];
-        save.premiumAwakenedClasses = [];
-        save.class = 0;
-        save.gun = 0;
-        save.skin = 0;
-    }
-    clearAdminSnapshot();
-    if(!save.ownedClasses.includes(save.class)) save.class = 0;
-    if(!save.ownedGuns.includes(save.gun)) save.gun = 0;
-    if(!save.ownedSkins.includes(save.skin)) save.skin = 0;
-    if(game && game.player) game.player.adminGod=false;
-    saveGame();
-    if(typeof buildClassTable === "function") buildClassTable();
-    if(typeof updateDisplays === "function") updateDisplays();
-    if(typeof openShop === "function"){ /* refresh if on shop later */ }
-}
-
-function tryAdminLogin(password){
-    if(!isAdminNickname()){
-        adminOutput("❌ Admin only when nickname is manas");
-        return false;
-    }
-    if((password || "").trim() === ADMIN_PASSWORD){
-        setAdminMode(true);
-        adminOutput("👑 Admin unlocked for manas");
-        return true;
-    }
-    adminOutput("❌ Wrong password");
-    return false;
-}
-function adminHelp(){
-    return "/coins N | /kills N | /heal | /god | /ungod | /night N | /spawn miniboss | /spawn mega | /killall | /unlockall | /free | /exitadmin";
-}
-function handleAdminCommand(raw){
-    const text=(raw||"").trim();
-    if(!text) return;
-    const parts=text.split(/\s+/);
-    const cmd=parts[0].toLowerCase();
-    const arg=parts[1];
-    // /admin  OR  /admin Archi is a donkey
-    if(cmd==="/admin") {
-        const pw = text.slice(6).trim(); // everything after "/admin"
-        if(!pw){
-            const entered = prompt("Admin password (manas only):");
-            tryAdminLogin(entered);
-        } else {
-            tryAdminLogin(pw);
-        }
-        return;
-    }
-    if(!adminMode){ adminOutput("❌ Admin only. Play as manas with the correct password."); return; }
-    if(cmd==="/help"){ adminOutput(adminHelp()); return; }
-    if(cmd==="/exitadmin"){
-        lockAdminUnlockedItems();
-        adminMode=false;
-        const box=document.getElementById("adminConsole");
-        if(box) box.style.display="none";
-        const homePanel=document.getElementById("homeAdminPanel");
-        if(homePanel) homePanel.style.display="none";
-        adminOutput("🔒 Admin off — all admin unlocks/coins reverted");
-        return;
-    }
-    if(cmd==="/coins"){
-        const n=Math.max(0,Number(arg));
-        if(!Number.isFinite(n)){adminOutput("Usage: /coins 1000");return;}
-        save.coins=Math.floor(n); saveGame(); adminOutput("🪙 Coins set to "+save.coins); return;
-    }
-    if(cmd==="/kills"){
-        const n=Math.max(0,Number(arg));
-        if(!Number.isFinite(n)){adminOutput("Usage: /kills 100");return;}
-        save.kills=Math.floor(n); saveGame(); adminOutput("💀 Kills set to "+save.kills); return;
-    }
-    if(cmd==="/heal"){ game.player.hp=playerMaxHP(); game.timeSinceDamage=0; adminOutput("❤️ Fully healed"); return; }
-    if(cmd==="/god"){ game.player.adminGod=true; adminOutput("🛡️ God mode ON"); return; }
-    if(cmd==="/ungod"){ game.player.adminGod=false; adminOutput("🛡️ God mode OFF"); return; }
-    if(cmd==="/night"){
-        const n=Math.max(1,Math.floor(Number(arg)));
-        if(!Number.isFinite(n)){adminOutput("Usage: /night 10");return;}
-        game.night=n; game.nightTimer=0; updateHUD(); adminOutput("🌙 Night set to "+n); return;
-    }
-    if(cmd==="/spawn"){
-        if(arg==="miniboss"){ game.bossActive=false; spawnMiniboss(); adminOutput("👹 Miniboss spawned"); return; }
-        if(arg==="mega"){ game.bossActive=false; spawnMegaBoss(); adminOutput("👑 Mega Boss spawned"); return; }
-        adminOutput("Usage: /spawn miniboss OR /spawn mega"); return;
-    }
-    if(cmd==="/killall"){
-        game.enemies.length=0; game.bullets=game.bullets.filter(b=>!b.enemyBullet); game.hazards=[]; game.bossActive=false; game.waveSpawned=false;
-        document.getElementById("bossBar").style.display="none"; adminOutput("💥 All enemies removed"); return;
-    }
-    if(cmd==="/unlockall"){
-        // Keep the snapshot from admin login — do not overwrite with current (already unlocked) state
-        if(!loadAdminSnapshot()) takeAdminSnapshot();
-        save.ownedClasses=classes.map((_,i)=>i);
-        save.ownedGuns=guns.map((_,i)=>i);
-        save.ownedSkins=skins.map((_,i)=>i);
-        saveGame();
-        buildClassTable();
-        updateDisplays();
-        adminOutput("🔓 All unlocked — /exitadmin restores pre-admin state");
-        return;
-    }
-    if(cmd==="/free"){
-        save.coins=999999999; saveGame(); adminOutput("🪙 Free-shop mode: 999,999,999 coins"); return;
-    }
-    adminOutput("❓ Unknown command. Type /help");
-}
 /* =========================================================
    CANVAS
 ========================================================= */
@@ -1798,16 +1670,7 @@ function syncTouchUI(){
 syncTouchUI();
 window.addEventListener('resize', syncTouchUI);
 /* Admin command input */
-document.addEventListener("keydown",function(e){
-    const input=document.getElementById("adminCommandInput");
-    if(!input) return;
-    if(e.key==="Enter" && document.activeElement===input){
-        handleAdminCommand(input.value);
-        input.value="";
-        e.preventDefault();
-    }
-});
-/* Admin is unlocked only via nickname "manas" + password on PLAY (no F8). */
+
 /* =========================================================
    KEYBOARD
 ========================================================= */
@@ -1829,14 +1692,6 @@ window.addEventListener(
 /* =========================================================
    START GAME
 ========================================================= */
-/* =========================================================
-   RESERVED CREATOR NICKNAME
-========================================================= */
-const RESERVED_CREATOR_NICKNAME = "M_A_N_A_S";
-function nicknameTaken(nick){
-    return nick.trim().toLowerCase() === RESERVED_CREATOR_NICKNAME.toLowerCase()
-        && (save.nickname || "").trim().toLowerCase() !== RESERVED_CREATOR_NICKNAME.toLowerCase();
-}
 function startGame(){
     if(game.running){ return; }
     const nickInput=document.getElementById("nicknameInput");
@@ -1858,37 +1713,14 @@ function startGame(){
         nickInput.focus();
         return;
     }
-    if(nicknameTaken(nick)){
-        alert("Nickname taken!");
-        nickInput.focus();
-        return;
-    }
-    // manas → password required for admin
-    if(nick === ADMIN_NICKNAME){
-        const pw = prompt("Password for manas:");
-        if(pw === null) return;
-        if((pw || "").trim() !== ADMIN_PASSWORD){
-            alert("Wrong password.");
-            nickInput.focus();
-            return;
-        }
-        save.nickname=nick;
-        save.nicknameLocked=false;
-        saveGame();
-        setAdminMode(true);
-    } else {
-        save.nickname=nick;
-        save.nicknameLocked=false;
-        saveGame();
-        if(adminMode) lockAdminUnlockedItems();
-        setAdminMode(false);
-    }
+    save.nickname=nick;
+    save.nicknameLocked=false;
+    saveGame();
     hideScreens();
     document.getElementById("gameScreen")
         .classList.remove("hidden");
     resizeCanvas();
     game.running=true;
-    if(adminMode) setAdminMode(true);
     game.lastTime=
         performance.now();
     game.spawnTimer=0;
@@ -2725,7 +2557,7 @@ function updateBullets(dt){
                     b.y-game.player.y
                 )<20
             ){
-                if(game.player.awakenInvuln>0 || game.player.adminGod){
+                if(game.player.awakenInvuln>0 ){
                     game.bullets.splice(i,1);
                     continue;
                 }
@@ -2870,6 +2702,7 @@ function killEnemy(e,index){
             "👑 MEGA BOSS DEFEATED! +150 🪙",
             1800
         );
+        save._achMegaboss=true;
     }
     if(e.type==="miniboss"){
         game.bossActive=false;
@@ -2878,6 +2711,7 @@ function killEnemy(e,index){
             "👹 MINIBOSS DEFEATED! +100 🪙",
             1200
         );
+        save._achMiniboss=true;
     }
     // Prefer removing by object identity so nested kills (explosion)
     // do not leave dead enemies in the array or remove the wrong one.
@@ -2982,7 +2816,7 @@ function updateHazards(dt){
                 game.player.x-h.x,
                 game.player.y-h.targetY
             );
-            if(d<h.radius && !(game.player.awakenInvuln>0 || game.player.adminGod)){
+            if(d<h.radius && !(game.player.awakenInvuln>0 )){
                 const rocketDamage=classes[save.class].name==="Shield Cat"?h.damage*0.65:h.damage;
                 game.player.hp=Math.max(0,game.player.hp-rocketDamage);
                 game.timeSinceDamage=0;
@@ -3202,7 +3036,7 @@ function updateEnemies(dt){
                 game.player.y,
                 e.type==="mega" ? 24 : 12
             );
-            if(game.player.awakenInvuln>0 || game.player.adminGod){
+            if(game.player.awakenInvuln>0 ){
                 e.x -= dx2/Math.max(dist2,0.01) * 40;
                 e.y -= dy2/Math.max(dist2,0.01) * 40;
             } else {
@@ -3963,6 +3797,8 @@ function gameOver(){
     }
     game.running=false;
     mouse.down=false;
+    save._achGameOver=true;
+    saveGame();
     setTimeout(
         function(){
             alert(
@@ -3994,6 +3830,118 @@ function endGame(clear=true){
         ).classList.remove("hidden");
     }
 }
+
+/* =========================================================
+   ACHIEVEMENTS
+========================================================= */
+const ACHIEVEMENTS = [
+  {id:"first_blood",name:"First Blood",desc:"Get your first kill",icon:"💀",check:s=>s.kills>=1,reward:25},
+  {id:"killer_10",name:"Warm Up",desc:"Reach 10 kills",icon:"🔫",check:s=>s.kills>=10,reward:50},
+  {id:"killer_50",name:"Hunter",desc:"Reach 50 kills",icon:"🎯",check:s=>s.kills>=50,reward:100},
+  {id:"killer_100",name:"Slayer",desc:"Reach 100 kills",icon:"⚔️",check:s=>s.kills>=100,reward:200},
+  {id:"killer_500",name:"Exterminator",desc:"Reach 500 kills",icon:"💥",check:s=>s.kills>=500,reward:500},
+  {id:"killer_1000",name:"Legend",desc:"Reach 1,000 kills",icon:"👑",check:s=>s.kills>=1000,reward:1000},
+  {id:"killer_5000",name:"Cat of War",desc:"Reach 5,000 kills",icon:"🏆",check:s=>s.kills>=5000,reward:2500},
+  {id:"coins_100",name:"Pocket Change",desc:"Hold 100 coins",icon:"🪙",check:s=>s.coins>=100,reward:20},
+  {id:"coins_1000",name:"Saver",desc:"Hold 1,000 coins",icon:"💰",check:s=>s.coins>=1000,reward:50},
+  {id:"coins_10000",name:"Rich Cat",desc:"Hold 10,000 coins",icon:"💎",check:s=>s.coins>=10000,reward:200},
+  {id:"coins_100000",name:"Tycoon",desc:"Hold 100,000 coins",icon:"🏦",check:s=>s.coins>=100000,reward:500},
+  {id:"level_10",name:"Rising Star",desc:"Reach Level 10",icon:"⭐",check:s=>Math.floor(s.kills/10)+1>=10,reward:50},
+  {id:"level_50",name:"Veteran",desc:"Reach Level 50",icon:"🌟",check:s=>Math.floor(s.kills/10)+1>=50,reward:150},
+  {id:"level_100",name:"Centurion",desc:"Reach Level 100",icon:"✨",check:s=>Math.floor(s.kills/10)+1>=100,reward:300},
+  {id:"level_1000",name:"Immortal",desc:"Reach Level 1000",icon:"🔮",check:s=>Math.floor(s.kills/10)+1>=1000,reward:2000},
+  {id:"class_5",name:"Collector",desc:"Own 5 classes",icon:"📋",check:s=>(s.ownedClasses||[]).length>=5,reward:100},
+  {id:"class_15",name:"Class Act",desc:"Own 15 classes",icon:"🎖️",check:s=>(s.ownedClasses||[]).length>=15,reward:300},
+  {id:"class_all",name:"Completionist",desc:"Own all 36 classes",icon:"🏅",check:s=>(s.ownedClasses||[]).length>=36,reward:2000},
+  {id:"gun_5",name:"Arsenal",desc:"Own 5 guns",icon:"🔫",check:s=>(s.ownedGuns||[]).length>=5,reward:80},
+  {id:"gun_10",name:"Gun Nut",desc:"Own 10 guns",icon:"🧰",check:s=>(s.ownedGuns||[]).length>=10,reward:200},
+  {id:"skin_3",name:"Stylish",desc:"Own 3 skins",icon:"🎨",check:s=>(s.ownedSkins||[]).length>=3,reward:50},
+  {id:"awaken_1",name:"Awakened",desc:"Free-awaken 1 class",icon:"✨",check:s=>(s.awakenedClasses||[]).length>=1,reward:100},
+  {id:"awaken_5",name:"Power Surge",desc:"Free-awaken 5 classes",icon:"⚡",check:s=>(s.awakenedClasses||[]).length>=5,reward:300},
+  {id:"premium_1",name:"Premium Power",desc:"Premium-awaken 1 class",icon:"👑",check:s=>(s.premiumAwakenedClasses||[]).length>=1,reward:500},
+  {id:"night_5",name:"Night Owl",desc:"Reach Night 5 in a run",icon:"🌙",check:()=>typeof game!=="undefined"&&game.night>=5,reward:75},
+  {id:"night_10",name:"Midnight",desc:"Reach Night 10 in a run",icon:"🌑",check:()=>typeof game!=="undefined"&&game.night>=10,reward:150},
+  {id:"night_20",name:"Endless Dark",desc:"Reach Night 20 in a run",icon:"👁️",check:()=>typeof game!=="undefined"&&game.night>=20,reward:400},
+  {id:"wave_10",name:"Wave Rider",desc:"Reach Wave 10",icon:"🌊",check:()=>typeof game!=="undefined"&&game.wave>=10,reward:100},
+  {id:"wave_25",name:"Tsunami",desc:"Reach Wave 25",icon:"🌊",check:()=>typeof game!=="undefined"&&game.wave>=25,reward:250},
+  {id:"miniboss",name:"Boss Breaker",desc:"Defeat a Miniboss",icon:"👹",check:s=>!!s._achMiniboss,reward:150},
+  {id:"megaboss",name:"Mega Slayer",desc:"Defeat a Mega Boss",icon:"👑",check:s=>!!s._achMegaboss,reward:300},
+  {id:"craft",name:"Engineer",desc:"Craft a custom gun",icon:"🛠️",check:s=>(s.customGuns||[]).length>=1,reward:500},
+  {id:"survive_1",name:"Survivor",desc:"Finish a run (game over once)",icon:"❤️",check:s=>!!s._achGameOver,reward:30}
+];
+
+function hasAchievement(id){
+  return (save.achievements||[]).includes(id);
+}
+function unlockAchievement(id){
+  if(!save.achievements) save.achievements=[];
+  if(hasAchievement(id)) return false;
+  const def=ACHIEVEMENTS.find(a=>a.id===id);
+  if(!def) return false;
+  save.achievements.push(id);
+  if(def.reward) save.coins+=(def.reward|0);
+  saveGame();
+  try{
+    if(typeof gameMessage==="function" && game && game.running){
+      gameMessage("🏆 "+def.name+"! +"+(def.reward||0)+" 🪙",1400);
+    }
+  }catch(e){}
+  // toast on menu
+  try{
+    const info=document.getElementById("homeInfo");
+    if(info && (!game||!game.running)){
+      info.innerHTML='<div class="card"><h3>🏆 Achievement unlocked</h3><p><b>'+def.name+'</b> — '+def.desc+'</p><p class="gold">+'+(def.reward||0)+' 🪙</p></div>';
+    }
+  }catch(e){}
+  return true;
+}
+function checkAchievements(){
+  if(window.__checkingAch) return false;
+  window.__checkingAch=true;
+  let any=false;
+  try{
+    for(const a of ACHIEVEMENTS){
+      if(hasAchievement(a.id)) continue;
+      try{
+        if(a.check(save)){ if(unlockAchievement(a.id)) any=true; }
+      }catch(e){}
+    }
+  }finally{
+    window.__checkingAch=false;
+  }
+  return any;
+}
+function showAchievements(){
+  hideScreens();
+  const scr=document.getElementById("achievementsScreen");
+  if(scr) scr.classList.remove("hidden");
+  buildAchievementsList();
+}
+function buildAchievementsList(){
+  const list=document.getElementById("achievementsList");
+  if(!list) return;
+  list.innerHTML="";
+  let unlocked=0;
+  ACHIEVEMENTS.forEach(a=>{
+    const done=hasAchievement(a.id);
+    if(done) unlocked++;
+    const card=document.createElement("div");
+    card.className="card";
+    card.style.opacity=done?"1":"0.55";
+    card.style.borderColor=done?"#58d85a":"#314a35";
+    card.innerHTML=`
+      <h3 style="margin:0 0 6px">${a.icon} ${a.name}</h3>
+      <p style="margin:0 0 8px;min-height:auto">${a.desc}</p>
+      <div class="price">${done?"✅ UNLOCKED":"🔒 LOCKED"} · Reward ${a.reward||0} 🪙</div>
+    `;
+    list.appendChild(card);
+  });
+  const u=document.getElementById("achUnlockedCount");
+  const tot=document.getElementById("achTotalCount");
+  if(u) u.textContent=unlocked;
+  if(tot) tot.textContent=ACHIEVEMENTS.length;
+}
+
 /* =========================================================
    INITIALIZE
 ========================================================= */
@@ -4170,17 +4118,7 @@ setInterval(
       if(msg) msg.textContent="Nickname must be 3–16 lowercase letters.";
       return;
     }
-    if(name==="manas"){
-      const pw=prompt("Password for manas:");
-      if(pw===null) return;
-      if((pw||"").trim()!=="Archi is a donkey"){
-        if(msg) msg.textContent="Wrong password.";
-        return;
-      }
-      if(typeof setAdminMode==="function") setAdminMode(true);
-    } else {
-      if(typeof setAdminMode==="function"){ if(adminMode) lockAdminUnlockedItems(); setAdminMode(false); }
-    }
+    
     if(typeof save!=="undefined"){
       save.nickname=name;
       if(typeof saveGame==="function") saveGame();
@@ -4244,4 +4182,39 @@ setInterval(
           ctx.beginPath();ctx.arc(0,0,s,0,Math.PI*2);ctx.stroke();break;
         case "cross":
           ctx.fillRect(-s*.3,-s,s*.6,s*2);ctx.fillRect(-s,-s*.3,s*2,s*.6);break;
-       
+        case "capsule":
+          ctx.beginPath();ctx.roundRect(-s*1.2,-s*.45,s*2.4,s*.9,s*.45);ctx.fill();break;
+        case "arrow":
+          ctx.beginPath();ctx.moveTo(s,0);ctx.lineTo(-s,-s*.7);ctx.lineTo(-s*.35,0);ctx.lineTo(-s,s*.7);ctx.closePath();ctx.fill();break;
+        case "shard":
+          ctx.beginPath();ctx.moveTo(s*1.2,0);ctx.lineTo(-s*.3,s);ctx.lineTo(-s*.8,0);ctx.lineTo(-s*.3,-s);ctx.closePath();ctx.fill();break;
+        case "plus":
+          ctx.fillRect(-s*.25,-s,s*.5,s*2);ctx.fillRect(-s,-s*.25,s*2,s*.5);break;
+        case "flame":
+          ctx.beginPath();ctx.moveTo(0,-s*1.3);ctx.bezierCurveTo(s*1.1,-s*.2,s*.7,s*1.1,0,s*1.2);ctx.bezierCurveTo(-s*.8,s*.7,-s*.7,0,0,-s*1.3);ctx.fill();break;
+        case "ice":
+          ctx.beginPath();ctx.moveTo(0,-s);ctx.lineTo(s*.45,-s*.45);ctx.lineTo(s,0);ctx.lineTo(s*.45,s*.45);ctx.lineTo(0,s);ctx.lineTo(-s*.45,s*.45);ctx.lineTo(-s,0);ctx.lineTo(-s*.45,-s*.45);ctx.closePath();ctx.fill();break;
+        case "gear":
+          ctx.beginPath();ctx.arc(0,0,s*.75,0,Math.PI*2);ctx.fill();ctx.fillStyle="#111";ctx.beginPath();ctx.arc(0,0,s*.3,0,Math.PI*2);ctx.fill();break;
+        case "crescent":
+          ctx.beginPath();ctx.arc(0,0,s,Math.PI*.3,Math.PI*1.7);ctx.arc(s*.35,0,s*.8,Math.PI*1.7,Math.PI*.3,true);ctx.closePath();ctx.fill();break;
+        case "burst":
+          for(let i=0;i<8;i++){ctx.save();ctx.rotate(i*Math.PI/4);ctx.fillRect(0,-s*.18,s*1.4,s*.36);ctx.restore()}break;
+        case "comet":
+          ctx.beginPath();ctx.arc(s*.35,0,s*.55,0,Math.PI*2);ctx.fill();ctx.globalAlpha=.45;ctx.fillRect(-s*1.3,-s*.22,s*1.5,s*.44);break;
+        case "needle":
+          ctx.beginPath();ctx.moveTo(s*1.5,0);ctx.lineTo(-s*.8,s*.25);ctx.lineTo(-s*.8,-s*.25);ctx.closePath();ctx.fill();break;
+        case "wave":
+          ctx.beginPath();ctx.arc(0,0,s,Math.PI*.2,Math.PI*1.8);ctx.stroke();break;
+        case "crown":
+          ctx.beginPath();ctx.moveTo(-s,s*.6);ctx.lineTo(-s,-s*.6);ctx.lineTo(-s*.3,0);ctx.lineTo(0,-s*.7);ctx.lineTo(s*.3,0);ctx.lineTo(s,-s*.6);ctx.lineTo(s,s*.6);ctx.closePath();ctx.fill();break;
+        default:
+          ctx.beginPath();ctx.arc(0,0,s,0,Math.PI*2);ctx.fill();
+      }
+      ctx.restore();
+    }
+  };
+})();
+</script>
+</body>
+</html>
