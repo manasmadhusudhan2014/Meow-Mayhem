@@ -441,7 +441,7 @@ tr:hover td{
 ========================================================= -->
 <section id="homeScreen" class="screen">
 <div class="panel">
-<h1 class="logo">ðŸ± CAT OPS</h1>
+<h1 class="logo">🐱 CAT OPS</h1>
 <div class="subtitle">
     FOREST SURVIVAL
 </div>
@@ -449,38 +449,41 @@ tr:hover td{
 <input
     id="nicknameInput"
     maxlength="16"
-    placeholder="Enter your nickname"
+    placeholder="lowercase letters only"
+    pattern="[a-z]+"
+    autocomplete="off"
+    spellcheck="false"
 >
 <button class="primary" onclick="startGame()" id="playButton">
     PLAY
 </button>
 <div class="language-box">
-    <label for="languageSelect" id="languageLabel">ðŸŒ Language</label>
+    <label for="languageSelect" id="languageLabel">🌐 Language</label>
     <select id="languageSelect" aria-label="Language" style="width:100%;padding:10px;font-size:16px;">
-    <option value="en">ðŸ‡¬ðŸ‡§ English</option>
-    <option value="es">ðŸ‡ªðŸ‡¸ EspaÃ±ol</option>
-    <option value="fr">ðŸ‡«ðŸ‡· FranÃ§ais</option>
-    <option value="de">ðŸ‡©ðŸ‡ª Deutsch</option>
-    <option value="it">ðŸ‡®ðŸ‡¹ Italiano</option>
-    <option value="pt">ðŸ‡µðŸ‡¹ PortuguÃªs</option>
-    <option value="ru">ðŸ‡·ðŸ‡º Ð ÑƒÑÑÐºÐ¸Ð¹</option>
-    <option value="zh">ðŸ‡¨ðŸ‡³ ä¸­æ–‡</option>
-    <option value="ja">ðŸ‡¯ðŸ‡µ æ—¥æœ¬èªž</option>
-    <option value="ko">ðŸ‡°ðŸ‡· í•œêµ­ì–´</option>
-    <option value="hi">ðŸ‡®ðŸ‡³ à¤¹à¤¿à¤¨à¥à¤¦à¥€</option>
-    <option value="kn">ðŸ‡®ðŸ‡³ à²•à²¨à³à²¨à²¡</option>
-    <option value="te">ðŸ‡®ðŸ‡³ à°¤à±†à°²à±à°—à±</option>
-    <option value="ta">ðŸ‡®ðŸ‡³ à®¤à®®à®¿à®´à¯</option>
-    <option value="ml">ðŸ‡®ðŸ‡³ à´®à´²à´¯à´¾à´³à´‚</option>
-    <option value="id">ðŸ‡®ðŸ‡© Bahasa Indonesia</option>
-    <option value="tr">ðŸ‡¹ðŸ‡· TÃ¼rkÃ§e</option>
-    <option value="vi">ðŸ‡»ðŸ‡³ Tiáº¿ng Viá»‡t</option>
-    <option value="th">ðŸ‡¹ðŸ‡­ à¹„à¸—à¸¢</option>
-    <option value="ar">ðŸ‡¸ðŸ‡¦ Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©</option>
+    <option value="en">🇬🇧 English</option>
+    <option value="es">🇪🇸 Español</option>
+    <option value="fr">🇫🇷 Français</option>
+    <option value="de">🇩🇪 Deutsch</option>
+    <option value="it">🇮🇹 Italiano</option>
+    <option value="pt">🇵🇹 Português</option>
+    <option value="ru">🇷🇺 Русский</option>
+    <option value="zh">🇨🇳 中文</option>
+    <option value="ja">🇯🇵 日本語</option>
+    <option value="ko">🇰🇷 한국어</option>
+    <option value="hi">🇮🇳 हिन्दी</option>
+    <option value="kn">🇮🇳 ಕನ್ನಡ</option>
+    <option value="te">🇮🇳 తెలుగు</option>
+    <option value="ta">🇮🇳 தமிழ்</option>
+    <option value="ml">🇮🇳 മലയാളം</option>
+    <option value="id">🇮🇩 Bahasa Indonesia</option>
+    <option value="tr">🇹🇷 Türkçe</option>
+    <option value="vi">🇻🇳 Tiếng Việt</option>
+    <option value="th">🇹🇭 ไทย</option>
+    <option value="ar">🇸🇦 العربية</option>
 </select>
 </div>
 <div id="changeNicknamePanel" class="panel" style="margin-top:10px">
-  <h3>ðŸ‘¤ Change Nickname</h3>
+  <h3>👤 Change Nickname</h3>
   <input id="newNickname" type="text" maxlength="20" placeholder="Enter new nickname">
   <button id="changeNickname">Change Nickname</button>
   <div id="nicknameMessage" style="margin-top:6px"></div>
@@ -488,34 +491,34 @@ tr:hover td{
 </div>
 <div class="stats">
 <div class="stat">
-    ðŸª™ Coins:
+    🪙 Coins:
     <b id="coinDisplay" class="gold">0</b>
 </div>
 <div class="stat">
-    ðŸ’€ Kills:
+    💀 Kills:
     <b id="killDisplay">0</b>
 </div>
 <div class="stat">
-    â­ Class:
+    ⭐ Class:
     <b id="classDisplay">Rookie</b>
 </div>
 <div class="stat">
-    ðŸ”« Gun:
+    🔫 Gun:
     <b id="gunDisplay">Pistol</b>
 </div>
 </div>
 <div class="home-buttons">
 <button onclick="showClasses()">
-    ðŸ“‹ ALL 36 classes
+    📋 ALL 36 classes
 </button>
 <button onclick="openShop()">
-    ðŸ›’ SHOP
+    🛒 SHOP
 </button>
 <button onclick="showInstructions()" id="howToButton">
-    â“ HOW TO PLAY
+    ❓ HOW TO PLAY
 </button>
 <button onclick="openCrafting()" id="craftButton">
-    ðŸ› ï¸ CRAFTING â€” LEVEL 1000
+    🛠️ CRAFTING — LEVEL 1000
 </button>
 </div>
 <div id="homeInfo"></div>
@@ -526,9 +529,9 @@ tr:hover td{
 ========================================================= -->
 <section id="classesScreen" class="screen hidden">
 <div class="panel">
-<h2>ðŸ“‹ ALL 36 classes</h2>
+<h2>📋 ALL 36 classes</h2>
 <p>
-Every class has its own signature weapon and ability.
+Every class has a <b>Free Awakening</b> (any level · <b>0 🪙</b>) and a <b>Premium Awakening</b> (Lvl 2000 · 50k 🪙 · needs free first). Press <b>E</b> in-game (premium used if unlocked).
 </p>
 <div class="table-wrap">
 <table>
@@ -538,8 +541,11 @@ Every class has its own signature weapon and ability.
 <th>Class</th>
 <th>Signature Weapon</th>
 <th>Ability</th>
+<th>Free Awaken (E)</th>
+<th>Premium Awaken (E)</th>
 <th>Cost</th>
 <th>Status</th>
+<th>Unlock</th>
 </tr>
 </thead>
 <tbody id="classTable"></tbody>
@@ -547,7 +553,7 @@ Every class has its own signature weapon and ability.
 </div>
 <br>
 <button onclick="goHome()">
-    â† BACK
+    ← BACK
 </button>
 </div>
 </section>
@@ -556,10 +562,10 @@ Every class has its own signature weapon and ability.
 ========================================================= -->
 <section id="shopScreen" class="screen hidden">
 <div class="panel">
-<h2>ðŸ›’ CAT OPS SHOP</h2>
+<h2>🛒 CAT OPS SHOP</h2>
 <div class="stats">
 <div class="stat">
-    ðŸª™
+    🪙
     <span id="shopCoins">0</span>
     coins
 </div>
@@ -568,7 +574,7 @@ Every class has its own signature weapon and ability.
      COMING SOON EVENT
 ========================================================= -->
 <div class="coming-soon" id="christmasEventBox">
-    <h3>ðŸŽ„ CHRISTMAS EVENT â€” COMING SOON</h3>
+    <h3>🎄 CHRISTMAS EVENT — COMING SOON</h3>
     <p>On <b>December 25</b>, from <b>4:20 PM to 4:40 PM</b>, every class, gun and skin in the shop will be <b>FREE</b>!</p>
     <div id="christmasEventStatus">Event is coming soon...</div>
 </div>
@@ -584,11 +590,11 @@ Every class has its own signature weapon and ability.
     Skins / Colour
 </button>
 </div>
-<div style="font-size:12px;opacity:.75;margin:6px 0">ðŸ’¸ Cheap guns start at 50 coins.</div>
+<div style="font-size:12px;opacity:.75;margin:6px 0">💸 Cheap guns start at 50 coins.</div>
 <div id="shopGrid" class="shop-grid"></div>
 <br>
 <button onclick="goHome()">
-    â† BACK
+    ← BACK
 </button>
 </div>
 </section>
@@ -599,28 +605,30 @@ Every class has its own signature weapon and ability.
 <canvas id="gameCanvas"></canvas>
 <div class="hud">
 <div class="hudBox">
-ðŸ± <b id="playerNameHUD">Cat</b>
+🐱 <b id="playerNameHUD">Cat</b>
 <br>
-â¤ï¸ <span id="hpText">100/100</span>
+❤️ <span id="hpText">100/100</span>
 <div class="bar">
     <div id="hpFill" style="width:100%"></div>
 </div>
 </div>
 <div class="hudBox">
-ðŸª™ <span id="gameCoins">0</span>
+🪙 <span id="gameCoins">0</span>
 &nbsp; | &nbsp;
-ðŸ’€ <span id="gameKills">0</span>
+💀 <span id="gameKills">0</span>
 &nbsp; | &nbsp;
-â­ Level <span id="gameLevel">1</span>
+⭐ Level <span id="gameLevel">1</span>
 &nbsp; | &nbsp;
-ðŸŒ™ Night <span id="nightText">1</span> <span style="margin-left:12px">ðŸŒŠ Wave <span id="waveText">1</span></span>
+🌙 Night <span id="nightText">1</span> <span style="margin-left:12px">🌊 Wave <span id="waveText">1</span></span>
 &nbsp; | &nbsp;
-ðŸ”« <span id="ammoText">12/12</span>
+🔫 <span id="ammoText">12/12</span>
+&nbsp; | &nbsp;
+✨ <span id="awakenText">—</span>
 </div>
 <button
     onclick="endGame()"
     style="pointer-events:auto;background:#17271a;color:white">
-    ðŸ  EXIT
+    🏠 EXIT
 </button>
 </div>
 <div id="bossBar">
@@ -633,19 +641,37 @@ Every class has its own signature weapon and ability.
 </div>
 <div id="gameMessage"></div>
 <div class="controls">
-WASD / Arrow Keys = Move | Mouse = Aim | Click = Shoot
-</div>
-<div id="adminConsole" style="display:none;position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:50;background:rgba(10,10,15,.95);padding:10px;border:2px solid #ffd54a;border-radius:10px;box-shadow:0 0 18px rgba(255,213,74,.25);width:min(92vw,560px);pointer-events:auto">
-  <div style="color:#ffd54a;font-weight:bold;margin-bottom:6px">ðŸ‘‘ ADMIN COMMANDS</div>
-  <input id="adminCommandInput" autocomplete="off" placeholder="/help" style="width:100%;box-sizing:border-box;padding:9px;background:#15151c;color:white;border:1px solid #555;border-radius:6px">
-  <div id="adminConsoleOutput" style="font-size:12px;color:#ddd;margin-top:6px;min-height:18px">Type /help for commands</div>
+WASD / Arrows = Move | Mouse = Aim | Click = Shoot | E = Awakening
 </div>
 <div class="touchControls" id="touchControls">
     <div class="joystick" id="moveStick"><div class="joystickKnob"></div></div>
     <div class="joystick" id="aimStick"><div class="joystickKnob"></div></div>
-    <div class="touchHint">LEFT: MOVE &nbsp; â€¢ &nbsp; RIGHT: AIM + FIRE</div>
+    <div class="touchHint">LEFT: MOVE &nbsp; • &nbsp; RIGHT: AIM + FIRE</div>
 </div>
 </section>
+
+<!-- GLOBAL ADMIN (visible on main menu + in-game when unlocked) -->
+<div id="homeAdminPanel" class="panel" style="display:none;position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:60;width:min(94vw,720px);max-height:42vh;overflow:auto;border-color:#ffd54a;box-shadow:0 0 24px rgba(255,213,74,.25)">
+  <h3 style="margin:0 0 8px;color:#ffd54a">👑 ADMIN MODE</h3>
+  <p style="margin:0 0 10px;color:#c7d4c8;font-size:13px">Unlocked for <b>manas</b>. Type a command below or click a quick action.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+    <button type="button" onclick="handleAdminCommand('/help')" style="background:#17271a;color:#ffd84a;border:1px solid #555">/help</button>
+    <button type="button" onclick="handleAdminCommand('/coins 999999')" style="background:#17271a;color:#fff;border:1px solid #555">/coins 999999</button>
+    <button type="button" onclick="handleAdminCommand('/kills 20000')" style="background:#17271a;color:#fff;border:1px solid #555">/kills 20000</button>
+    <button type="button" onclick="handleAdminCommand('/unlockall')" style="background:#17271a;color:#fff;border:1px solid #555">/unlockall</button>
+    <button type="button" onclick="handleAdminCommand('/free')" style="background:#17271a;color:#fff;border:1px solid #555">/free</button>
+    <button type="button" onclick="handleAdminCommand('/exitadmin')" style="background:#542b2b;color:#fff;border:1px solid #833">/exitadmin</button>
+  </div>
+  <div style="font-size:12px;color:#9eaf9f;line-height:1.5;margin-bottom:8px">
+    <b style="color:#ffd84a">Commands:</b>
+    /coins N · /kills N · /heal · /god · /ungod · /night N · /spawn miniboss · /spawn mega · /killall · /unlockall · /free · /exitadmin
+  </div>
+</div>
+<div id="adminConsole" style="display:none;position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:70;background:rgba(10,10,15,.95);padding:10px;border:2px solid #ffd54a;border-radius:10px;box-shadow:0 0 18px rgba(255,213,74,.25);width:min(92vw,560px);pointer-events:auto">
+  <div style="color:#ffd54a;font-weight:bold;margin-bottom:6px">👑 ADMIN COMMANDS</div>
+  <input id="adminCommandInput" autocomplete="off" placeholder="/help" style="width:100%;box-sizing:border-box;padding:9px;background:#15151c;color:white;border:1px solid #555;border-radius:6px">
+  <div id="adminConsoleOutput" style="font-size:12px;color:#ddd;margin-top:6px;min-height:18px">Type /help for commands</div>
+</div>
 </div>
 <script>
 /* =========================================================
@@ -706,7 +732,93 @@ const classes = [
 {name:"Death Cat",weapon:"Death Ray",ability:"Instant criticals",cost:920000},
 {name:"God Cat",weapon:"Divine Cannon",ability:"Massive power",cost:970000},
 {name:"OMEGA CAT",weapon:"Omega Destroyer",ability:"Ultimate weapon",cost:999999},
-{name:"Santa Cat",weapon:"Gift Box Launcher",ability:"Explosive gift boxes â€¢ Christmas only",cost:100000,christmasOnly:true}
+{name:"Santa Cat",weapon:"Gift Box Launcher",ability:"Explosive gift boxes • Christmas only",cost:100000,christmasOnly:true}
+];
+/* =========================================================
+   CLASS AWAKENINGS — Free: Level 0 (0 coins) | Premium: Level 2000 (50,000 coins)
+   Press E in-game to activate (once awakened for that class).
+========================================================= */
+const AWAKEN_COST = 0; // free tier
+const AWAKEN_LEVEL = 0; // free awaken — no level gate
+const awakenings = [
+  {name:"Overdrive",desc:"5s double damage + move speed",cooldown:18,duration:5},
+  {name:"Blitz Trail",desc:"Speed burst; leave damaging trail",cooldown:16,duration:4},
+  {name:"Absolute Zero",desc:"Freeze all enemies briefly",cooldown:22,duration:3},
+  {name:"Inferno Nova",desc:"Huge fire zone around you",cooldown:18,duration:5},
+  {name:"Carpet Bomb",desc:"Chain of explosions around you",cooldown:20,duration:1},
+  {name:"Aegis Reflect",desc:"Near-invuln + reflect touch damage",cooldown:24,duration:4},
+  {name:"Ghost Step",desc:"Speed + brief near-invisibility",cooldown:15,duration:3},
+  {name:"Marked Prey",desc:"Next 8 shots are guaranteed crits",cooldown:16,duration:6},
+  {name:"Field Medic",desc:"Full heal + strong regen burst",cooldown:20,duration:4},
+  {name:"Arrow Storm",desc:"Rain of long-range shots",cooldown:18,duration:1},
+  {name:"Suppress",desc:"Extreme fire rate for a few seconds",cooldown:18,duration:4},
+  {name:"Rail Pierce",desc:"One massive piercing shot",cooldown:14,duration:0.5},
+  {name:"Flame Armor",desc:"Burn aura damages nearby foes",cooldown:18,duration:6},
+  {name:"Ice Age",desc:"Wide freeze + slow field",cooldown:22,duration:4},
+  {name:"Blood Frenzy",desc:"Huge lifesteal + damage boost",cooldown:18,duration:5},
+  {name:"Shadow Strike",desc:"Dash + triple-damage volley",cooldown:16,duration:2},
+  {name:"Auto Turret",desc:"Deploy a temporary ally turret",cooldown:22,duration:10},
+  {name:"Thunderstorm",desc:"Lightning strikes random enemies",cooldown:18,duration:4},
+  {name:"Shadow Clone",desc:"Multi-dash + rapid shurikens",cooldown:15,duration:3},
+  {name:"True Rage",desc:"Massive damage while low HP",cooldown:16,duration:6},
+  {name:"Holy Barrier",desc:"Shield + heal over time",cooldown:20,duration:5},
+  {name:"Undead Army",desc:"Summon fighting minions",cooldown:24,duration:8},
+  {name:"Nature's Grasp",desc:"Vines slow enemies + heal you",cooldown:18,duration:5},
+  {name:"Blade Storm",desc:"Whirlwind dash hits all nearby",cooldown:16,duration:2},
+  {name:"Overclock",desc:"Plasma overdrive fire rate",cooldown:17,duration:4},
+  {name:"Singularity",desc:"Black hole pulls and damages",cooldown:22,duration:4},
+  {name:"Dragon Breath",desc:"Cone of explosive fire",cooldown:18,duration:1},
+  {name:"Fortify",desc:"Temporary massive HP boost",cooldown:25,duration:6},
+  {name:"Eclipse",desc:"Darkness field slows + damages",cooldown:20,duration:5},
+  {name:"Meteor Shower",desc:"Meteors rain on the arena",cooldown:22,duration:4},
+  {name:"Time Stop",desc:"Freeze time for enemies longer",cooldown:26,duration:4},
+  {name:"Apocalypse",desc:"Screen-wide fire explosions",cooldown:24,duration:2},
+  {name:"Reaper Gaze",desc:"Execute low-HP enemies",cooldown:20,duration:1},
+  {name:"Divine Judgment",desc:"Massive holy AOE damage",cooldown:22,duration:1},
+  {name:"Omega Burst",desc:"Ultimate screen clear pulse",cooldown:30,duration:2},
+  {name:"Gift Rain",desc:"Rain of explosive gift boxes",cooldown:20,duration:3}
+];
+/* PREMIUM AWAKENINGS — stronger tier (need free awaken first)
+   Level 2000 + 50,000 coins. E uses premium if unlocked. */
+const PREMIUM_AWAKEN_COST = 50000;
+const PREMIUM_AWAKEN_LEVEL = 2000;
+const premiumAwakenings = [
+  {name:"Prime Overdrive",desc:"8s 3x damage + 2x speed",cooldown:14,duration:8,premium:true},
+  {name:"Sonic Blitz",desc:"Hyper speed trail melts foes",cooldown:12,duration:6,premium:true},
+  {name:"Permafrost",desc:"Long freeze + shatter damage",cooldown:16,duration:5,premium:true},
+  {name:"Hell Nova",desc:"Giant lasting inferno zone",cooldown:14,duration:8,premium:true},
+  {name:"Orbital Strike",desc:"Massive multi-bomb carpet",cooldown:15,duration:2,premium:true},
+  {name:"Iron Aegis",desc:"Long invuln + heal on block",cooldown:18,duration:6,premium:true},
+  {name:"Phantom Step",desc:"Full invuln speed ghost",cooldown:12,duration:5,premium:true},
+  {name:"Death Mark",desc:"15 guaranteed mega-crits",cooldown:12,duration:8,premium:true},
+  {name:"Angel Ward",desc:"Full heal + huge lifesteal",cooldown:14,duration:6,premium:true},
+  {name:"Sky Barrage",desc:"Dense arrow/meteor volley",cooldown:12,duration:2,premium:true},
+  {name:"Bullet Storm",desc:"Insane fire rate + damage",cooldown:12,duration:6,premium:true},
+  {name:"God Rail",desc:"Ultra piercing annihilation shot",cooldown:10,duration:1,premium:true},
+  {name:"Living Flame",desc:"Wide burn aura + nova",cooldown:12,duration:8,premium:true},
+  {name:"Glacial Dominion",desc:"Arena-wide freeze field",cooldown:16,duration:6,premium:true},
+  {name:"Crimson Feast",desc:"Extreme lifesteal rampage",cooldown:12,duration:7,premium:true},
+  {name:"Void Assassin",desc:"Blink + 4x damage volley",cooldown:12,duration:3,premium:true},
+  {name:"Fortress Turret",desc:"Heavy dual turrets",cooldown:16,duration:14,premium:true},
+  {name:"Tempest",desc:"Chain lightning storm",cooldown:12,duration:6,premium:true},
+  {name:"Thousand Cuts",desc:"Multi-dash shuriken frenzy",cooldown:10,duration:5,premium:true},
+  {name:"Berserk God",desc:"Insane damage at any HP",cooldown:12,duration:8,premium:true},
+  {name:"Divine Aegis",desc:"Long shield + regen",cooldown:14,duration:7,premium:true},
+  {name:"Lich King",desc:"Army of strong minions",cooldown:16,duration:12,premium:true},
+  {name:"World Tree",desc:"Mass slow + continuous heal",cooldown:12,duration:7,premium:true},
+  {name:"Kenjutsu",desc:"Devastating multi-hit dash",cooldown:10,duration:3,premium:true},
+  {name:"Quantum Core",desc:"Plasma overdrive maxed",cooldown:11,duration:6,premium:true},
+  {name:"Event Horizon",desc:"Giant black hole",cooldown:14,duration:6,premium:true},
+  {name:"Elder Dragon",desc:"Wide explosive breath",cooldown:12,duration:2,premium:true},
+  {name:"Colossus",desc:"Huge HP + long invuln",cooldown:16,duration:8,premium:true},
+  {name:"Eternal Night",desc:"Huge darkness damage field",cooldown:14,duration:7,premium:true},
+  {name:"Starfall",desc:"Heavy meteor bombardment",cooldown:14,duration:6,premium:true},
+  {name:"Chrono Lock",desc:"Long time stop + slow",cooldown:16,duration:6,premium:true},
+  {name:"World Burn",desc:"Full-screen fire apocalypse",cooldown:15,duration:3,premium:true},
+  {name:"Soul Reaper",desc:"Execute under 50% HP",cooldown:12,duration:2,premium:true},
+  {name:"Heaven's Gate",desc:"Massive holy wipe",cooldown:14,duration:2,premium:true},
+  {name:"OMEGA Collapse",desc:"Ultimate arena clear",cooldown:18,duration:3,premium:true},
+  {name:"Santa's Wrath",desc:"Mega gift bomb rain",cooldown:12,duration:5,premium:true}
 ];
 const guns = [
 {name:"Pistol",cost:0,damage:18,rate:320,speed:11,shots:1,shape:"circle",color:"#ffffff"},
@@ -767,6 +879,8 @@ if(!save){
         ownedClasses:[0],
         ownedGuns:[0],
         ownedSkins:[0],
+        awakenedClasses:[],
+        premiumAwakenedClasses:[],
         class:0,
         gun:0,
         skin:0,
@@ -776,6 +890,8 @@ if(!save){
     };
 }
 if(!Array.isArray(save.customGuns)) save.customGuns=[];
+if(!Array.isArray(save.awakenedClasses)) save.awakenedClasses=[];
+if(!Array.isArray(save.premiumAwakenedClasses)) save.premiumAwakenedClasses=[];
 if(!save.language) save.language="en";
 /* Restore crafted guns into the gun list. */
 function loadCustomGuns(){
@@ -808,7 +924,7 @@ function updateDisplays(){
         save.kills.toLocaleString();
     const craftButton=document.getElementById("craftButton");
     if(craftButton){
-        craftButton.textContent = getPlayerLevel()>=1000 ? "ðŸ› ï¸ CRAFT CUSTOM GUN" : "ðŸ› ï¸ CRAFTING â€” LEVEL 1000";
+        craftButton.textContent = getPlayerLevel()>=1000 ? "🛠️ CRAFT CUSTOM GUN" : "🛠️ CRAFTING — LEVEL 1000";
         craftButton.disabled = getPlayerLevel()<1000;
     }
     document.getElementById("classDisplay").textContent=
@@ -837,6 +953,7 @@ function goHome(){
     document.getElementById("homeScreen")
         .classList.remove("hidden");
     updateDisplays();
+    if(typeof setAdminMode==="function" && adminMode) setAdminMode(true);
 }
 function showClasses(){
     hideScreens();
@@ -863,34 +980,75 @@ window.__controlsTest = {
    CLASS TABLE
 ========================================================= */
 function buildClassTable(){
-    const tbody=
-        document.getElementById("classTable");
+    const tbody=document.getElementById("classTable");
     tbody.innerHTML="";
+    const lvl=getPlayerLevel();
     classes.forEach((c,i)=>{
-        const owned=
-            save.ownedClasses.includes(i);
-        const tr=
-            document.createElement("tr");
+        const owned=save.ownedClasses.includes(i);
+        const awakened=save.awakenedClasses.includes(i);
+        const premium=save.premiumAwakenedClasses.includes(i);
+        const aw=awakenings[i]||{name:"—",desc:""};
+        const paw=premiumAwakenings[i]||{name:"—",desc:""};
+        let freeBtn="", premBtn="";
+        if(awakened){
+            freeBtn=`<span class="unlocked">FREE ✓</span>`;
+        }else if(!owned){
+            freeBtn=`<span class="locked">OWN FIRST</span>`;
+        }else if(lvl<AWAKEN_LEVEL){
+            freeBtn=`<span class="locked">LVL ${AWAKEN_LEVEL}</span>`;
+        }else{
+            freeBtn=`<button onclick="awakenClass(${i})" style="background:#4bc84d;color:#071008;padding:4px 8px;font-size:12px">FREE (0 🪙)</button>`;
+        }
+        if(premium){
+            premBtn=`<span class="unlocked" style="color:#ffd84a">PREMIUM ✓</span>`;
+        }else if(!awakened){
+            premBtn=`<span class="locked">FREE FIRST</span>`;
+        }else if(lvl<PREMIUM_AWAKEN_LEVEL){
+            premBtn=`<span class="locked">LVL ${PREMIUM_AWAKEN_LEVEL}</span>`;
+        }else if(save.coins<PREMIUM_AWAKEN_COST){
+            premBtn=`<button onclick="premiumAwakenClass(${i})" style="background:#542b2b;color:#fff;padding:4px 8px;font-size:12px">NEED ${(PREMIUM_AWAKEN_COST-save.coins).toLocaleString()}</button>`;
+        }else{
+            premBtn=`<button onclick="premiumAwakenClass(${i})" style="background:#e9c84c;color:#071008;padding:4px 8px;font-size:12px">PREMIUM 50k 🪙</button>`;
+        }
+        const tr=document.createElement("tr");
         tr.innerHTML=`
         <td>${i+1}</td>
-        <td>
-            <b>${c.name}</b>
-        </td>
-        <td>
-            ðŸ”« ${c.weapon}
-        </td>
-        <td>
-            ${c.ability}
-        </td>
-        <td class="price">
-            ${c.christmasOnly ? "ðŸŽ„ DEC 25 ONLY" : c.cost.toLocaleString()+" ðŸª™"}
-        </td>
-        <td class="${owned?"unlocked":"locked"}">
-            ${owned?"OWNED":"LOCKED"}
-        </td>
+        <td><b>${c.name}</b></td>
+        <td>🔫 ${c.weapon}</td>
+        <td>${c.ability}</td>
+        <td><b>${aw.name}</b><br><span style="opacity:.75;font-size:11px">${aw.desc}</span></td>
+        <td><b style="color:#ffd84a">${paw.name}</b><br><span style="opacity:.75;font-size:11px">${paw.desc}</span></td>
+        <td class="price">${c.christmasOnly ? "🎄 DEC 25 ONLY" : c.cost.toLocaleString()+" 🪙"}</td>
+        <td class="${owned?"unlocked":"locked"}">${owned?"OWNED":"LOCKED"}</td>
+        <td style="white-space:nowrap">${freeBtn}<br>${premBtn}</td>
         `;
         tbody.appendChild(tr);
     });
+}
+function awakenClass(i){
+    if(!save.ownedClasses.includes(i)){ alert("Own this class first."); return; }
+    if(save.awakenedClasses.includes(i)){ alert("Already free-awakened!"); return; }
+    if(getPlayerLevel()<AWAKEN_LEVEL){ alert("Free awaken needs Level "+AWAKEN_LEVEL+"."); return; }
+    const aw=awakenings[i];
+    if(!confirm("Free awaken "+classes[i].name+"?\n\n"+aw.name+": "+aw.desc+"\n\nCost: FREE (0 🪙)")) return;
+    // free tier — no coin cost
+    save.awakenedClasses.push(i);
+    saveGame();
+    buildClassTable();
+    alert("✨ Free awakening unlocked!\nE = "+aw.name);
+}
+function premiumAwakenClass(i){
+    if(!save.awakenedClasses.includes(i)){ alert("Unlock free awakening first."); return; }
+    if(save.premiumAwakenedClasses.includes(i)){ alert("Already premium!"); return; }
+    if(getPlayerLevel()<PREMIUM_AWAKEN_LEVEL){ alert("Premium needs Level "+PREMIUM_AWAKEN_LEVEL+". You are "+getPlayerLevel()+"."); return; }
+    if(save.coins<PREMIUM_AWAKEN_COST){ alert("Need "+PREMIUM_AWAKEN_COST.toLocaleString()+" coins."); return; }
+    const paw=premiumAwakenings[i];
+    if(!confirm("Premium awaken "+classes[i].name+"?\n\n"+paw.name+": "+paw.desc+"\n\nCost: "+PREMIUM_AWAKEN_COST.toLocaleString()+" 🪙")) return;
+    save.coins-=PREMIUM_AWAKEN_COST;
+    save.premiumAwakenedClasses.push(i);
+    saveGame();
+    buildClassTable();
+    alert("👑 Premium awakening unlocked!\nE = "+paw.name+" (stronger)");
 }
 /* =========================================================
    CHRISTMAS SHOP EVENT
@@ -910,16 +1068,16 @@ function christmasEventText(){
     const status=document.getElementById("christmasEventStatus");
     if(!status) return;
     if(isChristmasFreeShop()){
-        status.textContent=christmasFreeItemAvailable() ? "ðŸŽ EVENT LIVE! CHOOSE 1 FREE ITEM!" : "ðŸŽ EVENT LIVE! YOUR 1 FREE ITEM HAS ALREADY BEEN CLAIMED.";
+        status.textContent=christmasFreeItemAvailable() ? "🎁 EVENT LIVE! CHOOSE 1 FREE ITEM!" : "🎁 EVENT LIVE! YOUR 1 FREE ITEM HAS ALREADY BEEN CLAIMED.";
         return;
     }
     const now=new Date();
     if(now.getMonth()===11 && now.getDate()===25 && now.getHours()<16){
-        status.textContent="ðŸŽ„ Starts at 4:20 PM and ends at 4:40 PM.";
+        status.textContent="🎄 Starts at 4:20 PM and ends at 4:40 PM.";
     }else if(now.getMonth()===11 && now.getDate()===25 && now.getHours()>=16 && (now.getHours()<16 || (now.getHours()===16 && now.getMinutes()<40))){
-        status.textContent="ðŸŽ„ Starts at 4:20 PM â€” get ready!";
+        status.textContent="🎄 Starts at 4:20 PM — get ready!";
     }else{
-        status.textContent="ðŸŽ„ December 25 â€¢ 4:20 PMâ€“4:40 PM";
+        status.textContent="🎄 December 25 • 4:20 PM–4:40 PM";
     }
 }
 setInterval(christmasEventText,1000);
@@ -967,7 +1125,7 @@ function shopTab(tab,button){
             addShopCard(
                 grid,
                 item.name,
-                "ðŸ”« "+item.weapon+
+                "🔫 "+item.weapon+
                 "<br>"+item.ability,
                 item.cost,
                 save.ownedClasses.includes(i),
@@ -1045,7 +1203,7 @@ function addShopCard(
     <h3>${name}</h3>
     <p>${description}</p>
     <div class="price">
-        ${unavailable ? "ðŸŽ„ DECEMBER 25 ONLY" : (christmasFree ? "FREE ðŸŽ (1 ITEM ONLY)" : cost.toLocaleString()+" ðŸª™")}
+        ${unavailable ? "🎄 DECEMBER 25 ONLY" : (christmasFree ? "FREE 🎁 (1 ITEM ONLY)" : cost.toLocaleString()+" 🪙")}
     </div>
     <br>
     <button class="${cls}">
@@ -1062,7 +1220,7 @@ function addShopCard(
 function buyClass(i){
     const c=classes[i];
     if(c.christmasOnly && !isChristmasDay()){
-        gameMessage("ðŸŽ„ Santa Cat is available only on December 25!",1200);
+        gameMessage("🎄 Santa Cat is available only on December 25!",1200);
         return;
     }
     if(save.ownedClasses.includes(i)){
@@ -1130,7 +1288,7 @@ function buySkin(i){
     openShop();
 }
 /* =========================================================
-   CRAFTING â€” UNLOCKS AT LEVEL 1000
+   CRAFTING — UNLOCKS AT LEVEL 1000
 ========================================================= */
 function openCrafting(){
     if(getPlayerLevel()<1000){
@@ -1139,19 +1297,19 @@ function openCrafting(){
     }
     const owned=save.ownedGuns.filter(i=>guns[i]);
     if(owned.length<2){
-        document.getElementById("homeInfo").innerHTML='<div class="craft-panel"><h3>ðŸ› ï¸ CUSTOM GUN CRAFTING</h3><p>You need at least 2 owned guns to merge.</p></div>';
+        document.getElementById("homeInfo").innerHTML='<div class="craft-panel"><h3>🛠️ CUSTOM GUN CRAFTING</h3><p>You need at least 2 owned guns to merge.</p></div>';
         return;
     }
     let options=owned.map(i=>'<option value="'+i+'">'+guns[i].name+'</option>').join('');
     document.getElementById("homeInfo").innerHTML=`
       <div class="craft-panel">
-        <h3>ðŸ› ï¸ CUSTOM GUN CRAFTING</h3>
+        <h3>🛠️ CUSTOM GUN CRAFTING</h3>
         <p>Merge two owned guns to create your own weapon.</p>
         <label>Gun 1</label><select id="craftGun1">${options}</select>
         <label>Gun 2</label><select id="craftGun2">${options}</select>
         <input id="craftName" maxlength="24" placeholder="Name your custom gun">
-        <button class="primary" onclick="craftGun()">âš’ï¸ MERGE GUNS</button>
-        <div class="craft-result">ðŸ”“ Unlocked at Level 1000</div>
+        <button class="primary" onclick="craftGun()">⚒️ MERGE GUNS</button>
+        <div class="craft-result">🔓 Unlocked at Level 1000</div>
       </div>`;
 }
 function craftGun(){
@@ -1179,17 +1337,17 @@ function craftGun(){
     save.ownedGuns.push(idx);
     save.gun=idx;
     saveGame();
-    alert("ðŸ› ï¸ Custom gun created: "+name+"!");
+    alert("🛠️ Custom gun created: "+name+"!");
     openCrafting();
 }
 /* =========================================================
    MAIN SCREEN LANGUAGE
 ========================================================= */
 const translations={
-  en:{play:"PLAY",how:"â“ HOW TO PLAY",craft:"ðŸ› ï¸ CRAFTING â€” LEVEL 1000",lang:"ðŸŒ Language",classes:"ðŸ“‹ ALL 36 classes",shop:"ðŸ›’ SHOP",reserved:""},
-  kn:{play:"à²†à²Ÿ à²ªà³à²°à²¾à²°à²‚à²­à²¿à²¸à²¿",how:"â“ à²¹à³‡à²—à³† à²†à²¡à³à²µà³à²¦à³",craft:"ðŸ› ï¸ à²•à³à²°à²¾à²«à³à²Ÿà²¿à²‚à²—à³ â€” à²®à²Ÿà³à²Ÿ 1000",lang:"ðŸŒ à²­à²¾à²·à³†",classes:"ðŸ“‹ à²Žà²²à³à²²à²¾ 30 à²•à³à²²à²¾à²¸à³â€Œà²—à²³à³",shop:"ðŸ›’ à²…à²‚à²—à²¡à²¿",reserved:"à²¸à³ƒà²·à³à²Ÿà²¿à²•à²°à³à²¤à²° à²¹à³†à²¸à²°à³ M_A_N_A_S à²•à²¾à²¯à³à²¦à²¿à²°à²¿à²¸à²²à²¾à²—à²¿à²¦à³†."},
-  hi:{play:"à¤–à¥‡à¤²à¥‡à¤‚",how:"â“ à¤•à¥ˆà¤¸à¥‡ à¤–à¥‡à¤²à¥‡à¤‚",craft:"ðŸ› ï¸ à¤•à¥à¤°à¤¾à¤«à¥à¤Ÿà¤¿à¤‚à¤— â€” à¤²à¥‡à¤µà¤² 1000",lang:"ðŸŒ à¤­à¤¾à¤·à¤¾",classes:"ðŸ“‹ à¤¸à¤­à¥€ 30 à¤•à¥à¤²à¤¾à¤¸",shop:"ðŸ›’ à¤¦à¥à¤•à¤¾à¤¨",reserved:"à¤•à¥à¤°à¤¿à¤à¤Ÿà¤° à¤•à¤¾ à¤¨à¤¾à¤® M_A_N_A_S à¤†à¤°à¤•à¥à¤·à¤¿à¤¤ à¤¹à¥ˆà¥¤"},
-  te:{play:"à°†à°¡à°‚à°¡à°¿",how:"â“ à°Žà°²à°¾ à°†à°¡à°¾à°²à°¿",craft:"ðŸ› ï¸ à°•à±à°°à°¾à°«à±à°Ÿà°¿à°‚à°—à± â€” à°²à±†à°µà°²à± 1000",lang:"ðŸŒ à°­à°¾à°·",classes:"ðŸ“‹ à°…à°¨à±à°¨à°¿ 30 à°•à±à°²à°¾à°¸à±à°²à±",shop:"ðŸ›’ à°·à°¾à°ªà±",reserved:"à°•à±à°°à°¿à°¯à±‡à°Ÿà°°à± à°ªà±‡à°°à± M_A_N_A_S à°°à°¿à°œà°°à±à°µà± à°šà±‡à°¯à°¬à°¡à°¿à°‚à°¦à°¿."}
+  en:{play:"PLAY",how:"❓ HOW TO PLAY",craft:"🛠️ CRAFTING — LEVEL 1000",lang:"🌐 Language",classes:"📋 ALL 36 classes",shop:"🛒 SHOP",reserved:""},
+  kn:{play:"à²†à²Ÿ à²ªà³à²°à²¾à²°à²‚à²­à²¿à²¸à²¿",how:"❓ à²¹à³‡à²—à³† à²†à²¡à³à²µà³à²¦à³",craft:"🛠️ à²•à³à²°à²¾à²«à³à²Ÿà²¿à²‚à²—à³ — à²®à²Ÿà³à²Ÿ 1000",lang:"🌐 à²­à²¾à²·à³†",classes:"📋 à²Žà²²à³à²²à²¾ 30 à²•à³à²²à²¾à²¸à³à²—à²³à³",shop:"🛒 à²…à²‚à²—à²¡à²¿",reserved:"à²¸à³ƒà²·à³à²Ÿà²¿à²•à²°à³à²¤à²° à²¹à³†à²¸à²°à³ M_A_N_A_S à²•à²¾à²¯à³à²¦à²¿à²°à²¿à²¸à²²à²¾à²—à²¿à²¦à³†."},
+  hi:{play:"à¤–à¥‡à¤²à¥‡à¤‚",how:"❓ à¤•à¥ˆà¤¸à¥‡ à¤–à¥‡à¤²à¥‡à¤‚",craft:"🛠️ à¤•à¥à¤°à¤¾à¤«à¥à¤Ÿà¤¿à¤‚à¤— — à¤²à¥‡à¤µà¤² 1000",lang:"🌐 à¤­à¤¾à¤·à¤¾",classes:"📋 à¤¸à¤­à¥€ 30 à¤•à¥à¤²à¤¾à¤¸",shop:"🛒 à¤¦à¥à¤•à¤¾à¤¨",reserved:"à¤•à¥à¤°à¤¿à¤à¤Ÿà¤° à¤•à¤¾ à¤¨à¤¾à¤® M_A_N_A_S à¤†à¤°à¤•à¥à¤·à¤¿à¤¤ à¤¹à¥ˆà¥¤"},
+  te:{play:"à°†à°¡à°‚à°¡à°¿",how:"❓ à°Žà°²à°¾ à°†à°¡à°¾à°²à°¿",craft:"🛠️ à°•à±à°°à°¾à°«à±à°Ÿà°¿à°‚à°—à± — à°²à±†à°µà°²à± 1000",lang:"🌐 à°­à°¾à°·",classes:"📋 à°…à°¨à±à°¨à°¿ 30 à°•à±à°²à°¾à°¸à±à°²à±",shop:"🛒 à°·à°¾à°ªà±",reserved:"à°•à±à°°à°¿à°¯à±‡à°Ÿà°°à± à°ªà±‡à°°à± M_A_N_A_S à°°à°¿à°œà°°à±à°µà± à°šà±‡à°¯à°¬à°¡à°¿à°‚à°¦à°¿."}
 };
 function setLanguage(lang){
     if(!translations[lang]) lang="en";
@@ -1213,18 +1371,18 @@ function applyLanguage(){
 function showInstructions(){
     document.getElementById("homeInfo").innerHTML=`
     <div class="card">
-    <h3>ðŸŽ® HOW TO PLAY</h3>
+    <h3>🎮 HOW TO PLAY</h3>
     <p>
         Survive the forest and defeat enemies.
     </p>
     <p>
-        ðŸ’€ Normal enemy = <b>1 coin</b>
+        💀 Normal enemy = <b>1 coin</b>
     </p>
     <p>
-        ðŸ‘¹ Miniboss = <b>5 coins</b>
+        👹 Miniboss = <b>5 coins</b>
     </p>
     <p>
-        ðŸ‘‘ Mega Boss = <b>10 coins</b>
+        👑 Mega Boss = <b>10 coins</b>
     </p>
     <p>
         Buy classes, guns and skins from the shop.
@@ -1237,6 +1395,9 @@ function showInstructions(){
     </p>
     <p>
         Mouse Click = Shoot
+    </p>
+    <p>
+        <b>E</b> = Class Awakening — Free: any level (0 🪙) · Premium: Level 2000 + 50k 🪙 (after free)
     </p>
     </div>
     `;
@@ -1275,26 +1436,59 @@ const game={
         shootCooldown:0,
         ammo:14,
         reloadTimer:0,
-        dashCooldown:0
+        dashCooldown:0,
+        awakenCooldown:0,
+        awakenActive:0,
+        awakenType:"",
+        critShotsLeft:0,
+        awakenInvuln:0,
+        awakenDmgMul:1,
+        awakenSpeedMul:1,
+        awakenLifesteal:0,
+        turret:null
     }
 };
 /* =========================================================
    LOCAL CREATOR ADMIN
-   IMPORTANT: this is only secure for your own local/private build.
-   Anyone who receives the HTML can inspect the key. For a real public
-   game, admin permissions must be checked on a server.
+   Only for nickname "manas". Password: Archi is a donkey
+   IMPORTANT: this is only for your own local/private build.
+   Anyone who receives the HTML can inspect the password.
 ========================================================= */
-const CREATOR_ADMIN_KEY = "CATOPS-CREATOR-CHANGE-ME";
+const ADMIN_NICKNAME = "manas";
+const ADMIN_PASSWORD = "Archi is a donkey";
 let adminMode = false;
 function adminOutput(text){
     const el=document.getElementById("adminConsoleOutput");
     if(el) el.textContent=text;
 }
+function isAdminNickname(){
+    return (save.nickname || "").trim().toLowerCase() === ADMIN_NICKNAME;
+}
 function setAdminMode(on){
     adminMode=!!on;
     const box=document.getElementById("adminConsole");
     if(box) box.style.display=adminMode ? "block" : "none";
+    const homePanel=document.getElementById("homeAdminPanel");
+    if(homePanel){
+        // Show command list on main menu when unlocked (hide while in active game to save space)
+        const inGame = game && game.running;
+        homePanel.style.display = (adminMode && !inGame) ? "block" : "none";
+    }
     if(adminMode) adminOutput("Admin enabled. Type /help");
+    else adminOutput("Admin off");
+}
+function tryAdminLogin(password){
+    if(!isAdminNickname()){
+        adminOutput("❌ Admin only when nickname is manas");
+        return false;
+    }
+    if((password || "").trim() === ADMIN_PASSWORD){
+        setAdminMode(true);
+        adminOutput("👑 Admin unlocked for manas");
+        return true;
+    }
+    adminOutput("❌ Wrong password");
+    return false;
 }
 function adminHelp(){
     return "/coins N | /kills N | /heal | /god | /ungod | /night N | /spawn miniboss | /spawn mega | /killall | /unlockall | /free | /exitadmin";
@@ -1305,48 +1499,54 @@ function handleAdminCommand(raw){
     const parts=text.split(/\s+/);
     const cmd=parts[0].toLowerCase();
     const arg=parts[1];
+    // /admin  OR  /admin Archi is a donkey
     if(cmd==="/admin") {
-        if(arg===CREATOR_ADMIN_KEY){ setAdminMode(true); adminOutput("ðŸ‘‘ Creator admin enabled"); }
-        else adminOutput("âŒ Wrong creator key");
+        const pw = text.slice(6).trim(); // everything after "/admin"
+        if(!pw){
+            const entered = prompt("Admin password (manas only):");
+            tryAdminLogin(entered);
+        } else {
+            tryAdminLogin(pw);
+        }
         return;
     }
-    if(!adminMode){ adminOutput("âŒ Admin only. Use /admin YOUR_KEY"); return; }
+    if(!adminMode){ adminOutput("❌ Admin only. Play as manas with the correct password."); return; }
     if(cmd==="/help"){ adminOutput(adminHelp()); return; }
     if(cmd==="/exitadmin"){ setAdminMode(false); return; }
     if(cmd==="/coins"){
         const n=Math.max(0,Number(arg));
         if(!Number.isFinite(n)){adminOutput("Usage: /coins 1000");return;}
-        save.coins=Math.floor(n); saveGame(); adminOutput("ðŸª™ Coins set to "+save.coins); return;
+        save.coins=Math.floor(n); saveGame(); adminOutput("🪙 Coins set to "+save.coins); return;
     }
     if(cmd==="/kills"){
         const n=Math.max(0,Number(arg));
         if(!Number.isFinite(n)){adminOutput("Usage: /kills 100");return;}
-        save.kills=Math.floor(n); saveGame(); adminOutput("ðŸ’€ Kills set to "+save.kills); return;
+        save.kills=Math.floor(n); saveGame(); adminOutput("💀 Kills set to "+save.kills); return;
     }
-    if(cmd==="/heal"){ game.player.hp=playerMaxHP(); game.timeSinceDamage=0; adminOutput("â¤ï¸ Fully healed"); return; }
-    if(cmd==="/god"){ game.player.adminGod=true; adminOutput("ðŸ›¡ï¸ God mode ON"); return; }
-    if(cmd==="/ungod"){ game.player.adminGod=false; adminOutput("ðŸ›¡ï¸ God mode OFF"); return; }
+    if(cmd==="/heal"){ game.player.hp=playerMaxHP(); game.timeSinceDamage=0; adminOutput("❤️ Fully healed"); return; }
+    if(cmd==="/god"){ game.player.adminGod=true; adminOutput("🛡️ God mode ON"); return; }
+    if(cmd==="/ungod"){ game.player.adminGod=false; adminOutput("🛡️ God mode OFF"); return; }
     if(cmd==="/night"){
         const n=Math.max(1,Math.floor(Number(arg)));
         if(!Number.isFinite(n)){adminOutput("Usage: /night 10");return;}
-        game.night=n; game.nightTimer=0; updateHUD(); adminOutput("ðŸŒ™ Night set to "+n); return;
+        game.night=n; game.nightTimer=0; updateHUD(); adminOutput("🌙 Night set to "+n); return;
     }
     if(cmd==="/spawn"){
-        if(arg==="miniboss"){ game.bossActive=false; spawnMiniboss(); adminOutput("ðŸ‘¹ Miniboss spawned"); return; }
-        if(arg==="mega"){ game.bossActive=false; spawnMegaBoss(); adminOutput("ðŸ‘‘ Mega Boss spawned"); return; }
+        if(arg==="miniboss"){ game.bossActive=false; spawnMiniboss(); adminOutput("👹 Miniboss spawned"); return; }
+        if(arg==="mega"){ game.bossActive=false; spawnMegaBoss(); adminOutput("👑 Mega Boss spawned"); return; }
         adminOutput("Usage: /spawn miniboss OR /spawn mega"); return;
     }
     if(cmd==="/killall"){
         game.enemies.length=0; game.bullets=game.bullets.filter(b=>!b.enemyBullet); game.hazards=[]; game.bossActive=false; game.waveSpawned=false;
-        document.getElementById("bossBar").style.display="none"; adminOutput("ðŸ’¥ All enemies removed"); return;
+        document.getElementById("bossBar").style.display="none"; adminOutput("💥 All enemies removed"); return;
     }
     if(cmd==="/unlockall"){
-        save.ownedClasses=classes.map((_,i)=>i); save.ownedGuns=guns.map((_,i)=>i); save.ownedSkins=skins.map((_,i)=>i); saveGame(); buildClassTable(); adminOutput("ðŸ”“ All classes, guns and skins unlocked"); return;
+        save.ownedClasses=classes.map((_,i)=>i); save.ownedGuns=guns.map((_,i)=>i); save.ownedSkins=skins.map((_,i)=>i); saveGame(); buildClassTable(); adminOutput("🔓 All classes, guns and skins unlocked"); return;
     }
     if(cmd==="/free"){
-        save.coins=999999999; saveGame(); adminOutput("ðŸª™ Free-shop mode: 999,999,999 coins"); return;
+        save.coins=999999999; saveGame(); adminOutput("🪙 Free-shop mode: 999,999,999 coins"); return;
     }
-    adminOutput("â“ Unknown command. Type /help");
+    adminOutput("❓ Unknown command. Type /help");
 }
 /* =========================================================
    CANVAS
@@ -1398,7 +1598,7 @@ function resizeCanvas(){
     /* Keep the internal render resolution small so old PCs do not
        have to redraw a 1080p canvas every frame. CSS still scales it
        to the full screen. */
-    const maxPixels = 520000;
+    const maxPixels = 420000;
     const w = Math.max(320, window.innerWidth);
     const h = Math.max(240, window.innerHeight);
     const scale = Math.min(1, Math.sqrt(maxPixels/(w*h)));
@@ -1516,20 +1716,7 @@ document.addEventListener("keydown",function(e){
         e.preventDefault();
     }
 });
-/* F8 opens the local creator command box. */
-window.addEventListener("keydown",function(e){
-    if(e.key==="F8"){
-        e.preventDefault();
-        if(adminMode) setAdminMode(false);
-        else {
-            const input=document.getElementById("adminCommandInput");
-            if(input){
-                document.getElementById("adminConsole").style.display="block";
-                input.focus();
-            }
-        }
-    }
-});
+/* Admin is unlocked only via nickname "manas" + password on PLAY (no F8). */
 /* =========================================================
    KEYBOARD
 ========================================================= */
@@ -1562,7 +1749,9 @@ function nicknameTaken(nick){
 function startGame(){
     if(game.running){ return; }
     const nickInput=document.getElementById("nicknameInput");
-    const nick=nickInput.value.trim();
+    // Force lowercase letters only
+    let nick=(nickInput.value || "").trim().toLowerCase();
+    nickInput.value=nick;
     if(!nick){
         alert("Choose a nickname first!");
         nickInput.focus();
@@ -1573,8 +1762,8 @@ function startGame(){
         nickInput.focus();
         return;
     }
-    if(!/^[A-Za-z0-9_ ]+$/.test(nick)){
-        alert("Nickname can only use letters, numbers, spaces and _.");
+    if(!/^[a-z]+$/.test(nick)){
+        alert("Nickname can only use lowercase letters (a–z).");
         nickInput.focus();
         return;
     }
@@ -1583,15 +1772,31 @@ function startGame(){
         nickInput.focus();
         return;
     }
-    save.nickname=nick;
-    save.nicknameLocked=false;
-    saveGame();
-    saveGame();
+    // manas → password required for admin
+    if(nick === ADMIN_NICKNAME){
+        const pw = prompt("Password for manas:");
+        if(pw === null) return;
+        if((pw || "").trim() !== ADMIN_PASSWORD){
+            alert("Wrong password.");
+            nickInput.focus();
+            return;
+        }
+        save.nickname=nick;
+        save.nicknameLocked=false;
+        saveGame();
+        setAdminMode(true);
+    } else {
+        save.nickname=nick;
+        save.nicknameLocked=false;
+        saveGame();
+        setAdminMode(false);
+    }
     hideScreens();
     document.getElementById("gameScreen")
         .classList.remove("hidden");
     resizeCanvas();
     game.running=true;
+    if(adminMode) setAdminMode(true);
     game.lastTime=
         performance.now();
     game.spawnTimer=0;
@@ -1616,6 +1821,16 @@ function startGame(){
     game.player.shootCooldown=0;
     game.player.reloadTimer=0;
     game.player.ammo=magSize();
+    game.player.awakenCooldown=0;
+    game.player.awakenActive=0;
+    game.player.awakenType="";
+    game.player.critShotsLeft=0;
+    game.player.awakenInvuln=0;
+    game.player.awakenDmgMul=1;
+    game.player.awakenSpeedMul=1;
+    game.player.awakenLifesteal=0;
+    game.player.turret=null;
+    awakenKeyLatched=false;
     mouse.down=false;
     mouse.x=canvas.width*0.75;
     mouse.y=canvas.height/2;
@@ -1662,6 +1877,7 @@ function playerSpeed(){
     if(classes[save.class].name==="Time Cat"){
         speed*=1.1;
     }
+    if(game.player.awakenSpeedMul) speed*=game.player.awakenSpeedMul;
     return speed;
 }
 function playerDamage(){
@@ -1703,6 +1919,11 @@ function playerDamage(){
     if(c==="OMEGA CAT"){
         d*=4;
     }
+    if(game.player.awakenDmgMul) d*=game.player.awakenDmgMul;
+    if(game.player.critShotsLeft>0){
+        d*=2;
+        game.player.critShotsLeft--;
+    }
     return d;
 }
 /* =========================================================
@@ -1710,8 +1931,8 @@ function playerDamage(){
 ========================================================= */
 function enemyCount(){
     return Math.min(
-        35,
-        6+game.night*2
+        28,
+        5+game.night*1.5
     );
 }
 /* =========================================================
@@ -1872,7 +2093,7 @@ function spawnMegaBoss(){
     document.getElementById(
         "bossName"
     ).textContent=
-        "ðŸ‘‘ MEGA BOSS";
+        "👑 MEGA BOSS";
 }
 function magSize(){
     const g=guns[save.gun];
@@ -1993,9 +2214,313 @@ function shoot(){
     }
 }
 /* =========================================================
-   UPDATE PLAYER
+   AWAKENING SYSTEM (E key)
 ========================================================= */
+let awakenKeyLatched=false;
+function isClassAwakened(){
+    return save.awakenedClasses.includes(save.class);
+}
+function isClassPremiumAwakened(){
+    return save.premiumAwakenedClasses.includes(save.class);
+}
+function getActiveAwakening(){
+    if(isClassPremiumAwakened()) return premiumAwakenings[save.class];
+    if(isClassAwakened()) return awakenings[save.class];
+    return null;
+}
+function activateAwakening(){
+    if(!game.running) return;
+    const aw=getActiveAwakening();
+    if(!aw){
+        gameMessage("Unlock free awaken in Classes table first",900);
+        return;
+    }
+    if(game.player.awakenCooldown>0){
+        gameMessage("Awakening CD: "+Math.ceil(game.player.awakenCooldown)+"s",600);
+        return;
+    }
+    const isPrem=!!aw.premium;
+    const p=game.player;
+    p.awakenCooldown=aw.cooldown;
+    p.awakenActive=aw.duration;
+    p.awakenType=aw.name;
+    p.awakenDmgMul=1;
+    p.awakenSpeedMul=1;
+    p.awakenLifesteal=0;
+    p.awakenInvuln=0;
+    p.critShotsLeft=0;
+    const cx=p.x, cy=p.y;
+    gameMessage((isPrem?"👑 ":"✨ ")+aw.name+"!",1000);
+    createParticles(cx,cy,isPrem?12:8);
+
+    switch(aw.name){
+        case "Overdrive":
+            p.awakenDmgMul=2; p.awakenSpeedMul=1.5; break;
+        case "Prime Overdrive":
+            p.awakenDmgMul=3; p.awakenSpeedMul=2; break;
+        case "Blitz Trail":
+            p.awakenSpeedMul=2.2; break;
+        case "Sonic Blitz":
+            p.awakenSpeedMul=2.8; break;
+        case "Absolute Zero":
+        case "Time Stop":
+        case "Permafrost":
+        case "Chrono Lock":
+        case "Ice Age":
+        case "Glacial Dominion":
+            game.enemies.forEach(e=>{ e.freeze=Math.max(e.freeze||0, aw.duration*60); if(isPrem) e.hp-=15; });
+            break;
+        case "Inferno Nova":
+        case "Flame Armor":
+        case "Hell Nova":
+        case "Living Flame":
+            game.hazards.push({type:"fireZone",x:cx,y:cy,radius:isPrem?160:110,life:aw.duration*60,tick:0,damage:(isPrem?22:12)+game.night});
+            break;
+        case "Carpet Bomb":
+        case "Apocalypse":
+        case "Orbital Strike":
+        case "World Burn":
+            for(let i=0;i<(isPrem?12:8);i++){
+                const a=i*Math.PI/(isPrem?6:4);
+                explosion(cx+Math.cos(a)*(isPrem?90:70), cy+Math.sin(a)*(isPrem?90:70), isPrem?100:80, (isPrem?70:40)+game.night*2);
+            }
+            break;
+        case "Aegis Reflect":
+        case "Holy Barrier":
+        case "Iron Aegis":
+        case "Divine Aegis":
+            p.awakenInvuln=aw.duration*60;
+            p.hp=Math.min(playerMaxHP(), p.hp+(isPrem?50:25));
+            break;
+        case "Ghost Step":
+            p.awakenSpeedMul=1.8; p.awakenInvuln=aw.duration*40; break;
+        case "Phantom Step":
+            p.awakenSpeedMul=2.4; p.awakenInvuln=aw.duration*60; break;
+        case "Marked Prey":
+            p.critShotsLeft=8; break;
+        case "Death Mark":
+            p.critShotsLeft=15; p.awakenDmgMul=1.5; break;
+        case "Field Medic":
+            p.hp=playerMaxHP(); p.awakenLifesteal=0.2; break;
+        case "Angel Ward":
+            p.hp=playerMaxHP(); p.awakenLifesteal=0.4; p.awakenInvuln=90; break;
+        case "Arrow Storm":
+        case "Dragon Breath":
+        case "Rail Pierce":
+        case "Sky Barrage":
+        case "Elder Dragon":
+        case "God Rail":
+            {
+                const n = (aw.name==="Rail Pierce"||aw.name==="God Rail")?1:(isPrem?16:10);
+                const pier = aw.name==="Rail Pierce"||aw.name==="God Rail";
+                const expl = aw.name==="Dragon Breath"||aw.name==="Elder Dragon";
+                for(let i=0;i<n;i++){
+                    const ang=p.angle+(Math.random()-.5)*(expl?0.9:0.5);
+                    const dmg=playerDamage()*(pier?(isPrem?7:4):(isPrem?1.6:1.2));
+                    game.bullets.push({
+                        x:cx+Math.cos(ang)*28,y:cy+Math.sin(ang)*28,
+                        vx:Math.cos(ang)*18,vy:Math.sin(ang)*18,
+                        damage:dmg,life:120,explosive:expl,piercing:pier,enemyBullet:false,weaponName:"Awaken"
+                    });
+                }
+            }
+            break;
+        case "Suppress":
+        case "Overclock":
+            p.awakenDmgMul=1.3; break;
+        case "Bullet Storm":
+        case "Quantum Core":
+            p.awakenDmgMul=1.8; break;
+        case "Blood Frenzy":
+            p.awakenDmgMul=1.6; p.awakenLifesteal=0.25; break;
+        case "Crimson Feast":
+            p.awakenDmgMul=2.2; p.awakenLifesteal=0.4; break;
+        case "Shadow Strike":
+        case "Shadow Clone":
+        case "Blade Storm":
+        case "Void Assassin":
+        case "Thousand Cuts":
+        case "Kenjutsu":
+            p.x+=Math.cos(p.angle)*(isPrem?140:100);
+            p.y+=Math.sin(p.angle)*(isPrem?140:100);
+            p.awakenDmgMul=isPrem?4:2;
+            explosion(p.x,p.y,isPrem?100:70,isPrem?60:35);
+            break;
+        case "Auto Turret":
+        case "Undead Army":
+        case "Fortress Turret":
+        case "Lich King":
+            p.turret={x:cx+40,y:cy,life:aw.duration*60,shoot:0,hp:isPrem?160:80,dmg:isPrem?32:18};
+            if(isPrem){
+                // second turret offset
+                game.hazards.push({type:"turret2",x:cx-40,y:cy,life:aw.duration*60,shoot:0});
+            }
+            break;
+        case "Thunderstorm":
+        case "Meteor Shower":
+        case "Tempest":
+        case "Starfall":
+            for(let i=0;i<(isPrem?12:6);i++){
+                const e=game.enemies[Math.floor(Math.random()*Math.max(1,game.enemies.length))];
+                if(e){ e.hp-=(isPrem?55:30)+game.night*3; createParticles(e.x,e.y,4); if(e.hp<=0) killEnemy(e,-1); }
+            }
+            break;
+        case "True Rage":
+            p.awakenDmgMul=2.5; break;
+        case "Berserk God":
+            p.awakenDmgMul=4; break;
+        case "Nature's Grasp":
+        case "World Tree":
+            game.enemies.forEach(e=>{ e.freeze=Math.max(e.freeze||0,isPrem?150:90); });
+            p.hp=Math.min(playerMaxHP(),p.hp+(isPrem?50:30));
+            if(isPrem) p.awakenLifesteal=0.15;
+            break;
+        case "Singularity":
+        case "Eclipse":
+        case "Event Horizon":
+        case "Eternal Night":
+            game.hazards.push({type:"void",x:cx,y:cy,radius:isPrem?180:130,life:aw.duration*60,tick:0,damage:isPrem?16:8});
+            break;
+        case "Fortify":
+            p.hp=Math.min(playerMaxHP()*1.5, p.hp+80); p.awakenInvuln=90; break;
+        case "Colossus":
+            p.hp=Math.min(playerMaxHP()*2, p.hp+150); p.awakenInvuln=aw.duration*60; break;
+        case "Reaper Gaze":
+            game.enemies.slice().forEach(e=>{ if(e.hp>0 && e.hp/e.maxHp<0.35){ e.hp=0; killEnemy(e,-1); } });
+            break;
+        case "Soul Reaper":
+            game.enemies.slice().forEach(e=>{ if(e.hp>0 && e.hp/e.maxHp<0.5){ e.hp=0; killEnemy(e,-1); } });
+            break;
+        case "Divine Judgment":
+        case "Omega Burst":
+        case "Heaven's Gate":
+        case "OMEGA Collapse":
+            {
+                const rad=isPrem?280:(aw.name==="Omega Burst"?220:160);
+                const dmg=isPrem?120:80+game.night*4;
+                explosion(cx,cy,rad,dmg);
+                game.enemies.slice().forEach(e=>{
+                    if(e.hp>0 && Math.hypot(e.x-cx,e.y-cy)<rad){
+                        e.hp-=(isPrem?100:60)+game.night*5;
+                        if(e.hp<=0) killEnemy(e,-1);
+                    }
+                });
+            }
+            break;
+        case "Gift Rain":
+        case "Santa's Wrath":
+            for(let i=0;i<(isPrem?14:7);i++){
+                const a=Math.random()*Math.PI*2;
+                const r=40+Math.random()*90;
+                game.bullets.push({
+                    x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r-40,
+                    vx:(Math.random()-.5)*2,vy:4+Math.random()*3,
+                    damage:isPrem?70:40,life:90,explosive:true,giftBox:true,enemyBullet:false,weaponName:"Gift"
+                });
+            }
+            break;
+        default:
+            p.awakenDmgMul=isPrem?2.5:1.5;
+    }
+}
+function updateAwakening(dt){
+    const p=game.player;
+    if(p.awakenCooldown>0) p.awakenCooldown-=dt/60;
+    if(p.awakenActive>0){
+        p.awakenActive-=dt/60;
+        // Blitz trail damage
+        if((p.awakenType==="Blitz Trail"||p.awakenType==="Sonic Blitz") && Math.random()<0.2){
+            const dmg=p.awakenType==="Sonic Blitz"?10:4;
+            const rad=p.awakenType==="Sonic Blitz"?55:40;
+            for(const e of game.enemies){
+                if(Math.hypot(e.x-p.x,e.y-p.y)<rad){ e.hp-=dmg; if(e.hp<=0) killEnemy(e,-1); }
+            }
+        }
+        // Fire-rate awakenings
+        if(["Suppress","Overclock","Bullet Storm","Quantum Core"].includes(p.awakenType) && p.shootCooldown>5){
+            p.shootCooldown*=(p.awakenType==="Bullet Storm"||p.awakenType==="Quantum Core")?0.4:0.55;
+        }
+        if(p.awakenActive<=0){
+            p.awakenActive=0;
+            p.awakenType="";
+            p.awakenDmgMul=1;
+            p.awakenSpeedMul=1;
+            p.awakenLifesteal=0;
+        }
+    }
+    if(p.awakenInvuln>0) p.awakenInvuln-=dt;
+    // Turret / minion
+    if(p.turret){
+        p.turret.life-=dt;
+        p.turret.shoot-=dt;
+        if(p.turret.shoot<=0 && game.enemies.length){
+            p.turret.shoot=20;
+            let nearest=null, nd=1e9;
+            for(const e of game.enemies){
+                const d=Math.hypot(e.x-p.turret.x,e.y-p.turret.y);
+                if(d<nd){ nd=d; nearest=e; }
+            }
+            if(nearest){
+                const ang=Math.atan2(nearest.y-p.turret.y,nearest.x-p.turret.x);
+                game.bullets.push({
+                    x:p.turret.x,y:p.turret.y,
+                    vx:Math.cos(ang)*12,vy:Math.sin(ang)*12,
+                    damage:p.turret.dmg||18,life:90,enemyBullet:false,weaponName:"Turret"
+                });
+            }
+        }
+        if(p.turret.life<=0) p.turret=null;
+    }
+    // Second premium turret
+    for(let i=game.hazards.length-1;i>=0;i--){
+        const h=game.hazards[i];
+        if(h.type!=="turret2") continue;
+        h.life-=16.67*dt;
+        h.shoot=(h.shoot||0)-dt;
+        if(h.shoot<=0 && game.enemies.length){
+            h.shoot=18;
+            let nearest=null, nd=1e9;
+            for(const e of game.enemies){
+                const d=Math.hypot(e.x-h.x,e.y-h.y);
+                if(d<nd){ nd=d; nearest=e; }
+            }
+            if(nearest){
+                const ang=Math.atan2(nearest.y-h.y,nearest.x-h.x);
+                game.bullets.push({x:h.x,y:h.y,vx:Math.cos(ang)*13,vy:Math.sin(ang)*13,damage:28,life:90,enemyBullet:false,weaponName:"Turret"});
+            }
+        }
+        if(h.life<=0) game.hazards.splice(i,1);
+    }
+    // Void / eclipse hazard tick
+    for(let i=game.hazards.length-1;i>=0;i--){
+        const h=game.hazards[i];
+        if(h.type!=="void") continue;
+        h.life-=16.67*dt;
+        h.tick-=16.67*dt;
+        if(h.tick<=0){
+            h.tick=200;
+            for(const e of game.enemies){
+                const d=Math.hypot(e.x-h.x,e.y-h.y);
+                if(d<h.radius){
+                    e.x+=(h.x-e.x)*0.08;
+                    e.y+=(h.y-e.y)*0.08;
+                    e.hp-=h.damage;
+                    if(e.hp<=0) killEnemy(e,-1);
+                }
+            }
+        }
+        if(h.life<=0) game.hazards.splice(i,1);
+    }
+}
 function updatePlayer(dt){
+    // E = awakening
+    if(keys["e"]||keys["E"]){
+        if(!awakenKeyLatched){
+            awakenKeyLatched=true;
+            activateAwakening();
+        }
+    }else awakenKeyLatched=false;
+
     let dx=touchState.moveX;
     let dy=touchState.moveY;
     if(
@@ -2108,6 +2633,10 @@ function updateBullets(dt){
                     b.y-game.player.y
                 )<20
             ){
+                if(game.player.awakenInvuln>0 || game.player.adminGod){
+                    game.bullets.splice(i,1);
+                    continue;
+                }
                 const reduced = classes[save.class].name==="Shield Cat" ? b.damage*0.65 : b.damage;
                 game.player.hp-=reduced;
                 game.timeSinceDamage=0;
@@ -2148,12 +2677,13 @@ function updateBullets(dt){
                         e.burn=180;
                         e.burnDamage=Math.max(2,b.damage*0.08);
                     }
-                    if(b.lifesteal){
+                    if(b.lifesteal || game.player.awakenLifesteal>0){
+                        const ls=(b.lifesteal?0.04:0)+(game.player.awakenLifesteal||0);
                         game.player.hp=
                             Math.min(
                                 playerMaxHP(),
                                 game.player.hp+
-                                b.damage*.04
+                                b.damage*ls
                             );
                     }
                     if(b.lightning){
@@ -2221,7 +2751,7 @@ function killEnemy(e,index){
     save.kills++;
     const newLevel=getPlayerLevel();
     if(newLevel>oldLevel){
-        gameMessage("â­ LEVEL UP! You reached Level "+newLevel+"!");
+        gameMessage("⭐ LEVEL UP! You reached Level "+newLevel+"!");
     }
     createParticles(
         e.x,
@@ -2245,7 +2775,7 @@ function killEnemy(e,index){
             "bossBar"
         ).style.display="none";
         gameMessage(
-            "ðŸ‘‘ MEGA BOSS DEFEATED! +150 ðŸª™",
+            "👑 MEGA BOSS DEFEATED! +150 🪙",
             1800
         );
     }
@@ -2253,7 +2783,7 @@ function killEnemy(e,index){
         game.bossActive=false;
         game.waveSpawned=true;
         gameMessage(
-            "ðŸ‘¹ MINIBOSS DEFEATED! +100 ðŸª™",
+            "👹 MINIBOSS DEFEATED! +100 🪙",
             1200
         );
     }
@@ -2323,7 +2853,7 @@ function summonMegaRockets(){
             radius:72
         });
     }
-    gameMessage("ðŸš€ MEGA BOSS: ROCKET STRIKE!",700);
+    gameMessage("🚀 MEGA BOSS: ROCKET STRIKE!",700);
 }
 function updateHazards(dt){
     for(let i=game.hazards.length-1;i>=0;i--){
@@ -2360,11 +2890,11 @@ function updateHazards(dt){
                 game.player.x-h.x,
                 game.player.y-h.targetY
             );
-            if(d<h.radius){
+            if(d<h.radius && !(game.player.awakenInvuln>0 || game.player.adminGod)){
                 const rocketDamage=classes[save.class].name==="Shield Cat"?h.damage*0.65:h.damage;
                 game.player.hp=Math.max(0,game.player.hp-rocketDamage);
                 game.timeSinceDamage=0;
-                gameMessage("ðŸš€ ROCKET HIT! -"+Math.ceil(rocketDamage)+" HP",650);
+                gameMessage("🚀 ROCKET HIT! -"+Math.ceil(rocketDamage)+" HP",650);
                 if(game.player.hp<=0){
                     game.hazards.splice(i,1);
                     gameOver();
@@ -2398,6 +2928,22 @@ function drawHazards(){
                 0,Math.PI*2
             );
             ctx.stroke();
+            ctx.restore();
+            continue;
+        }
+        if(h.type==="void"){
+            ctx.save();
+            ctx.fillStyle="rgba(80,20,120,0.22)";
+            ctx.strokeStyle="#a855f7";
+            ctx.lineWidth=3;
+            ctx.beginPath();
+            ctx.arc(h.x,h.y,h.radius,0,Math.PI*2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle="rgba(0,0,0,0.5)";
+            ctx.beginPath();
+            ctx.arc(h.x,h.y,h.radius*0.25,0,Math.PI*2);
+            ctx.fill();
             ctx.restore();
             continue;
         }
@@ -2564,13 +3110,18 @@ function updateEnemies(dt){
                 game.player.y,
                 e.type==="mega" ? 24 : 12
             );
+            if(game.player.awakenInvuln>0 || game.player.adminGod){
+                e.x -= dx2/Math.max(dist2,0.01) * 40;
+                e.y -= dy2/Math.max(dist2,0.01) * 40;
+            } else {
             const contactDamage = classes[save.class].name==="Shield Cat" ? touchDamage*0.65 : touchDamage;
             game.player.hp = Math.max(
                 0,
                 game.player.hp - contactDamage
             );
-            gameMessage("ðŸ’¥ HIT! -"+Math.ceil(contactDamage)+" HP", 450);
+            gameMessage("💥 HIT! -"+Math.ceil(contactDamage)+" HP", 450);
             game.timeSinceDamage = 0;
+            }
             /* Push the enemy away safely, even if dist is nearly zero. */
             const safeDist = Math.max(dist2, 0.01);
             e.x -= dx2/safeDist * 40;
@@ -2606,7 +3157,7 @@ function updateNight(dt){
         game.nightTimer=0;
         game.night++;
         gameMessage(
-            "ðŸŒ™ NIGHT "+game.night,
+            "🌙 NIGHT "+game.night,
             1000
         );
         /* Only one boss at a time. Mega boss takes priority. */
@@ -2634,8 +3185,8 @@ function createParticles(
     y,
     count
 ){
-    count=Math.min(count,8);
-    if(game.particles.length>80) return;
+    count=Math.min(count,6);
+    if(game.particles.length>50) return;
     for(
         let i=0;
         i<count;
@@ -2731,9 +3282,27 @@ function updateHUD(){
     const ammoEl=document.getElementById("ammoText");
     if(ammoEl){
         if(game.player.reloadTimer>0){
-            ammoEl.textContent="RELâ€¦";
+            ammoEl.textContent="REL…";
         }else{
             ammoEl.textContent=Math.max(0,game.player.ammo)+"/"+magSize();
+        }
+    }
+    const awEl=document.getElementById("awakenText");
+    if(awEl){
+        if(!isClassAwakened()){
+            awEl.textContent="LOCKED";
+            awEl.style.color="#888";
+        }else if(game.player.awakenActive>0){
+            awEl.textContent=game.player.awakenType+" "+game.player.awakenActive.toFixed(1)+"s";
+            awEl.style.color=isClassPremiumAwakened()?"#ffd84a":"#a2ff9a";
+        }else if(game.player.awakenCooldown>0){
+            awEl.textContent="CD "+Math.ceil(game.player.awakenCooldown)+"s";
+            awEl.style.color="#ff7777";
+        }else{
+            const aw=getActiveAwakening();
+            const tag=isClassPremiumAwakened()?"👑":"✨";
+            awEl.textContent=tag+" "+(aw?aw.name:"READY")+" [E]";
+            awEl.style.color=isClassPremiumAwakened()?"#ffd84a":"#78ed78";
         }
     }
 }
@@ -3130,6 +3699,41 @@ function drawMediumLighting(){
     ctx.fillStyle=vignetteGradient;
     ctx.fillRect(0,0,canvas.width,canvas.height);
 }
+function drawAwakeningExtras(){
+    const p=game.player;
+    if(p.turret){
+        ctx.save();
+        ctx.fillStyle="#6ee7b7";
+        ctx.beginPath();
+        ctx.arc(p.turret.x,p.turret.y,12,0,Math.PI*2);
+        ctx.fill();
+        ctx.strokeStyle="#fff";
+        ctx.lineWidth=2;
+        ctx.stroke();
+        ctx.restore();
+    }
+    for(const h of game.hazards){
+        if(h.type!=="turret2") continue;
+        ctx.save();
+        ctx.fillStyle="#fbbf24";
+        ctx.beginPath();
+        ctx.arc(h.x,h.y,12,0,Math.PI*2);
+        ctx.fill();
+        ctx.strokeStyle="#fff";
+        ctx.lineWidth=2;
+        ctx.stroke();
+        ctx.restore();
+    }
+    if(p.awakenActive>0 || p.awakenInvuln>0){
+        ctx.save();
+        ctx.strokeStyle=p.awakenInvuln>0 ? "rgba(120,200,255,0.7)" : "rgba(255,216,74,0.55)";
+        ctx.lineWidth=3;
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,26+Math.sin(performance.now()/100)*3,0,Math.PI*2);
+        ctx.stroke();
+        ctx.restore();
+    }
+}
 function draw(){
     ctx.clearRect(
         0,
@@ -3143,6 +3747,7 @@ function draw(){
     drawEnemies();
     drawBullets();
     drawPlayer();
+    drawAwakeningExtras();
     drawMediumLighting();
 }
 /* =========================================================
@@ -3162,8 +3767,8 @@ function spawnEnemyForced(type){
 }
 function spawnCurrentWave(){
     const w=game.wave;
-    if(w%10===0){spawnMegaBoss();gameMessage("ðŸ”´ MEGA BOSS WAVE!",1200);return;}
-    if(w%10===5){spawnMiniboss();gameMessage("â¬œ MINIBOSS WAVE!",1200);return;}
+    if(w%10===0){spawnMegaBoss();gameMessage("🔴 MEGA BOSS WAVE!",1200);return;}
+    if(w%10===5){spawnMiniboss();gameMessage("🔶 MINIBOSS WAVE!",1200);return;}
     if(w===1){spawnEnemyForced("basic");spawnEnemyForced("basic");return;}
     if(w===2){spawnEnemyForced("fast");spawnEnemyForced("fast");return;}
     if(w===3){spawnEnemyForced("tank");spawnEnemyForced("basic");return;}
@@ -3180,6 +3785,7 @@ function spawnCurrentWave(){
 ========================================================= */
 function update(dt){
     updatePlayer(dt);
+    updateAwakening(dt);
     updateBullets(dt);
     updateHazards(dt);
     updateEnemies(dt);
@@ -3192,7 +3798,7 @@ function update(dt){
     if(!game.bossActive && game.waveSpawned && game.enemies.length===0){
         game.wave++;
         game.waveSpawned=false;
-        gameMessage("ðŸŒŠ WAVE "+game.wave+"!",800);
+        gameMessage("🌊 WAVE "+game.wave+"!",800);
     }
     updateParticles(dt);
     // Passive out-of-combat regen (HUD already hints at this)
@@ -3302,12 +3908,26 @@ function endGame(clear=true){
 function lockNicknameInput(){
     const input=document.getElementById("nicknameInput");
     if(!input) return;
-    input.value=save.nickname || "";
+    input.value=(save.nickname || "").toLowerCase().replace(/[^a-z]/g,"");
     input.disabled=!!save.nicknameLocked;
     input.title=save.nicknameLocked
         ? "Nickname is permanently locked for this account."
-        : "Choose your nickname once.";
+        : "Lowercase letters only (a–z).";
 }
+/* Force nickname fields to lowercase letters only while typing */
+function bindLowercaseNickname(el){
+    if(!el) return;
+    el.addEventListener("input",function(){
+        const pos=el.selectionStart;
+        const cleaned=el.value.toLowerCase().replace(/[^a-z]/g,"");
+        if(el.value!==cleaned){
+            el.value=cleaned;
+            try{ el.setSelectionRange(pos-1,pos-1); }catch(err){}
+        }
+    });
+}
+bindLowercaseNickname(document.getElementById("nicknameInput"));
+bindLowercaseNickname(document.getElementById("newNickname"));
 /* Existing saves from older versions remain compatible.
    If an old save already has a nickname, lock it now. */
 if(save.nickname && save.nickname.trim()){
@@ -3327,10 +3947,10 @@ setInterval(
 <script>
 (function(){
   const names = {
-    en:"English", es:"EspaÃ±ol", fr:"FranÃ§ais", de:"Deutsch", it:"Italiano",
-    pt:"PortuguÃªs", ru:"Ð ÑƒÑÑÐºÐ¸Ð¹", zh:"ä¸­æ–‡", ja:"æ—¥æœ¬èªž", ko:"í•œêµ­ì–´",
-    hi:"à¤¹à¤¿à¤¨à¥à¤¦à¥€", kn:"à²•à²¨à³à²¨à²¡", te:"à°¤à±†à°²à±à°—à±", ta:"à®¤à®®à®¿à®´à¯", ml:"à´®à´²à´¯à´¾à´³à´‚",
-    id:"Bahasa Indonesia", tr:"TÃ¼rkÃ§e", vi:"Tiáº¿ng Viá»‡t", th:"à¹„à¸—à¸¢", ar:"Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©"
+    en:"English", es:"Español", fr:"Français", de:"Deutsch", it:"Italiano",
+    pt:"Português", ru:"Русский", zh:"中文", ja:"日本語", ko:"한국어",
+    hi:"हिन्दी", kn:"ಕನ್ನಡ", te:"తెలుగు", ta:"தமிழ்", ml:"മലയാളം",
+    id:"Bahasa Indonesia", tr:"Türkçe", vi:"Tiếng Việt", th:"ไทย", ar:"العربية"
   };
   const dict = {
     en:{language:"Language",shop:"SHOP",play:"PLAY",craft:"CRAFTING",classes:"CLASSES",
@@ -3355,7 +3975,7 @@ setInterval(
         nickname:"ë‹‰ë„¤ìž„",coins:"ì½”ì¸",level:"ë ˆë²¨",wave:"ì›¨ì´ë¸Œ",start:"ê²Œìž„ ì‹œìž‘"},
     hi:{language:"à¤­à¤¾à¤·à¤¾",shop:"à¤¦à¥à¤•à¤¾à¤¨",play:"à¤–à¥‡à¤²à¥‡à¤‚",craft:"à¤•à¥à¤°à¤¾à¤«à¥à¤Ÿà¤¿à¤‚à¤—",classes:"à¤•à¥à¤²à¤¾à¤¸",
         nickname:"à¤‰à¤ªà¤¨à¤¾à¤®",coins:"à¤¸à¤¿à¤•à¥à¤•à¥‡",level:"à¤²à¥‡à¤µà¤²",wave:"à¤µà¥‡à¤µ",start:"à¤—à¥‡à¤® à¤¶à¥à¤°à¥‚ à¤•à¤°à¥‡à¤‚"},
-    kn:{language:"à²­à²¾à²·à³†",shop:"à²…à²‚à²—à²¡à²¿",play:"à²†à²¡à²¿",craft:"à²•à³à²°à²¾à²«à³à²Ÿà²¿à²‚à²—à³",classes:"à²•à³à²²à²¾à²¸à³â€Œà²—à²³à³",
+    kn:{language:"à²­à²¾à²·à³†",shop:"à²…à²‚à²—à²¡à²¿",play:"à²†à²¡à²¿",craft:"à²•à³à²°à²¾à²«à³à²Ÿà²¿à²‚à²—à³",classes:"à²•à³à²²à²¾à²¸à³à²—à²³à³",
         nickname:"à²…à²¡à³à²¡à²¹à³†à²¸à²°à³",coins:"à²¨à²¾à²£à³à²¯à²—à²³à³",level:"à²²à³†à²µà³†à²²à³",wave:"à²µà³‡à²µà³",start:"à²†à²Ÿ à²ªà³à²°à²¾à²°à²‚à²­à²¿à²¸à²¿"},
     te:{language:"à°­à°¾à°·",shop:"à°·à°¾à°ªà±",play:"à°†à°¡à°‚à°¡à°¿",craft:"à°•à±à°°à°¾à°«à±à°Ÿà°¿à°‚à°—à±",classes:"à°•à±à°²à°¾à°¸à±à°²à±",
         nickname:"à°®à±à°¦à±à°¦à±à°ªà±‡à°°à±",coins:"à°¨à°¾à°£à±‡à°²à±",level:"à°²à±†à°µà°²à±",wave:"à°µà±‡à°µà±",start:"à°—à±‡à°®à± à°ªà±à°°à°¾à°°à°‚à°­à°¿à°‚à°šà°‚à°¡à°¿"},
@@ -3400,10 +4020,10 @@ setInterval(
 <script>
 (function(){
   const languageNames = {
-    en:"English", es:"EspaÃ±ol", fr:"FranÃ§ais", de:"Deutsch", it:"Italiano",
-    pt:"PortuguÃªs", ru:"Ð ÑƒÑÑÐºÐ¸Ð¹", zh:"ä¸­æ–‡", ja:"æ—¥æœ¬èªž", ko:"í•œêµ­ì–´",
-    hi:"à¤¹à¤¿à¤¨à¥à¤¦à¥€", kn:"à²•à²¨à³à²¨à²¡", te:"à°¤à±†à°²à±à°—à±", ta:"à®¤à®®à®¿à®´à¯", ml:"à´®à´²à´¯à´¾à´³à´‚",
-    id:"Bahasa Indonesia", tr:"TÃ¼rkÃ§e", vi:"Tiáº¿ng Viá»‡t", th:"à¹„à¸—à¸¢", ar:"Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©"
+    en:"English", es:"Español", fr:"Français", de:"Deutsch", it:"Italiano",
+    pt:"Português", ru:"Русский", zh:"中文", ja:"日本語", ko:"한국어",
+    hi:"हिन्दी", kn:"ಕನ್ನಡ", te:"తెలుగు", ta:"தமிழ்", ml:"മലയാളം",
+    id:"Bahasa Indonesia", tr:"Türkçe", vi:"Tiếng Việt", th:"ไทย", ar:"العربية"
   };
   function setCATOPSLanguage(code){
     if(!languageNames[code]) code="en";
@@ -3448,22 +4068,35 @@ setInterval(
     const input=document.getElementById("newNickname");
     const msg=document.getElementById("nicknameMessage");
     if(!input) return;
-    const name=input.value.trim();
+    const name=(input.value || "").trim().toLowerCase().replace(/[^a-z]/g,"");
+    input.value=name;
     if(!name){
-      if(msg) msg.textContent="Enter a nickname.";
+      if(msg) msg.textContent="Enter a nickname (lowercase a–z only).";
       return;
     }
-    if(name.length < 2){
-      if(msg) msg.textContent="Nickname must be at least 2 characters.";
+    if(name.length < 3 || name.length > 16){
+      if(msg) msg.textContent="Nickname must be 3–16 lowercase letters.";
       return;
     }
-    if(name.toUpperCase()==="M_A_N_A_S"){
-      if(msg) msg.textContent="Nickname taken.";
-      return;
+    if(name==="manas"){
+      const pw=prompt("Password for manas:");
+      if(pw===null) return;
+      if((pw||"").trim()!=="Archi is a donkey"){
+        if(msg) msg.textContent="Wrong password.";
+        return;
+      }
+      if(typeof setAdminMode==="function") setAdminMode(true);
+    } else {
+      if(typeof setAdminMode==="function") setAdminMode(false);
     }
-    // Keep nickname available after reload.
+    if(typeof save!=="undefined"){
+      save.nickname=name;
+      if(typeof saveGame==="function") saveGame();
+    }
     localStorage.setItem("catopsNickname", name);
     setNicknameEverywhere(name);
+    const main=document.getElementById("nicknameInput");
+    if(main) main.value=name;
     if(msg) msg.textContent="Nickname changed to " + name + "!";
     input.value="";
   }
