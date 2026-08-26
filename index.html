@@ -647,6 +647,162 @@ WASD / Arrow Keys = Move | Mouse = Aim | Click = Shoot
 </div>
 </section>
 </div>
+/* CAT OPS — Abilities + Awakening add-on
+   Paste this entire file immediately BEFORE the final </script> tag in paste.txt. */
+
+const AWAKENING_LEVEL = 50;
+const AWAKENING_COST = 10000;
+const CAT_ABILITIES = {
+  "Rookie": {name:"Combat Focus", icon:"🎯", kind:"buff", cooldown:9000, text:"Deal bonus damage for 6 seconds."},
+  "Runner Cat": {name:"Turbo Pounce", icon:"💨", kind:"dash", cooldown:8500, text:"Dash forward and gain speed."},
+  "Ice Cat": {name:"Arctic Nova", icon:"❄️", kind:"freeze", cooldown:12000, text:"Freeze nearby enemies."},
+  "Fire Cat": {name:"Inferno Ring", icon:"🔥", kind:"fire", cooldown:12000, text:"Create a burning circle."},
+  "Bomber Cat": {name:"Cataclysm Bomb", icon:"💣", kind:"blast", cooldown:14000, text:"Detonate nearby enemies."},
+  "Shield Cat": {name:"Guardian Shell", icon:"🛡️", kind:"shield", cooldown:16000, text:"Heal and slow attackers around you."},
+  "Scout": {name:"Recon Rush", icon:"🧭", kind:"speed", cooldown:10000, text:"Move and shoot faster for 6 seconds."},
+  "Hunter": {name:"Predator Focus", icon:"🎯", kind:"buff", cooldown:11000, text:"Deal heavy damage for 6 seconds."},
+  "Medic": {name:"Life Pulse", icon:"💚", kind:"heal", cooldown:15000, text:"Restore a large amount of HP."},
+  "Ranger": {name:"Piercing Volley", icon:"🏹", kind:"pierce", cooldown:12000, text:"Fire a piercing fan of shots."},
+  "Gunner": {name:"Overdrive", icon:"🔫", kind:"rapid", cooldown:15000, text:"Greatly increase fire rate."},
+  "Sniper": {name:"Deadeye", icon:"🔭", kind:"buff", cooldown:14000, text:"Gain massive damage for 5 seconds."},
+  "Pyro": {name:"Firestorm", icon:"🌋", kind:"fire", cooldown:13000, text:"Create a large burning field."},
+  "Frost": {name:"Glacial Prison", icon:"🧊", kind:"freeze", cooldown:13000, text:"Freeze every enemy in range."},
+  "Vampire": {name:"Blood Siphon", icon:"🩸", kind:"blood", cooldown:14000, text:"Drain enemies to restore HP."},
+  "Assassin": {name:"Shadow Fury", icon:"🌑", kind:"buff", cooldown:12000, text:"Deal high damage and move faster."},
+  "Engineer": {name:"Sentry Burst", icon:"⚙️", kind:"minions", cooldown:16000, text:"Deploy temporary auto-attacking drones."},
+  "Storm": {name:"Thunder Call", icon:"⚡", kind:"storm", cooldown:13000, text:"Strike multiple enemies with lightning."},
+  "Ninja": {name:"Phantom Dash", icon:"🥷", kind:"dash", cooldown:9000, text:"Dash through enemies with a shockwave."},
+  "Berserker": {name:"Blood Rage", icon:"😾", kind:"buff", cooldown:13000, text:"Gain major damage for 7 seconds."},
+  "Paladin": {name:"Holy Aegis", icon:"✨", kind:"shield", cooldown:18000, text:"Heal yourself and repel nearby enemies."},
+  "Necromancer": {name:"Soul Swarm", icon:"👻", kind:"minions", cooldown:16000, text:"Summon souls that attack enemies."},
+  "Druid": {name:"Nature's Wrath", icon:"🌿", kind:"fire", cooldown:13000, text:"Grow a damaging healing grove."},
+  "Samurai": {name:"Blade Storm", icon:"⚔️", kind:"dash", cooldown:11000, text:"Dash and slash nearby enemies."},
+  "Cyber Cat": {name:"Plasma Surge", icon:"🤖", kind:"storm", cooldown:12000, text:"Release chained plasma damage."},
+  "Void Walker": {name:"Black Hole", icon:"🕳️", kind:"blackhole", cooldown:18000, text:"Pull and damage enemies in a void."},
+  "Dragon": {name:"Dragon Breath", icon:"🐉", kind:"fire", cooldown:14000, text:"Create a giant fire field."},
+  "Titan": {name:"Titan Slam", icon:"👊", kind:"blast", cooldown:15000, text:"Smash and push enemies away."},
+  "Shadow Lord": {name:"Dark Dominion", icon:"🖤", kind:"slow", cooldown:16000, text:"Slow and damage all enemies."},
+  "Galaxy": {name:"Meteor Shower", icon:"☄️", kind:"meteor", cooldown:17000, text:"Call down repeated meteors."},
+  "Time Cat": {name:"Time Stop", icon:"⏳", kind:"slow", cooldown:17000, text:"Nearly stop enemies for 5 seconds."},
+  "Inferno King": {name:"King's Inferno", icon:"👑", kind:"fire", cooldown:15000, text:"Cover a huge area in flame."},
+  "Death Cat": {name:"Death Mark", icon:"☠️", kind:"buff", cooldown:15000, text:"Gain extreme damage for 5 seconds."},
+  "God Cat": {name:"Divine Judgment", icon:"🌟", kind:"storm", cooldown:18000, text:"Strike every enemy with divine power."},
+  "OMEGA CAT": {name:"Omega Blast", icon:"💥", kind:"omega", cooldown:22000, text:"Unleash a devastating arena-wide blast."},
+  "Santa Cat": {name:"Gift Barrage", icon:"🎁", kind:"meteor", cooldown:14000, text:"Drop explosive gifts on enemies."}
+};
+
+if(!Array.isArray(save.awakenedClasses)) save.awakenedClasses=[];
+const abilityState = {cooldown:0, effects:{damage:0,speed:0,rapid:0,shield:0,slow:0,blackhole:0,minions:0,meteor:0}, tick:0};
+function catAbility(){ return CAT_ABILITIES[classes[save.class].name] || CAT_ABILITIES.Rookie; }
+function isAwakened(){ return save.awakenedClasses.includes(save.class); }
+function abilityScale(){ return isAwakened() ? 1.8 : 1; }
+function abilityCooldown(){ return Math.round(catAbility().cooldown * (isAwakened() ? 0.75 : 1)); }
+function hurtEnemies(x,y,radius,damage,freeze){
+  for(const e of [...game.enemies]){
+    const d=Math.hypot(e.x-x,e.y-y);
+    if(d>radius) continue;
+    e.hp-=damage*Math.max(.3,1-d/radius);
+    if(freeze) e.freeze=Math.max(e.freeze||0,freeze);
+    if(e.hp<=0 && game.enemies.includes(e)) killEnemy(e,game.enemies.indexOf(e));
+  }
+}
+function addFireField(radius,damage,life,color){
+  game.hazards.push({type:"fireZone",x:game.player.x,y:game.player.y,radius,damage,life,tick:0,color:color||"orange"});
+}
+function dashAbility(mult,damage){
+  const p=game.player, distance=130*mult;
+  p.x=Math.max(25,Math.min(canvas.width-25,p.x+Math.cos(p.angle)*distance));
+  p.y=Math.max(25,Math.min(canvas.height-25,p.y+Math.sin(p.angle)*distance));
+  hurtEnemies(p.x,p.y,100*mult,damage,false); createParticles(p.x,p.y,8);
+}
+function useClassAbility(){
+  if(!game.running || abilityState.cooldown>0) return;
+  const a=catAbility(), scale=abilityScale(), p=game.player, damage=playerDamage()*scale;
+  abilityState.cooldown=abilityCooldown();
+  if(a.kind==="buff") { abilityState.effects.damage=(classes[save.class].name==="Death Cat"?5000:6500)*scale; if(classes[save.class].name==="Assassin") abilityState.effects.speed=6500*scale; }
+  if(a.kind==="speed") { abilityState.effects.speed=6500*scale; abilityState.effects.rapid=6500*scale; }
+  if(a.kind==="heal") { p.hp=Math.min(playerMaxHP(),p.hp+playerMaxHP()*.45*scale); createParticles(p.x,p.y,8); }
+  if(a.kind==="freeze") hurtEnemies(p.x,p.y,230*scale,damage*.8,300*scale);
+  if(a.kind==="fire") addFireField(130*scale,damage*.8,5000*scale);
+  if(a.kind==="blast") { hurtEnemies(p.x,p.y,185*scale,damage*2.4,false); createParticles(p.x,p.y,8); }
+  if(a.kind==="shield") { p.hp=Math.min(playerMaxHP(),p.hp+playerMaxHP()*.2*scale); abilityState.effects.shield=6000*scale; hurtEnemies(p.x,p.y,125*scale,damage*.5,180*scale); }
+  if(a.kind==="blood") { hurtEnemies(p.x,p.y,190*scale,damage*1.35,false); p.hp=Math.min(playerMaxHP(),p.hp+playerMaxHP()*.3*scale); }
+  if(a.kind==="pierce") { for(let i=-2;i<=2;i++){ const angle=p.angle+i*.16; game.bullets.push({x:p.x+Math.cos(angle)*28,y:p.y+Math.sin(angle)*28,vx:Math.cos(angle)*24,vy:Math.sin(angle)*24,damage:damage*1.5,life:70,piercing:true,enemyBullet:false,weaponName:"Ability Volley"}); } }
+  if(a.kind==="rapid") abilityState.effects.rapid=7000*scale;
+  if(a.kind==="storm") { const targets=[...game.enemies].sort((x,y)=>Math.hypot(x.x-p.x,x.y-p.y)-Math.hypot(y.x-p.x,y.y-p.y)).slice(0,isAwakened()?12:7); targets.forEach(e=>{e.hp-=damage*2; e.freeze=80; if(e.hp<=0&&game.enemies.includes(e)) killEnemy(e,game.enemies.indexOf(e));}); createParticles(p.x,p.y,8); }
+  if(a.kind==="dash") dashAbility(scale,damage*1.7);
+  if(a.kind==="minions") abilityState.effects.minions=7000*scale;
+  if(a.kind==="blackhole") abilityState.effects.blackhole=5500*scale;
+  if(a.kind==="meteor") abilityState.effects.meteor=6000*scale;
+  if(a.kind==="slow") abilityState.effects.slow=5500*scale;
+  if(a.kind==="omega") { hurtEnemies(p.x,p.y,Math.max(canvas.width,canvas.height),damage*5,false); createParticles(p.x,p.y,8); }
+  gameMessage(a.icon+" "+a.name+(isAwakened()?" AWAKENED!":"!"),900);
+  updateAbilityHUD();
+}
+function updateAbilityEffects(dt){
+  const ms=16.67*dt, e=abilityState.effects; abilityState.cooldown=Math.max(0,abilityState.cooldown-ms); abilityState.tick-=ms;
+  for(const key in e) e[key]=Math.max(0,e[key]-ms);
+  if(e.shield>0) game.player.hp=Math.min(playerMaxHP(),game.player.hp+.025*dt);
+  if(abilityState.tick>0) return;
+  abilityState.tick=450;
+  const p=game.player, damage=playerDamage()*abilityScale();
+  if(e.blackhole>0){ for(const enemy of [...game.enemies]){ const dx=p.x-enemy.x,dy=p.y-enemy.y,d=Math.max(1,Math.hypot(dx,dy)); if(d<280*abilityScale()){enemy.x+=dx/d*13*dt;enemy.y+=dy/d*13*dt;enemy.hp-=damage*.22;if(enemy.hp<=0&&game.enemies.includes(enemy))killEnemy(enemy,game.enemies.indexOf(enemy));} } }
+  if(e.minions>0){ const target=[...game.enemies].sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0]; if(target){ target.hp-=damage*1.15; if(target.hp<=0&&game.enemies.includes(target))killEnemy(target,game.enemies.indexOf(target)); } }
+  if(e.meteor>0){ const target=game.enemies[Math.floor(Math.random()*game.enemies.length)]; if(target){ hurtEnemies(target.x,target.y,90*abilityScale(),damage*1.5,false); createParticles(target.x,target.y,8); } }
+}
+
+const catOpsPlayerDamage=playerDamage;
+playerDamage=function(){ return catOpsPlayerDamage()*(abilityState.effects.damage>0?(isAwakened()?2.1:1.55):1); };
+const catOpsPlayerSpeed=playerSpeed;
+playerSpeed=function(){ return catOpsPlayerSpeed()*(abilityState.effects.speed>0?(isAwakened()?1.65:1.35):1); };
+const catOpsShoot=shoot;
+shoot=function(){ const ammo=game.player.ammo; catOpsShoot(); if(game.player.ammo<ammo&&abilityState.effects.rapid>0) game.player.shootCooldown*=isAwakened()?.35:.5; };
+const catOpsUpdateEnemies=updateEnemies;
+updateEnemies=function(dt){
+  const slowed=abilityState.effects.slow>0;
+  const previous=slowed?game.enemies.map(e=>[e,e.speed]):null;
+  if(slowed) previous.forEach(([e,s])=>e.speed=s*(classes[save.class].name==="Time Cat"?.12:.45));
+  catOpsUpdateEnemies(dt);
+  if(previous) previous.forEach(([e,s])=>{if(game.enemies.includes(e))e.speed=s;});
+};
+const catOpsUpdate=update;
+update=function(dt){ catOpsUpdate(dt); updateAbilityEffects(dt); updateAbilityHUD(); };
+
+function addAbilityUI(){
+  const css=document.createElement("style");
+  css.textContent=`#abilityHUD{position:absolute;right:12px;bottom:64px;z-index:12;pointer-events:auto;min-width:180px;text-align:center}.ability-ready{color:#8cff82}.ability-cooldown{color:#ffd84a}#abilityUse{margin-top:6px;width:100%;padding:7px;background:#5ad65b;color:#071008}.awakening-card{background:#111b13;border:1px solid #a77a31;border-radius:12px;padding:14px;margin:10px 0}.awakening-card.awake{border-color:#77e9ff;box-shadow:0 0 14px rgba(110,220,255,.22)}#awakeningScreen .panel{max-width:850px}`;
+  document.head.appendChild(css);
+  const hud=document.querySelector("#gameScreen .hud");
+  if(hud&&!document.getElementById("abilityHUD")){ const box=document.createElement("div"); box.id="abilityHUD"; box.className="hudBox"; box.innerHTML='<b id="abilityName">⚡ Ability</b><br><span id="abilityStatus" class="ability-ready">READY — E</span><button id="abilityUse">USE ABILITY</button>'; hud.parentElement.appendChild(box); document.getElementById("abilityUse").onclick=useClassAbility; }
+  const homeButtons=document.querySelector("#homeScreen .home-buttons");
+  if(homeButtons&&!document.getElementById("awakeningButton")){ const btn=document.createElement("button"); btn.id="awakeningButton"; btn.textContent="✨ AWAKENING — LEVEL 50"; btn.onclick=openAwakening; homeButtons.appendChild(btn); }
+  const app=document.getElementById("app");
+  if(app&&!document.getElementById("awakeningScreen")){ const screen=document.createElement("section"); screen.id="awakeningScreen"; screen.className="screen hidden"; screen.innerHTML='<div class="panel"><h2>✨ AWAKENING CHAMBER</h2><p>At Level 50, spend 10,000 coins to awaken an owned class. Awakening makes its ability stronger and reduces its cooldown by 25%.</p><div id="awakeningContent"></div><br><button onclick="goHome()">← BACK</button></div>'; app.appendChild(screen); }
+}
+function updateAbilityHUD(){
+  const name=document.getElementById("abilityName"),status=document.getElementById("abilityStatus"); if(!name||!status)return;
+  const a=catAbility(); name.textContent=a.icon+" "+a.name+(isAwakened()?" ✨":"");
+  if(abilityState.cooldown<=0){status.textContent="READY — press E";status.className="ability-ready";}else{status.textContent="READY IN "+(abilityState.cooldown/1000).toFixed(1)+"s";status.className="ability-cooldown";}
+}
+function openAwakening(){
+  if(getPlayerLevel()<AWAKENING_LEVEL){ alert("Awakening unlocks at Level "+AWAKENING_LEVEL+". You are Level "+getPlayerLevel()+"."); return; }
+  hideScreens(); document.getElementById("awakeningScreen").classList.remove("hidden"); buildAwakening();
+}
+function buildAwakening(){
+  const root=document.getElementById("awakeningContent"); if(!root)return; root.innerHTML='<div class="stat">🪙 Coins: <b class="gold">'+save.coins.toLocaleString()+"</b></div>";
+  classes.forEach((c,i)=>{ if(!save.ownedClasses.includes(i))return; const a=CAT_ABILITIES[c.name]||CAT_ABILITIES.Rookie,awake=save.awakenedClasses.includes(i); const card=document.createElement("div");card.className="awakening-card"+(awake?" awake":"");card.innerHTML="<h3>"+a.icon+" "+c.name+(awake?" — AWAKENED":"")+"</h3><p><b>"+a.name+"</b>: "+a.text+"</p><p>"+(awake?"✨ Ability power increased; cooldown reduced by 25%.":"Cost: 10,000 🪙")+"</p>";const button=document.createElement("button");button.textContent=awake?"AWAKENED":(save.coins>=AWAKENING_COST?"AWAKEN — 10,000 🪙":"NEED "+(AWAKENING_COST-save.coins).toLocaleString()+" MORE");button.disabled=awake||save.coins<AWAKENING_COST;button.className=awake?"equipped":(button.disabled?"cant":"buy");button.onclick=()=>awakenClass(i);card.appendChild(button);root.appendChild(card); });
+}
+function awakenClass(i){
+  if(getPlayerLevel()<AWAKENING_LEVEL||!save.ownedClasses.includes(i)||save.awakenedClasses.includes(i)||save.coins<AWAKENING_COST)return;
+  save.coins-=AWAKENING_COST; save.awakenedClasses.push(i); saveGame(); buildAwakening();
+}
+const catOpsGoHome=goHome;
+goHome=function(){ const awakening=document.getElementById("awakeningScreen");if(awakening)awakening.classList.add("hidden");catOpsGoHome(); };
+window.addEventListener("keydown",e=>{if(e.code==="KeyE"&&game.running&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();useClassAbility();}});
+const catOpsStartGame=startGame;
+startGame=function(){ catOpsStartGame(); abilityState.cooldown=0; for(const k in abilityState.effects)abilityState.effects[k]=0; updateAbilityHUD(); };
+addAbilityUI();
+
 <script>
 /* =========================================================
    DATA
