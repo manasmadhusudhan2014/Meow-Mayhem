@@ -1987,6 +1987,7 @@ const game={
     fps:60,
     fpsSampleTime:0,
     fpsFrames:0,
+    lastRenderTime:0,
     lastTime:0,
     bullets:[],
     enemies:[],
@@ -2095,7 +2096,7 @@ function resizeCanvas(){
     /* Keep the internal render resolution small so old PCs do not
        have to redraw a 1080p canvas every frame. CSS still scales it
        to the full screen. */
-    const maxPixels = 420000;
+    const maxPixels = game.lowGraphics ? 180000 : 320000;
     const w = Math.max(320, window.innerWidth);
     const h = Math.max(240, window.innerHeight);
     const scale = Math.min(1, Math.sqrt(maxPixels/(w*h)));
@@ -2295,7 +2296,6 @@ function startGame(){
     mouse.y=canvas.height/2;
     game.player.angle=0;
     syncTouchUI();
-    resizeCanvas();
     setTerrainForWave(1, false);
     game.player.x=canvas.width/2;
     game.player.y=canvas.height/2;
@@ -3861,8 +3861,8 @@ function createParticles(
     count
 ){
     if(game.lowGraphics) return;
-    count=Math.min(count,4);
-    if(game.particles.length>24) return;
+    count=Math.min(count,2);
+    if(game.particles.length>=12) return;
     for(
         let i=0;
         i<count;
@@ -4566,6 +4566,8 @@ function toggleLowGraphics(){
         game.particles.length=0;
         game.hazards=game.hazards.filter(h=>h.type==="enemyBullet");
     }
+    resizeCanvas();
+    game.lastRenderTime=0;
 }
 function updatePerformance(time){
     game.fpsFrames++;
@@ -4593,8 +4595,13 @@ function loop(time){
     game.lastTime=time;
     updatePerformance(time);
     try{
+        // Keep simulation responsive, but reduce expensive redraws on weak PCs.
         update(dt);
-        draw();
+        const renderInterval=game.lowGraphics ? 33.333 : 16.667;
+        if(!game.lastRenderTime || time-game.lastRenderTime>=renderInterval){
+            draw();
+            game.lastRenderTime=time;
+        }
     }catch(err){
         console.error("CAT OPS frame error (game kept running):",err);
     }
@@ -5042,3 +5049,4 @@ setInterval(
 </script>
 </body>
 </html>
+    
