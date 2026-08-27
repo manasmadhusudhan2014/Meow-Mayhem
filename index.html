@@ -2573,7 +2573,7 @@ function spawnMegaBoss(){
         speed:.95*terM.enemySpd*Math.max(1,hardM.spd*0.9),
         size:60,
         shoot:900,
-        shieldTimer:2800,
+        shieldStarted:false,
         shield:0,
         freeze:0,
         boss:true,
@@ -3716,12 +3716,15 @@ function updateEnemies(dt){
                 e.shoot=2000;
                 summonMegaRockets();
             }
-            e.shieldTimer = (e.shieldTimer||0) - 16.67*dt;
-            if(e.shieldTimer<=0){
-                e.shieldTimer=3200;
-                e.shield=900; // shield active ~15s at 60fps units
+            // Mega Boss gets ONE temporary shield per spawn.
+            if(!e.shieldStarted){
+                e.shieldStarted = true;
+                e.shield = 900; // 15 seconds
             }
-            if(e.shield>0) e.shield-=dt;
+            if(e.shield > 0){
+                e.shield -= dt;
+                if(e.shield < 0) e.shield = 0;
+            }
         }
         if(
             e.type==="ranged" &&
