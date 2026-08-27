@@ -1112,11 +1112,19 @@ function showTerrains(){
   buildTerrainList();
 }
 function selectTerrain(i){
-  if(i<0){ save.terrainChoice=-1; saveGame(); buildTerrainList(); refreshHomeTerrain(); return; }
+  if(i<0){
+    save.terrainChoice=-1;
+    saveGame();
+    refreshHomeTerrain();
+    goHome();
+    return;
+  }
+  if(i<0 || i>=TERRAINS.length) return;
   save.terrainChoice=i;
   saveGame();
-  buildTerrainList();
   refreshHomeTerrain();
+  // Return to the home screen after selection so PLAY is immediately available.
+  goHome();
 }
 function buildTerrainList(){
   const grid=document.getElementById("terrainGrid");
