@@ -445,6 +445,25 @@ tr:hover td{
 <div class="subtitle">
     FOREST SURVIVAL
 </div>
+<!-- =========================================================
+     HEADING — DIRECT HTML EDIT AREA
+     Change the text inside <h2> whenever you want.
+========================================================= -->
+<h2 id="directHeading">HEADING</h2>
+<div style="font-size:12px;opacity:.8;margin:4px 0 10px;">Direct HTML heading area</div>
+<div id="updatePanel" style="margin:10px 0;padding:10px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:rgba(0,0,0,.18);">
+  <div style="font-weight:700;margin-bottom:6px;">🔐 UPDATE AREA</div>
+  <input id="updatePassword" type="password" placeholder="Enter update password" autocomplete="off" style="width:100%;padding:8px;border-radius:7px;border:1px solid #555;background:#111;color:#fff;">
+  <button class="secondary" onclick="unlockUpdates()" style="margin-top:6px;">UNLOCK UPDATES</button>
+  <div id="updateEditor" style="display:none;margin-top:8px;">
+    <input id="headingEditor" maxlength="60" placeholder="Write new heading" style="width:100%;padding:8px;border-radius:7px;border:1px solid #555;background:#111;color:#fff;">
+    <button class="primary" onclick="applyHeadingUpdate()" style="margin-top:6px;">SAVE UPDATE</button>
+  </div>
+  <div id="updateMessage" style="font-size:12px;margin-top:6px;opacity:.85;"></div>
+</div>
+<div style="margin:8px 0 12px;">
+  <button class="secondary" onclick="toggleLowGraphics()" id="lowGraphicsButton">⚡ LOW GRAPHICS: OFF</button>
+</div>
 <div class="nickname">
 <input
     id="nicknameInput"
@@ -526,10 +545,14 @@ tr:hover td{
 <button onclick="showAchievements()" id="achievementsButton">
     🏆 ACHIEVEMENTS
 </button>
+<button onclick="showTerrains()" id="terrainButton" style="background:#234b2a;border:1px solid #58d85a">
+    🗺️ TERRAIN
+</button>
 <button onclick="resetSave()" id="resetSaveButton" style="background:#542b2b;border:1px solid #833">
     🗑️ RESET SAVE
 </button>
 </div>
+<div id="homeTerrainInfo" class="card" style="margin-top:10px"></div>
 <div id="homeInfo"></div>
 </div>
 </section>
@@ -626,6 +649,19 @@ Every class has a <b>Free Awakening</b> (any level · <b>0 🪙</b>) and a <b>Pr
 </button>
 </div>
 </section>
+<!-- =========================================================
+     TERRAIN SELECTOR
+========================================================= -->
+<section id="terrainScreen" class="screen hidden">
+<div class="panel">
+<h2>🗺️ TERRAIN</h2>
+<p>Choose a biome. Harder terrain gives stronger enemies, special abilities and much better drops.</p>
+<div id="terrainGrid" class="shop-grid"></div>
+<br>
+<button onclick="goHome()">← BACK</button>
+</div>
+</section>
+
 <!-- =========================================================
      GAME
 ========================================================= -->
@@ -1006,7 +1042,29 @@ const accessories = [
 {name:"Dragon Scale",cost:3500000,desc:"+40 HP · +20% dmg · +8% speed",hpAdd:40,dmgMul:1.2,speedMul:1.08,magMul:1,coinMul:1.05},
 {name:"Abyss Relic",cost:5000000,desc:"+25% dmg · +15% speed · +20% coins",hpAdd:20,dmgMul:1.25,speedMul:1.15,magMul:1.1,coinMul:1.2},
 {name:"Celestial Halo",cost:8000000,desc:"+80 HP · +22% dmg · +12% speed · +25% coins",hpAdd:80,dmgMul:1.22,speedMul:1.12,magMul:1.15,coinMul:1.25},
-{name:"Ultimate Emblem",cost:15000000,desc:"+100 HP · +30% dmg · +15% speed · +30% mag · +30% coins",hpAdd:100,dmgMul:1.3,speedMul:1.15,magMul:1.3,coinMul:1.3}
+{name:"Ultimate Emblem",cost:15000000,desc:"+100 HP · +30% dmg · +15% speed · +30% mag · +30% coins",hpAdd:100,dmgMul:1.3,speedMul:1.15,magMul:1.3,coinMul:1.3},
+{name:"Magma Claws",cost:1800000,desc:"+28% dmg · +8% coins · built for Volcano",hpAdd:10,dmgMul:1.28,speedMul:1,magMul:1,coinMul:1.08},
+{name:"Cliff Boots",cost:2200000,desc:"+18% speed · +25 HP · mountain resistance",hpAdd:25,dmgMul:1,speedMul:1.18,magMul:1,coinMul:1},
+{name:"Lava Heart",cost:3200000,desc:"+35% dmg · +30 HP · +15% coins",hpAdd:30,dmgMul:1.35,speedMul:1,magMul:1,coinMul:1.15},
+{name:"Rockbreaker Gauntlet",cost:4000000,desc:"+40% dmg · -5% speed · heavy hitter",hpAdd:0,dmgMul:1.4,speedMul:.95,magMul:1,coinMul:1},
+{name:"Volcanic Mask",cost:4800000,desc:"+70 HP · +25% dmg · +20% coins",hpAdd:70,dmgMul:1.25,speedMul:1,magMul:1,coinMul:1.2},
+{name:"Mountain Crown",cost:5500000,desc:"+90 HP · +18% dmg · +8% speed",hpAdd:90,dmgMul:1.18,speedMul:1.08,magMul:1,coinMul:1},
+{name:"Lava Pendant",cost:6500000,desc:"+30% dmg · +25% magazine · +15% coins",hpAdd:20,dmgMul:1.3,speedMul:1,magMul:1.25,coinMul:1.15},
+{name:"Peak Hunter",cost:7500000,desc:"+35% dmg · +20% speed",hpAdd:0,dmgMul:1.35,speedMul:1.2,magMul:1,coinMul:1},
+{name:"Inferno Crest",cost:9000000,desc:"+45% dmg · +50 HP · +20% coins",hpAdd:50,dmgMul:1.45,speedMul:1,magMul:1,coinMul:1.2},
+{name:"Avalanche Charm",cost:10000000,desc:"+110 HP · +15% dmg · +15% magazine",hpAdd:110,dmgMul:1.15,speedMul:1,magMul:1.15,coinMul:1},
+{name:"Magma Magnet",cost:12000000,desc:"+35% coins · +15% dmg",hpAdd:0,dmgMul:1.15,speedMul:1,magMul:1,coinMul:1.35},
+{name:"Titan Claws",cost:14000000,desc:"+50% dmg · +30 HP",hpAdd:30,dmgMul:1.5,speedMul:1,magMul:1,coinMul:1},
+{name:"Summit Wings",cost:16000000,desc:"+25% speed · +20% magazine",hpAdd:0,dmgMul:1,speedMul:1.25,magMul:1.2,coinMul:1},
+{name:"Molten Core",cost:18000000,desc:"+55% dmg · +60 HP · +25% coins",hpAdd:60,dmgMul:1.55,speedMul:1,magMul:1,coinMul:1.25},
+{name:"Earthshaker Belt",cost:20000000,desc:"+140 HP · +25% dmg · -8% speed",hpAdd:140,dmgMul:1.25,speedMul:.92,magMul:1,coinMul:1},
+{name:"Abyss Crown",cost:25000000,desc:"+45% dmg · +20% speed · +30% coins",hpAdd:40,dmgMul:1.45,speedMul:1.2,magMul:1.1,coinMul:1.3},
+{name:"Doom Collar",cost:30000000,desc:"+60% dmg · +15% coins",hpAdd:0,dmgMul:1.6,speedMul:1,magMul:1,coinMul:1.15},
+{name:"Worldbreaker Relic",cost:40000000,desc:"+180 HP · +50% dmg · +20% magazine",hpAdd:180,dmgMul:1.5,speedMul:1,magMul:1.2,coinMul:1},
+{name:"Cataclysm Emblem",cost:60000000,desc:"+70% dmg · +100 HP · +35% speed · +35% coins",hpAdd:100,dmgMul:1.7,speedMul:1.35,magMul:1.25,coinMul:1.35},
+{name:"Hellfire Crown",cost:80000000,desc:"+85% dmg · +150 HP · +40% coins",hpAdd:150,dmgMul:1.85,speedMul:1,magMul:1.3,coinMul:1.4},
+{name:"Skybreaker Wings",cost:100000000,desc:"+45% speed · +45% dmg · +30% magazine",hpAdd:40,dmgMul:1.45,speedMul:1.45,magMul:1.3,coinMul:1.15},
+{name:"Eternal Core",cost:150000000,desc:"+250 HP · +90% dmg · +50% speed · +50% coins",hpAdd:250,dmgMul:1.9,speedMul:1.5,magMul:1.4,coinMul:1.5}
 ];
 function getAccessory(){
     const i = (save.accessory|0);
@@ -1018,15 +1076,15 @@ function getAccessory(){
 ========================================================= */
 const TERRAINS = [
   {id:"forest",name:"Forest",icon:"🌲",bg:"#08150b",grid:"rgba(45,100,52,.16)",accent:"#102719",
-   enemyHp:1,enemySpd:1,enemyDmg:1,coinMul:1,playerSpd:1,desc:"Balanced woods"},
+   enemyHp:1,enemySpd:1,enemyDmg:1,coinMul:1,playerSpd:1,desc:"Balanced woods",ability:"Nature: +1% HP regen every second while not hit",regen:0.01},
   {id:"volcano",name:"Volcano",icon:"🌋",bg:"#1a0a08",grid:"rgba(180,60,20,.2)",accent:"#3a1510",
-   enemyHp:1.45,enemySpd:1.2,enemyDmg:1.35,coinMul:2.2,playerSpd:0.92,desc:"Hot · hard · rich drops"},
+   enemyHp:1.55,enemySpd:1.28,enemyDmg:1.45,coinMul:2.8,playerSpd:0.86,desc:"🔥 Extreme heat · slow ground · OP drops",ability:"Lava: enemies deal +12% contact damage; burn zones appear more often",contactMul:1.12,hazardBoost:1.25},
   {id:"mountains",name:"Mountains",icon:"⛰️",bg:"#0c1218",grid:"rgba(90,110,140,.18)",accent:"#1a2430",
-   enemyHp:1.7,enemySpd:0.95,enemyDmg:1.25,coinMul:2.5,playerSpd:0.85,desc:"Tanky foes · OP loot"},
+   enemyHp:1.85,enemySpd:1.02,enemyDmg:1.35,coinMul:3.2,playerSpd:0.78,desc:"⛰️ Steep terrain · tanky foes · OP loot",ability:"Mountain Guard: enemies have +20% effective HP; player takes -8% knockback",enemyHpBonus:1.2},
   {id:"tundra",name:"Tundra",icon:"❄️",bg:"#0a1418",grid:"rgba(120,180,220,.14)",accent:"#152830",
-   enemyHp:1.35,enemySpd:1.15,enemyDmg:1.2,coinMul:1.9,playerSpd:0.9,desc:"Slippery · faster enemies"},
+   enemyHp:1.4,enemySpd:1.2,enemyDmg:1.25,coinMul:2.2,playerSpd:0.84,desc:"❄️ Slippery · faster enemies · rich drops",ability:"Frost: enemies move +10% faster but have a chance to be slowed by shots",enemySlowChance:0.08},
   {id:"abyss",name:"Abyss",icon:"🕳️",bg:"#08060f",grid:"rgba(100,40,160,.18)",accent:"#140c22",
-   enemyHp:1.9,enemySpd:1.25,enemyDmg:1.45,coinMul:3.0,playerSpd:0.88,desc:"Brutal · best drops"}
+   enemyHp:2.1,enemySpd:1.32,enemyDmg:1.6,coinMul:4.2,playerSpd:0.8,desc:"🕳️ Brutal terrain · fastest foes · BEST drops",ability:"Abyss: +15% enemy damage, +35% drops, dangerous void pressure",contactMul:1.15,voidBoost:1.35}
 ];
 function getTerrain(){
   return TERRAINS[game.terrainIndex|0] || TERRAINS[0];
@@ -1048,7 +1106,7 @@ function terrainForWave(w){
   return TERRAINS.findIndex(t=>t.id===id);
 }
 function setTerrainForWave(w, announce){
-  const idx=terrainForWave(w);
+  const idx=(save.terrainChoice>=0 && save.terrainChoice<TERRAINS.length) ? save.terrainChoice : terrainForWave(w);
   const prev=game.terrainIndex;
   game.terrainIndex=idx;
   if(announce && prev!==idx){
@@ -1057,15 +1115,49 @@ function setTerrainForWave(w, announce){
   }
   buildForestCanvas();
 }
+function refreshHomeTerrain(){
+  const el=document.getElementById("homeTerrainInfo");
+  if(!el) return;
+  const t=(save.terrainChoice>=0&&TERRAINS[save.terrainChoice])?TERRAINS[save.terrainChoice]:null;
+  el.innerHTML=t?`🗺️ Selected Terrain: <b>${t.icon} ${t.name}</b><br><small>${t.ability||t.desc} · Drops ×${t.coinMul}</small>`:`🗺️ Selected Terrain: <b>🔄 Auto Rotation</b><br><small>Terrain changes as waves increase.</small>`;
+}
+function showTerrains(){
+  hideScreens();
+  const scr=document.getElementById("terrainScreen");
+  if(scr) scr.classList.remove("hidden");
+  buildTerrainList();
+}
+function selectTerrain(i){
+  if(i<0){ save.terrainChoice=-1; saveGame(); buildTerrainList(); refreshHomeTerrain(); return; }
+  save.terrainChoice=i;
+  saveGame();
+  buildTerrainList();
+  refreshHomeTerrain();
+}
+function buildTerrainList(){
+  const grid=document.getElementById("terrainGrid");
+  if(!grid) return;
+  refreshHomeTerrain();
+  grid.innerHTML="";
+  const auto=document.createElement("div"); auto.className="card";
+  auto.innerHTML=`<h3>🔄 Auto Rotation</h3><p>Terrain changes with waves.</p><button onclick="selectTerrain(-1)">${save.terrainChoice<0?"✅ SELECTED":"SELECT"}</button>`;
+  grid.appendChild(auto);
+  TERRAINS.forEach((t,i)=>{
+    const card=document.createElement("div"); card.className="card";
+    const selected=save.terrainChoice===i;
+    card.innerHTML=`<h3>${t.icon} ${t.name}</h3><p>${t.desc}</p><p><b>ABILITY:</b> ${t.ability||"None"}</p><p>Difficulty: HP ×${t.enemyHp} · Speed ×${t.enemySpd} · Damage ×${t.enemyDmg}</p><p class="gold">Drops: ×${t.coinMul}</p><button onclick="selectTerrain(${i})">${selected?"✅ SELECTED":"SELECT"}</button>`;
+    grid.appendChild(card);
+  });
+}
 function waveHardScale(w){
   // Wave 50+ becomes very hard and faster than usual
   if(w<50) return {hp:1,spd:1,count:0,touch:1};
   const over=w-49;
   return {
-    hp:1 + over*0.12,          // +12% HP per wave past 49
-    spd:1.25 + over*0.04,      // base +25% speed at 50, keeps rising
-    count:Math.min(12, Math.floor(over/3)), // extra enemies
-    touch:1.15 + over*0.03     // contact damage scale
+    hp:1 + over*0.16,          // +16% HP every wave after 49
+    spd:1.42 + over*0.055,     // +42% speed at wave 50, then keeps climbing
+    count:Math.min(18, Math.floor(over/2)), // extra enemies ramp quickly
+    touch:1.25 + over*0.035    // much more dangerous contact damage
   };
 }
 
@@ -1095,20 +1187,24 @@ if(!save){
         awakenedClasses:[],
         premiumAwakenedClasses:[],
         achievements:[],
+        terrainChoice:-1,
         class:0,
         gun:0,
         skin:0,
         nicknameLocked:false,
         customGuns:[],
-        language:"en"
+        language:"en",
+        spinNextAt:0
     };
 }
 if(!Array.isArray(save.customGuns)) save.customGuns=[];
 if(!Array.isArray(save.awakenedClasses)) save.awakenedClasses=[];
 if(!Array.isArray(save.premiumAwakenedClasses)) save.premiumAwakenedClasses=[];
 if(!Array.isArray(save.achievements)) save.achievements=[];
+if(typeof save.terrainChoice!=="number") save.terrainChoice=-1;
 if(!Array.isArray(save.ownedAccessories)) save.ownedAccessories=[0];
 if(typeof save.accessory!=="number") save.accessory=0;
+if(typeof save.spinNextAt!=="number") save.spinNextAt=0;
 if(!save.language) save.language="en";
 /* Old admin /free left 999999999 coins — offer one-time cleanup */
 if(save.coins>=999999999 && !save._adminCoinFixAsked){
@@ -1611,6 +1707,16 @@ function buyAccessory(i){
    SPIN SYSTEM — 500 coins; prizes under 500k or coin drops
 ========================================================= */
 const SPIN_COST = 500;
+const SPIN_COOLDOWN = 10 * 60 * 60 * 1000; // 10 hours
+function getSpinCooldownText(){
+    const remaining=Math.max(0,(save.spinNextAt||0)-Date.now());
+    if(remaining<=0) return "READY";
+    const totalSec=Math.ceil(remaining/1000);
+    const h=Math.floor(totalSec/3600);
+    const m=Math.floor((totalSec%3600)/60);
+    const sec=totalSec%60;
+    return h+"h "+String(m).padStart(2,"0")+"m "+String(sec).padStart(2,"0")+"s";
+}
 function openSpin(){
     document.getElementById("homeInfo").innerHTML=`
     <div class="card" style="border-color:#8b5cf6">
@@ -1663,12 +1769,18 @@ function weightedPick(pool){
 function doSpin(){
     const resultEl=document.getElementById("spinResult");
     const btn=document.getElementById("doSpinBtn");
+    const remaining=(save.spinNextAt||0)-Date.now();
+    if(remaining>0){
+        if(resultEl) resultEl.innerHTML='<span class="locked">⏳ Spin is on cooldown: <b>'+getSpinCooldownText()+'</b></span>';
+        return;
+    }
     if(save.coins<SPIN_COST){
         if(resultEl) resultEl.innerHTML='<span class="locked">Need '+SPIN_COST+' coins to spin.</span>';
         return;
     }
     if(btn) btn.disabled=true;
     save.coins-=SPIN_COST;
+    save.spinNextAt=Date.now()+SPIN_COOLDOWN;
     const prize=weightedPick(pickSpinPool());
     let msg="";
     if(prize.type==="coins"){
@@ -1721,7 +1833,7 @@ function doSpin(){
         }
     }
     saveGame();
-    if(resultEl) resultEl.innerHTML=msg;
+    if(resultEl) resultEl.innerHTML=msg+'<div style="font-size:12px;opacity:.75;margin-top:6px">Next spin in 10 hours.</div>';
     if(btn){
         setTimeout(()=>{ btn.disabled=false; }, 400);
     }
@@ -1859,6 +1971,10 @@ let mouse={
 };
 const game={
     running:false,
+    lowGraphics:false,
+    fps:60,
+    fpsSampleTime:0,
+    fpsFrames:0,
     lastTime:0,
     bullets:[],
     enemies:[],
@@ -2223,6 +2339,10 @@ function playerSpeed(){
     if(acc && acc.speedMul) speed*=acc.speedMul;
     const ter=getTerrain();
     if(ter && ter.playerSpd) speed*=ter.playerSpd;
+    // Nightmare terrain becomes progressively harder to cross after wave 50.
+    if(game.wave>=50 && ter && (ter.id==="volcano" || ter.id==="mountains" || ter.id==="abyss")){
+        speed*=Math.max(0.72, 1 - Math.min(0.18,(game.wave-49)*0.008));
+    }
     return speed;
 }
 function playerDamage(){
@@ -2332,7 +2452,7 @@ function spawnEnemy(){
     }else if(roll<.29){
         type="shadow";
     }
-    const hp=
+    let hp=
         type==="tank"
         ?120+game.night*20
         :30+game.night*4;
@@ -2350,7 +2470,7 @@ function spawnEnemy(){
             :type==="shadow"
             ?2.0
             :1.6;
-    hp=hp*terN.enemyHp*hardN.hp;
+    hp=hp*terN.enemyHp*hardN.hp*(terN.enemyHpBonus||1);
     game.enemies.push({
         x:x,
         y:y,
@@ -3148,7 +3268,8 @@ function updateBullets(dt){
                     game.bullets.splice(i,1);
                     continue;
                 }
-                const reduced = classes[save.class].name==="Shield Cat" ? b.damage*0.65 : b.damage;
+                let reduced = classes[save.class].name==="Shield Cat" ? b.damage*0.65 : b.damage;
+                if(getTerrain().id==="mountains") reduced*=0.92;
                 game.player.hp-=reduced;
                 game.timeSinceDamage=0;
                 game.bullets.splice(i,1);
@@ -3184,6 +3305,10 @@ function updateBullets(dt){
                     hit=true;
                     if(b.freeze){
                         e.freeze=150;
+                    }
+                    const trHit=getTerrain();
+                    if(trHit.enemySlowChance && Math.random()<trHit.enemySlowChance){
+                        e.freeze=Math.max(e.freeze||0,90);
                     }
                     if(b.burn){
                         e.burn=180;
@@ -3265,6 +3390,9 @@ function killEnemy(e,index){
     const terR=getTerrain();
     if(terR && terR.coinMul && terR.coinMul!==1){
         reward=Math.max(1, Math.round(reward*terR.coinMul));
+    }
+    if(terR && terR.id==="abyss"){
+        reward=Math.max(1,Math.round(reward*1.35));
     }
     // Wave 50+ base coin bump (hard grind pays)
     if(game.wave>=50){
@@ -3647,7 +3775,8 @@ function updateEnemies(dt){
                 e.x -= dx2/Math.max(dist2,0.01) * 40;
                 e.y -= dy2/Math.max(dist2,0.01) * 40;
             } else {
-            const contactDamage = classes[save.class].name==="Shield Cat" ? touchDamage*0.65 : touchDamage;
+            let contactDamage = classes[save.class].name==="Shield Cat" ? touchDamage*0.65 : touchDamage;
+            if(getTerrain().id==="mountains") contactDamage*=0.92;
             game.player.hp = Math.max(
                 0,
                 game.player.hp - contactDamage
@@ -3719,8 +3848,9 @@ function createParticles(
     y,
     count
 ){
-    count=Math.min(count,6);
-    if(game.particles.length>50) return;
+    if(game.lowGraphics) return;
+    count=Math.min(count,4);
+    if(game.particles.length>24) return;
     for(
         let i=0;
         i<count;
@@ -3790,6 +3920,11 @@ function updateHUD(){
             0,
             hp/max*100
         )+"%";
+    const terrainRegen = getTerrain().regen || 0;
+    if(terrainRegen>0 && game.timeSinceDamage>=60 && hp<max){
+        game.player.hp=Math.min(max,game.player.hp + max*terrainRegen*dt);
+        hp=game.player.hp;
+    }
     const regenActive =
         game.timeSinceDamage >= 360 &&
         hp < max;
@@ -3816,8 +3951,13 @@ function updateHUD(){
     const terEl=document.getElementById("terrainText");
     if(terEl){
         const t=getTerrain();
+        if(t.id==="forest") save._terrainForest=true;
+        if(t.id==="volcano") save._terrainVolcano=true;
+        if(t.id==="mountains") save._terrainMountains=true;
+        if(t.id==="tundra") save._terrainTundra=true;
+        if(t.id==="abyss") save._terrainAbyss=true;
         terEl.textContent=t.icon+" "+t.name+(game.wave>=50?" ⚠":"");
-        terEl.title=t.desc+" · coin ×"+t.coinMul;
+        terEl.title=t.desc+" · coin ×"+t.coinMul+" · "+(t.ability||"");
     }
     const ammoEl=document.getElementById("ammoText");
     if(ammoEl){
@@ -4194,6 +4334,7 @@ function drawEnemies(){
    DRAW PARTICLES
 ========================================================= */
 function drawParticles(){
+    if(game.lowGraphics) return;
     for(
         let i=0;
         i<game.particles.length;
@@ -4220,6 +4361,7 @@ function drawParticles(){
    DRAW
 ========================================================= */
 function drawMediumLighting(){
+    if(game.lowGraphics) return;
     const px=game.player.x;
     const py=game.player.y;
     const glow=ctx.createRadialGradient(px,py,25,px,py,210);
@@ -4304,7 +4446,7 @@ function spawnEnemyForced(type){
     const ter=getTerrain();
     const hard=waveHardScale(game.wave);
     const cfg={basic:[1.6,17,30],fast:[2.7,13,30],tank:[1,25,120],ranged:[1.3,17,30],bomber:[1.8,19,30],shadow:[2,16,30]}[type]||[1.6,17,30];
-    let hp=(cfg[2]*scale+game.night*4)*ter.enemyHp*hard.hp;
+    let hp=(cfg[2]*scale+game.night*4)*ter.enemyHp*hard.hp*(ter.enemyHpBonus||1);
     let spd=cfg[0]*ter.enemySpd*hard.spd;
     game.enemies.push({x,y,type,hp,maxHp:hp,speed:spd,size:cfg[1],shoot:Math.random()*1200,freeze:0,burn:0,burnDamage:0,invisible:false,shadowTimer:Math.random()*240,boss:false,reward:1,touchCooldown:0,touchMul:ter.enemyDmg*hard.touch});
 }
@@ -4322,8 +4464,10 @@ function spawnCurrentWave(){
     if(w===9){spawnEnemyForced("shadow");spawnEnemyForced("ranged");spawnEnemyForced("tank");spawnEnemyForced("bomber");return;}
     const hard=waveHardScale(w);
     let count=Math.min(8,2+Math.floor(w/4))+hard.count;
-    if(w>=50) count=Math.min(20, count+4);
-    const types=["basic","fast","tank","ranged","bomber","shadow"];
+    if(w>=50) count=Math.min(26, count+6);
+    const types=w>=50
+        ? ["fast","fast","tank","ranged","bomber","shadow","tank","fast"]
+        : ["basic","fast","tank","ranged","bomber","shadow"];
     for(let i=0;i<count;i++) spawnEnemyForced(types[Math.floor(Math.random()*types.length)]);
 }
 /* =========================================================
@@ -4346,7 +4490,14 @@ function update(dt){
         game.waveSpawned=false;
         setTerrainForWave(game.wave, true);
         if(game.wave>=50){
-            gameMessage("🌊 WAVE "+game.wave+"! ⚠️ HARD MODE",900);
+            const bonus = game.wave===50 ? 5000 : (game.wave%10===0 ? game.wave*250 : 0);
+            if(bonus>0){
+                save.coins += bonus;
+                saveGame();
+                gameMessage("🌊 WAVE "+game.wave+"! ☠️ NIGHTMARE MODE · +"+bonus.toLocaleString()+" 🪙",1400);
+            }else{
+                gameMessage("🌊 WAVE "+game.wave+"! ☠️ NIGHTMARE MODE · ENEMIES ARE FASTER",1000);
+            }
         }else{
             gameMessage("🌊 WAVE "+game.wave+"!",800);
         }
@@ -4393,6 +4544,29 @@ function gameMessage(
     );
 }
 /* =========================================================
+   LOW GRAPHICS / LAG MODE
+========================================================= */
+function toggleLowGraphics(){
+    game.lowGraphics=!game.lowGraphics;
+    const b=document.getElementById("lowGraphicsButton");
+    if(b) b.textContent=game.lowGraphics?"⚡ LOW GRAPHICS: ON":"⚡ LOW GRAPHICS: OFF";
+    if(game.lowGraphics){
+        game.particles.length=0;
+        game.hazards=game.hazards.filter(h=>h.type==="enemyBullet");
+    }
+}
+function updatePerformance(time){
+    game.fpsFrames++;
+    if(!game.fpsSampleTime) game.fpsSampleTime=time;
+    if(time-game.fpsSampleTime>=1000){
+        game.fps=(game.fpsFrames*1000)/(time-game.fpsSampleTime);
+        game.fpsFrames=0;
+        game.fpsSampleTime=time;
+        // Automatically reduce expensive effects on weak/laggy PCs.
+        if(game.fps<30 && !game.lowGraphics) toggleLowGraphics();
+    }
+}
+/* =========================================================
    GAME LOOP
 ========================================================= */
 function loop(time){
@@ -4405,6 +4579,7 @@ function loop(time){
             (time-game.lastTime)/16.67
         );
     game.lastTime=time;
+    updatePerformance(time);
     try{
         update(dt);
         draw();
@@ -4492,7 +4667,19 @@ const ACHIEVEMENTS = [
   {id:"miniboss",name:"Boss Breaker",desc:"Defeat a Miniboss",icon:"👹",check:s=>!!s._achMiniboss,reward:150},
   {id:"megaboss",name:"Mega Slayer",desc:"Defeat a Mega Boss",icon:"👑",check:s=>!!s._achMegaboss,reward:300},
   {id:"craft",name:"Engineer",desc:"Craft a custom gun",icon:"🛠️",check:s=>(s.customGuns||[]).length>=1,reward:500},
-  {id:"survive_1",name:"Survivor",desc:"Finish a run (game over once)",icon:"❤️",check:s=>!!s._achGameOver,reward:30}
+  {id:"survive_1",name:"Survivor",desc:"Finish a run (game over once)",icon:"❤️",check:s=>!!s._achGameOver,reward:30},
+  {id:"wave_50",name:"Nightmare Walker",desc:"Reach Wave 50",icon:"☠️",check:()=>typeof game!=="undefined"&&game.wave>=50,reward:1000},
+  {id:"wave_75",name:"Hell Walker",desc:"Reach Wave 75",icon:"🔥",check:()=>typeof game!=="undefined"&&game.wave>=75,reward:2500},
+  {id:"wave_100",name:"Century of Pain",desc:"Reach Wave 100",icon:"💀",check:()=>typeof game!=="undefined"&&game.wave>=100,reward:5000},
+  {id:"volcano_visit",name:"Into the Volcano",desc:"Play in Volcano terrain",icon:"🌋",check:()=>typeof game!=="undefined"&&getTerrain().id==="volcano",reward:250},
+  {id:"mountain_visit",name:"Mountain Grinder",desc:"Play in Mountains terrain",icon:"⛰️",check:()=>typeof game!=="undefined"&&getTerrain().id==="mountains",reward:300},
+  {id:"tundra_visit",name:"Frozen Paws",desc:"Play in Tundra terrain",icon:"❄️",check:()=>typeof game!=="undefined"&&getTerrain().id==="tundra",reward:300},
+  {id:"abyss_visit",name:"Abyss Diver",desc:"Enter the Abyss terrain",icon:"🕳️",check:()=>typeof game!=="undefined"&&getTerrain().id==="abyss",reward:500},
+  {id:"terrain_master",name:"Biome Master",desc:"Visit every terrain",icon:"🗺️",check:s=>!!s._terrainForest&&!!s._terrainVolcano&&!!s._terrainMountains&&!!s._terrainTundra&&!!s._terrainAbyss,reward:2500},
+  {id:"coins_million",name:"Millionaire Cat",desc:"Hold 1,000,000 coins",icon:"💰",check:s=>s.coins>=1000000,reward:5000},
+  {id:"accessory_10",name:"Accessory Hoarder",desc:"Own 10 accessories",icon:"🎀",check:s=>(s.ownedAccessories||[]).length>=10,reward:500},
+  {id:"accessory_25",name:"Fashion Overload",desc:"Own 25 accessories",icon:"👑",check:s=>(s.ownedAccessories||[]).length>=25,reward:1500},
+  {id:"accessory_all",name:"Accessory King",desc:"Own all accessories",icon:"💎",check:s=>(s.ownedAccessories||[]).length>=accessories.length,reward:5000}
 ];
 
 function hasAchievement(id){
@@ -4675,6 +4862,26 @@ setInterval(
     document.documentElement.dir=(code==="ar" ? "rtl" : "ltr");
   }
   window.catopsSetLanguage=applyLanguage;
+function unlockUpdates(){
+    const password=document.getElementById("updatePassword").value;
+    const msg=document.getElementById("updateMessage");
+    if(password==="MAS studios$"){
+        document.getElementById("updateEditor").style.display="block";
+        msg.textContent="✅ Updates unlocked.";
+        msg.style.color="#7CFF8A";
+    }else{
+        document.getElementById("updateEditor").style.display="none";
+        msg.textContent="❌ Wrong password.";
+        msg.style.color="#ff7777";
+    }
+}
+function applyHeadingUpdate(){
+    const heading=document.getElementById("headingEditor").value.trim();
+    if(!heading) return;
+    document.getElementById("directHeading").textContent=heading;
+    document.getElementById("updateMessage").textContent="✅ Update applied.";
+}
+
   document.addEventListener("DOMContentLoaded",()=>{
     const s=document.getElementById("languageSelect");
     if(s) s.addEventListener("change",()=>applyLanguage(s.value));
