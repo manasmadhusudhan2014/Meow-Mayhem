@@ -509,10 +509,13 @@ tr:hover td{
 </div>
 <div class="home-buttons">
 <button onclick="showClasses()">
-    📋 ALL 36 classes
+    📋 ALL 66 classes
 </button>
 <button onclick="openShop()">
     🛒 SHOP
+</button>
+<button onclick="openSpin()" id="spinButton" style="background:#3d2a6b;border:1px solid #8b5cf6">
+    🎰 SPIN (500 🪙)
 </button>
 <button onclick="showInstructions()" id="howToButton">
     ❓ HOW TO PLAY
@@ -535,7 +538,7 @@ tr:hover td{
 ========================================================= -->
 <section id="classesScreen" class="screen hidden">
 <div class="panel">
-<h2>📋 ALL 36 classes</h2>
+<h2>📋 ALL 66 classes</h2>
 <p>
 Every class has a <b>Free Awakening</b> (any level · <b>0 🪙</b>) and a <b>Premium Awakening</b> (Lvl 2000 · 50k 🪙 · needs free first). Press <b>E</b> in-game (premium used if unlocked).
 </p>
@@ -611,8 +614,11 @@ Every class has a <b>Free Awakening</b> (any level · <b>0 🪙</b>) and a <b>Pr
 <button onclick="shopTab('skins',this)">
     Skins / Colour
 </button>
+<button onclick="shopTab('accessories',this)">
+    Accessories
+</button>
 </div>
-<div style="font-size:12px;opacity:.75;margin:6px 0">💸 Cheap guns start at 50 coins.</div>
+<div style="font-size:12px;opacity:.75;margin:6px 0">💸 Cheap guns start at 50 coins. · 🎀 Accessories: equip one passive boost.</div>
 <div id="shopGrid" class="shop-grid"></div>
 <br>
 <button onclick="goHome()">
@@ -642,6 +648,8 @@ Every class has a <b>Free Awakening</b> (any level · <b>0 🪙</b>) and a <b>Pr
 ⭐ Level <span id="gameLevel">1</span>
 &nbsp; | &nbsp;
 🌙 Night <span id="nightText">1</span> <span style="margin-left:12px">🌊 Wave <span id="waveText">1</span></span>
+&nbsp; | &nbsp;
+<span id="terrainText">🌲 Forest</span>
 &nbsp; | &nbsp;
 🔫 <span id="ammoText">12/12</span>
 &nbsp; | &nbsp;
@@ -731,7 +739,37 @@ const classes = [
 {name:"Death Cat",weapon:"Death Ray",ability:"Instant criticals",cost:920000},
 {name:"God Cat",weapon:"Divine Cannon",ability:"Massive power",cost:970000},
 {name:"OMEGA CAT",weapon:"Omega Destroyer",ability:"Ultimate weapon",cost:999999},
-{name:"Santa Cat",weapon:"Gift Box Launcher",ability:"Explosive gift boxes • Christmas only",cost:100000,christmasOnly:true}
+{name:"Santa Cat",weapon:"Gift Box Launcher",ability:"Explosive gift boxes • Christmas only",cost:100000,christmasOnly:true},
+{name:"Nebula Cat",weapon:"Nebula Lance",ability:"Cosmic slow fields",cost:1100000},
+{name:"Quantum Cat",weapon:"Q-Splitter",ability:"Split projectiles",cost:1250000},
+{name:"Phoenix Cat",weapon:"Phoenix Flare",ability:"Revive once per night",cost:1400000},
+{name:"Leviathan",weapon:"Depth Cannon",ability:"Massive AOE waves",cost:1600000},
+{name:"Archmage",weapon:"Arcane Staff",ability:"Spell volleys",cost:1800000},
+{name:"Wraith",weapon:"Soul Scythe",ability:"Phase through damage briefly",cost:2000000},
+{name:"Celestial",weapon:"Star Bow",ability:"Homing star arrows",cost:2300000},
+{name:"Overlord",weapon:"Dominion Rifle",ability:"Enemy fear aura",cost:2600000},
+{name:"Mythmancer",weapon:"Rune Blaster",ability:"Rune traps",cost:3000000},
+{name:"Stormbringer",weapon:"Tempest Core",ability:"Permanent lightning chance",cost:3400000},
+{name:"Bloodmoon",weapon:"Crimson Orb",ability:"Night lifesteal boost",cost:3800000},
+{name:"Aether Cat",weapon:"Aether Rail",ability:"Piercing aether beams",cost:4200000},
+{name:"Glacier King",weapon:"Frost Throne",ability:"Ice armor + chill",cost:4700000},
+{name:"Solar Knight",weapon:"Solar Blade Gun",ability:"Solar burn zones",cost:5200000},
+{name:"Void Empress",weapon:"Null Scepter",ability:"Void silence pulses",cost:5800000},
+{name:"Chronarch",weapon:"Epoch Rifle",ability:"Brief enemy rewind",cost:6500000},
+{name:"Primordial",weapon:"Origin Cannon",ability:"Raw power shots",cost:7200000},
+{name:"Eclipse Cat",weapon:"Umbra Launcher",ability:"Eclipse damage field",cost:8000000},
+{name:"Nova Cat",weapon:"Supernova",ability:"Burst nova on kill",cost:9000000},
+{name:"Ragnarok",weapon:"Endbringer",ability:"Doomsday stack damage",cost:10000000},
+{name:"Astral Lord",weapon:"Astral Lance",ability:"Astral projection dash",cost:12000000},
+{name:"Abyss Walker",weapon:"Abyss Maw",ability:"Pull + crush",cost:14000000},
+{name:"Divine Beast",weapon:"Beast Canon",ability:"Beast form HP + dmg",cost:16000000},
+{name:"Infinity Cat",weapon:"∞ Blaster",ability:"Infinite ammo windows",cost:18000000},
+{name:"Omega+ Cat",weapon:"Omega+ Core",ability:"Stacking omega power",cost:20000000},
+{name:"Singularity Cat",weapon:"Event Rifle",ability:"Mini singularities",cost:25000000},
+{name:"Cosmic Emperor",weapon:"Emperor's Wrath",ability:"Royal decree stun",cost:30000000},
+{name:"Eternal Cat",weapon:"Eternity Beam",ability:"Slow but fatal beams",cost:40000000},
+{name:"Mythic Cat",weapon:"Mythic Relic",ability:"Random mythic proc",cost:50000000},
+{name:"ULTIMATE CAT",weapon:"Ultimate Destroyer",ability:"Endgame apex class",cost:99999999}
 ];
 /* =========================================================
    CLASS AWAKENINGS — Free: Level 0 (0 coins) | Premium: Level 2000 (50,000 coins)
@@ -775,7 +813,37 @@ const awakenings = [
   {name:"Reaper Gaze",desc:"Execute low-HP enemies",cooldown:20,duration:1},
   {name:"Divine Judgment",desc:"Massive holy AOE damage",cooldown:22,duration:1},
   {name:"Omega Burst",desc:"Ultimate screen clear pulse",cooldown:30,duration:2},
-  {name:"Gift Rain",desc:"Rain of explosive gift boxes",cooldown:20,duration:3}
+  {name:"Gift Rain",desc:"Rain of explosive gift boxes",cooldown:20,duration:3},
+  {name:"Nebula Veil",desc:"Cosmic slow field around you",cooldown:20,duration:5},
+  {name:"Quantum Split",desc:"Projectiles split on hit",cooldown:16,duration:4},
+  {name:"Phoenix Rise",desc:"Heal to full + burn aura",cooldown:22,duration:5},
+  {name:"Tidal Ruin",desc:"Massive wave AOE",cooldown:18,duration:2},
+  {name:"Arcane Barrage",desc:"Spell missile rain",cooldown:17,duration:3},
+  {name:"Wraith Form",desc:"Brief phase invuln",cooldown:15,duration:3},
+  {name:"Starfall Barrage",desc:"Homing star rain",cooldown:18,duration:4},
+  {name:"Dominion Fear",desc:"Enemies flee briefly",cooldown:20,duration:4},
+  {name:"Rune Cage",desc:"Trap enemies in runes",cooldown:19,duration:5},
+  {name:"Storm Crown",desc:"Chain lightning storm",cooldown:16,duration:5},
+  {name:"Blood Eclipse",desc:"Huge lifesteal night",cooldown:18,duration:6},
+  {name:"Aether Beam",desc:"Piercing beam volley",cooldown:14,duration:2},
+  {name:"Glacier Throne",desc:"Arena freeze armor",cooldown:22,duration:5},
+  {name:"Solar Flare",desc:"Solar burn nova",cooldown:17,duration:3},
+  {name:"Null Pulse",desc:"Silence + void damage",cooldown:20,duration:4},
+  {name:"Epoch Rewind",desc:"Rewind enemy positions",cooldown:24,duration:3},
+  {name:"Origin Blast",desc:"Raw power shockwave",cooldown:18,duration:2},
+  {name:"Umbra Field",desc:"Eclipse damage field",cooldown:20,duration:5},
+  {name:"Supernova",desc:"Nova on nearby kills",cooldown:16,duration:4},
+  {name:"Doomsday",desc:"Stacking doom damage",cooldown:22,duration:6},
+  {name:"Astral Dash",desc:"Long projection dash",cooldown:14,duration:2},
+  {name:"Abyss Pull",desc:"Pull + crush enemies",cooldown:18,duration:4},
+  {name:"Beast Form",desc:"HP + damage surge",cooldown:20,duration:6},
+  {name:"Infinity Clip",desc:"Infinite ammo window",cooldown:16,duration:5},
+  {name:"Omega Stack",desc:"Stacking damage mul",cooldown:18,duration:6},
+  {name:"Event Horizon+",desc:"Giant singularity",cooldown:20,duration:5},
+  {name:"Royal Decree",desc:"Stun all enemies",cooldown:22,duration:3},
+  {name:"Eternity Beam",desc:"Fatal slow beam",cooldown:24,duration:2},
+  {name:"Mythic Proc",desc:"Random strong effect",cooldown:18,duration:4},
+  {name:"Ultimate Pulse",desc:"Apex screen clear",cooldown:28,duration:3}
 ];
 /* PREMIUM AWAKENINGS — stronger tier (need free awaken first)
    Level 2000 + 50,000 coins. E uses premium if unlocked. */
@@ -817,7 +885,37 @@ const premiumAwakenings = [
   {name:"Soul Reaper",desc:"Execute under 50% HP",cooldown:12,duration:2,premium:true},
   {name:"Heaven's Gate",desc:"Massive holy wipe",cooldown:14,duration:2,premium:true},
   {name:"OMEGA Collapse",desc:"Ultimate arena clear",cooldown:18,duration:3,premium:true},
-  {name:"Santa's Wrath",desc:"Mega gift bomb rain",cooldown:12,duration:5,premium:true}
+  {name:"Santa's Wrath",desc:"Mega gift bomb rain",cooldown:12,duration:5,premium:true},
+  {name:"Nebula Dominion",desc:"Arena-wide cosmic slow",cooldown:14,duration:7,premium:true},
+  {name:"Quantum Cascade",desc:"Multi-split projectiles",cooldown:12,duration:6,premium:true},
+  {name:"Phoenix Immortal",desc:"Full heal + long burn",cooldown:16,duration:7,premium:true},
+  {name:"Leviathan Tide",desc:"Screen tidal waves",cooldown:14,duration:3,premium:true},
+  {name:"Archmage Storm",desc:"Dense spell bombardment",cooldown:12,duration:5,premium:true},
+  {name:"True Wraith",desc:"Long phase + speed",cooldown:11,duration:5,premium:true},
+  {name:"Celestial Rain",desc:"Dense homing stars",cooldown:12,duration:6,premium:true},
+  {name:"Overlord Decree",desc:"Fear + damage field",cooldown:14,duration:6,premium:true},
+  {name:"Mythic Runes",desc:"Lethal rune prisons",cooldown:13,duration:7,premium:true},
+  {name:"Tempest Lord",desc:"Permanent lightning fury",cooldown:12,duration:7,premium:true},
+  {name:"Bloodmoon Feast",desc:"Extreme night lifesteal",cooldown:12,duration:8,premium:true},
+  {name:"Aether Annihilator",desc:"Ultra piercing beams",cooldown:10,duration:3,premium:true},
+  {name:"Absolute Glacier",desc:"Full freeze + armor",cooldown:16,duration:7,premium:true},
+  {name:"Solar Cataclysm",desc:"Massive solar burn",cooldown:12,duration:5,premium:true},
+  {name:"Void Empress Rule",desc:"Arena null field",cooldown:14,duration:6,premium:true},
+  {name:"Chronarch Lock",desc:"Long rewind + slow",cooldown:16,duration:5,premium:true},
+  {name:"Primordial Fury",desc:"Raw power apocalypse",cooldown:12,duration:3,premium:true},
+  {name:"Total Eclipse",desc:"Huge umbra field",cooldown:14,duration:7,premium:true},
+  {name:"Hypernova",desc:"Nova on all kills",cooldown:12,duration:6,premium:true},
+  {name:"Ragnarok End",desc:"Doomsday max stacks",cooldown:15,duration:8,premium:true},
+  {name:"Astral Sovereign",desc:"Multi projection dash",cooldown:10,duration:4,premium:true},
+  {name:"Abyss Emperor",desc:"Giant pull + crush",cooldown:12,duration:6,premium:true},
+  {name:"Divine Beast Form",desc:"Huge HP + dmg form",cooldown:14,duration:8,premium:true},
+  {name:"True Infinity",desc:"Long infinite ammo",cooldown:12,duration:7,premium:true},
+  {name:"Omega Apex",desc:"Max omega stacking",cooldown:12,duration:8,premium:true},
+  {name:"True Singularity",desc:"Arena event horizon",cooldown:14,duration:7,premium:true},
+  {name:"Cosmic Decree",desc:"Long stun + damage",cooldown:14,duration:5,premium:true},
+  {name:"Eternal Judgment",desc:"Fatal beam barrage",cooldown:16,duration:3,premium:true},
+  {name:"Mythic Ascension",desc:"Strong random procs",cooldown:12,duration:6,premium:true},
+  {name:"ULTIMATE Collapse",desc:"Apex arena wipe",cooldown:16,duration:4,premium:true}
 ];
 const guns = [
 {name:"Pistol",cost:0,damage:18,rate:320,speed:11,shots:1,shape:"circle",color:"#ffffff"},
@@ -843,20 +941,134 @@ const guns = [
 {name:"Plasma Storm",cost:250000,damage:70,rate:45,speed:22,shots:1,shape:"comet",color:"#82c91e"},
 {name:"Overdrive Cannon",cost:400000,damage:85,rate:40,speed:23,shots:1,shape:"needle",color:"#15aabf"},
 {name:"Lightning MG",cost:600000,damage:100,rate:35,speed:24,shots:1,shape:"wave",color:"#da77f2"},
-{name:"Omega Rapid Gun",cost:900000,damage:120,rate:30,speed:25,shots:1,shape:"crown",color:"#fab005"}
+{name:"Omega Rapid Gun",cost:900000,damage:120,rate:30,speed:25,shots:1,shape:"crown",color:"#fab005"},
+{name:"Nebula Rifle",cost:1200000,damage:140,rate:45,speed:26,shots:1,shape:"comet",color:"#9b5de5"},
+{name:"Quantum SMG",cost:1500000,damage:95,rate:28,speed:24,shots:2,shape:"diamond",color:"#00f5d4"},
+{name:"Phoenix Cannon",cost:2000000,damage:280,rate:400,speed:16,shots:1,shape:"flame",color:"#ff6b35"},
+{name:"Leviathan Launcher",cost:2500000,damage:320,rate:700,speed:11,shots:1,shape:"wave",color:"#4cc9f0"},
+{name:"Archmage Staff",cost:3000000,damage:200,rate:120,speed:20,shots:3,shape:"spark",color:"#c77dff"},
+{name:"Void Railgun",cost:4000000,damage:450,rate:800,speed:28,shots:1,shape:"needle",color:"#7b2cbf"},
+{name:"Celestial Bow",cost:5000000,damage:260,rate:220,speed:22,shots:2,shape:"arrow",color:"#f72585"},
+{name:"Storm Core MG",cost:6500000,damage:160,rate:25,speed:25,shots:1,shape:"bolt",color:"#4361ee"},
+{name:"Bloodmoon Orb",cost:8000000,damage:350,rate:350,speed:18,shots:1,shape:"orb",color:"#e63946"},
+{name:"Aether Destroyer",cost:10000000,damage:500,rate:180,speed:27,shots:1,shape:"ring",color:"#80ffdb"},
+{name:"Solar Annihilator",cost:15000000,damage:600,rate:500,speed:19,shots:1,shape:"star",color:"#ffba08"},
+{name:"Infinity Blaster",cost:25000000,damage:400,rate:35,speed:26,shots:2,shape:"crown",color:"#f15bb5"},
+{name:"Singularity Cannon",cost:40000000,damage:900,rate:900,speed:15,shots:1,shape:"shard",color:"#3a0ca3"},
+{name:"Cosmic Emperor Gun",cost:60000000,damage:750,rate:80,speed:24,shots:3,shape:"plus",color:"#ffd60a"},
+{name:"ULTIMATE Destroyer",cost:99999999,damage:1500,rate:200,speed:30,shots:4,shape:"flame",color:"#ffffff"}
 ];
 const skins = [
-{name:"Classic Brown",cost:0,color:"#b97845"},
-{name:"Snow Cat",cost:1000,color:"#eeeeee"},
-{name:"Midnight",cost:5000,color:"#252532"},
-{name:"Golden",cost:15000,color:"#e9c84c"},
-{name:"Toxic Green",cost:25000,color:"#6ce05e"},
-{name:"Electric Blue",cost:50000,color:"#4bc9e8"},
-{name:"Ruby",cost:90000,color:"#d64242"},
-{name:"Void Purple",cost:150000,color:"#7042b5"},
-{name:"Rainbow",cost:300000,color:"rainbow"},
-{name:"Diamond",cost:750000,color:"#bff7ff"}
+{name:"Classic Brown",cost:0,color:"#b97845",hpMul:1,dmgMul:1,speedMul:1},
+{name:"Snow Cat",cost:1000,color:"#eeeeee",hpMul:1.05,dmgMul:1,speedMul:1.03},
+{name:"Midnight",cost:5000,color:"#252532",hpMul:1,dmgMul:1.05,speedMul:1.05},
+{name:"Golden",cost:15000,color:"#e9c84c",hpMul:1.08,dmgMul:1.08,speedMul:1},
+{name:"Toxic Green",cost:25000,color:"#6ce05e",hpMul:1.05,dmgMul:1.1,speedMul:1},
+{name:"Electric Blue",cost:50000,color:"#4bc9e8",hpMul:1,dmgMul:1.05,speedMul:1.12},
+{name:"Ruby",cost:90000,color:"#d64242",hpMul:1.1,dmgMul:1.12,speedMul:1},
+{name:"Void Purple",cost:150000,color:"#7042b5",hpMul:1.08,dmgMul:1.15,speedMul:1.05},
+{name:"Rainbow",cost:300000,color:"rainbow",hpMul:1.12,dmgMul:1.12,speedMul:1.1},
+{name:"Diamond",cost:750000,color:"#bff7ff",hpMul:1.15,dmgMul:1.18,speedMul:1.08},
+{name:"Obsidian",cost:1200000,color:"#1a1a1a",hpMul:1.2,dmgMul:1.15,speedMul:1.05},
+{name:"Crimson Elite",cost:2000000,color:"#9b2226",hpMul:1.18,dmgMul:1.25,speedMul:1.05},
+{name:"Azure Legend",cost:3500000,color:"#0077b6",hpMul:1.15,dmgMul:1.2,speedMul:1.18},
+{name:"Emerald God",cost:5000000,color:"#2d6a4f",hpMul:1.25,dmgMul:1.2,speedMul:1.1},
+{name:"Prism Apex",cost:10000000,color:"rainbow",hpMul:1.3,dmgMul:1.3,speedMul:1.2}
 ];
+/* =========================================================
+   ACCESSORIES — equip one; passive boosts
+========================================================= */
+const accessories = [
+{name:"None",cost:0,desc:"No accessory",hpAdd:0,dmgMul:1,speedMul:1,magMul:1,coinMul:1},
+{name:"Lucky Collar",cost:500,desc:"+10% coins from kills",hpAdd:0,dmgMul:1,speedMul:1,magMul:1,coinMul:1.1},
+{name:"Iron Band",cost:2000,desc:"+15 max HP",hpAdd:15,dmgMul:1,speedMul:1,magMul:1,coinMul:1},
+{name:"Swift Paws",cost:5000,desc:"+8% move speed",hpAdd:0,dmgMul:1,speedMul:1.08,magMul:1,coinMul:1},
+{name:"Sharp Claws",cost:12000,desc:"+8% damage",hpAdd:0,dmgMul:1.08,speedMul:1,magMul:1,coinMul:1},
+{name:"Ammo Pouch",cost:25000,desc:"+25% magazine size",hpAdd:0,dmgMul:1,speedMul:1,magMul:1.25,coinMul:1},
+{name:"Medic Charm",cost:50000,desc:"+20 HP · slight regen feel",hpAdd:20,dmgMul:1,speedMul:1,magMul:1,coinMul:1},
+{name:"Hunter Scope",cost:80000,desc:"+12% damage",hpAdd:0,dmgMul:1.12,speedMul:1,magMul:1,coinMul:1},
+{name:"Wind Ribbon",cost:120000,desc:"+12% speed",hpAdd:0,dmgMul:1,speedMul:1.12,magMul:1,coinMul:1},
+{name:"Gold Magnet",cost:180000,desc:"+20% coins from kills",hpAdd:0,dmgMul:1,speedMul:1,magMul:1,coinMul:1.2},
+{name:"Titan Buckle",cost:250000,desc:"+40 max HP",hpAdd:40,dmgMul:1,speedMul:1,magMul:1,coinMul:1},
+{name:"Viper Fang",cost:350000,desc:"+15% damage",hpAdd:0,dmgMul:1.15,speedMul:1,magMul:1,coinMul:1},
+{name:"Storm Band",cost:450000,desc:"+10% dmg · +8% speed",hpAdd:0,dmgMul:1.1,speedMul:1.08,magMul:1,coinMul:1},
+{name:"Crystal Pendant",cost:550000,desc:"+15 HP · +10% dmg · +10% mag",hpAdd:15,dmgMul:1.1,speedMul:1,magMul:1.1,coinMul:1},
+{name:"Shadow Cloak",cost:700000,desc:"+15% speed · +8% dmg",hpAdd:0,dmgMul:1.08,speedMul:1.15,magMul:1,coinMul:1},
+{name:"Royal Crest",cost:600000,desc:"+25 HP · +12% dmg · +10% coins",hpAdd:25,dmgMul:1.12,speedMul:1,magMul:1,coinMul:1.1},
+{name:"Flame Amulet",cost:850000,desc:"+18% dmg · fire-zone synergy feel",hpAdd:0,dmgMul:1.18,speedMul:1,magMul:1,coinMul:1},
+{name:"Frost Talisman",cost:900000,desc:"+30 HP · +8% speed",hpAdd:30,dmgMul:1,speedMul:1.08,magMul:1,coinMul:1},
+{name:"Thunder Ring",cost:1100000,desc:"+14% dmg · +12% speed",hpAdd:0,dmgMul:1.14,speedMul:1.12,magMul:1,coinMul:1},
+{name:"Blood Ruby",cost:1300000,desc:"+20% dmg · +15% coins",hpAdd:0,dmgMul:1.2,speedMul:1,magMul:1,coinMul:1.15},
+{name:"Aether Lens",cost:1600000,desc:"+20% mag · +12% dmg",hpAdd:0,dmgMul:1.12,speedMul:1,magMul:1.2,coinMul:1},
+{name:"Mountain Guard",cost:2000000,desc:"+60 HP · +5% dmg",hpAdd:60,dmgMul:1.05,speedMul:0.98,magMul:1,coinMul:1},
+{name:"Volcano Core",cost:2500000,desc:"+22% dmg · +10% coins",hpAdd:10,dmgMul:1.22,speedMul:1,magMul:1,coinMul:1.1},
+{name:"Omega Charm",cost:1500000,desc:"+50 HP · +18% dmg · +10% speed · +15% coins",hpAdd:50,dmgMul:1.18,speedMul:1.1,magMul:1.15,coinMul:1.15},
+{name:"Dragon Scale",cost:3500000,desc:"+40 HP · +20% dmg · +8% speed",hpAdd:40,dmgMul:1.2,speedMul:1.08,magMul:1,coinMul:1.05},
+{name:"Abyss Relic",cost:5000000,desc:"+25% dmg · +15% speed · +20% coins",hpAdd:20,dmgMul:1.25,speedMul:1.15,magMul:1.1,coinMul:1.2},
+{name:"Celestial Halo",cost:8000000,desc:"+80 HP · +22% dmg · +12% speed · +25% coins",hpAdd:80,dmgMul:1.22,speedMul:1.12,magMul:1.15,coinMul:1.25},
+{name:"Ultimate Emblem",cost:15000000,desc:"+100 HP · +30% dmg · +15% speed · +30% mag · +30% coins",hpAdd:100,dmgMul:1.3,speedMul:1.15,magMul:1.3,coinMul:1.3}
+];
+function getAccessory(){
+    const i = (save.accessory|0);
+    return accessories[i] || accessories[0];
+}
+
+/* =========================================================
+   TERRAINS — hard biomes, OP drops
+========================================================= */
+const TERRAINS = [
+  {id:"forest",name:"Forest",icon:"🌲",bg:"#08150b",grid:"rgba(45,100,52,.16)",accent:"#102719",
+   enemyHp:1,enemySpd:1,enemyDmg:1,coinMul:1,playerSpd:1,desc:"Balanced woods"},
+  {id:"volcano",name:"Volcano",icon:"🌋",bg:"#1a0a08",grid:"rgba(180,60,20,.2)",accent:"#3a1510",
+   enemyHp:1.45,enemySpd:1.2,enemyDmg:1.35,coinMul:2.2,playerSpd:0.92,desc:"Hot · hard · rich drops"},
+  {id:"mountains",name:"Mountains",icon:"⛰️",bg:"#0c1218",grid:"rgba(90,110,140,.18)",accent:"#1a2430",
+   enemyHp:1.7,enemySpd:0.95,enemyDmg:1.25,coinMul:2.5,playerSpd:0.85,desc:"Tanky foes · OP loot"},
+  {id:"tundra",name:"Tundra",icon:"❄️",bg:"#0a1418",grid:"rgba(120,180,220,.14)",accent:"#152830",
+   enemyHp:1.35,enemySpd:1.15,enemyDmg:1.2,coinMul:1.9,playerSpd:0.9,desc:"Slippery · faster enemies"},
+  {id:"abyss",name:"Abyss",icon:"🕳️",bg:"#08060f",grid:"rgba(100,40,160,.18)",accent:"#140c22",
+   enemyHp:1.9,enemySpd:1.25,enemyDmg:1.45,coinMul:3.0,playerSpd:0.88,desc:"Brutal · best drops"}
+];
+function getTerrain(){
+  return TERRAINS[game.terrainIndex|0] || TERRAINS[0];
+}
+function terrainForWave(w){
+  // Rotate biomes every 8 waves; late game more abyss/volcano
+  if(w>=50){
+    const late=["volcano","mountains","abyss","abyss","volcano","mountains","tundra","abyss"];
+    const id=late[(w-1)%late.length];
+    return TERRAINS.findIndex(t=>t.id===id);
+  }
+  if(w>=25){
+    const mid=["forest","volcano","mountains","tundra","volcano","mountains","abyss","forest"];
+    const id=mid[(w-1)%mid.length];
+    return TERRAINS.findIndex(t=>t.id===id);
+  }
+  const early=["forest","forest","volcano","mountains","tundra","forest","volcano","mountains"];
+  const id=early[(w-1)%early.length];
+  return TERRAINS.findIndex(t=>t.id===id);
+}
+function setTerrainForWave(w, announce){
+  const idx=terrainForWave(w);
+  const prev=game.terrainIndex;
+  game.terrainIndex=idx;
+  if(announce && prev!==idx){
+    const t=getTerrain();
+    gameMessage(t.icon+" "+t.name.toUpperCase()+" — "+t.desc+" · drops ×"+t.coinMul,1400);
+  }
+  buildForestCanvas();
+}
+function waveHardScale(w){
+  // Wave 50+ becomes very hard and faster than usual
+  if(w<50) return {hp:1,spd:1,count:0,touch:1};
+  const over=w-49;
+  return {
+    hp:1 + over*0.12,          // +12% HP per wave past 49
+    spd:1.25 + over*0.04,      // base +25% speed at 50, keeps rising
+    count:Math.min(12, Math.floor(over/3)), // extra enemies
+    touch:1.15 + over*0.03     // contact damage scale
+  };
+}
+
 /* =========================================================
    SAVE DATA
 ========================================================= */
@@ -878,6 +1090,8 @@ if(!save){
         ownedClasses:[0],
         ownedGuns:[0],
         ownedSkins:[0],
+        ownedAccessories:[0],
+        accessory:0,
         awakenedClasses:[],
         premiumAwakenedClasses:[],
         achievements:[],
@@ -893,6 +1107,8 @@ if(!Array.isArray(save.customGuns)) save.customGuns=[];
 if(!Array.isArray(save.awakenedClasses)) save.awakenedClasses=[];
 if(!Array.isArray(save.premiumAwakenedClasses)) save.premiumAwakenedClasses=[];
 if(!Array.isArray(save.achievements)) save.achievements=[];
+if(!Array.isArray(save.ownedAccessories)) save.ownedAccessories=[0];
+if(typeof save.accessory!=="number") save.accessory=0;
 if(!save.language) save.language="en";
 /* Old admin /free left 999999999 coins — offer one-time cleanup */
 if(save.coins>=999999999 && !save._adminCoinFixAsked){
@@ -952,6 +1168,8 @@ function resetSave(){
         ownedClasses:[0],
         ownedGuns:[0],
         ownedSkins:[0],
+        ownedAccessories:[0],
+        accessory:0,
         awakenedClasses:[],
         premiumAwakenedClasses:[],
         achievements:[],
@@ -1214,14 +1432,32 @@ function shopTab(tab,button){
     }
     if(tab==="skins"){
         skins.forEach((item,i)=>{
+            const boosts=[];
+            if(item.hpMul && item.hpMul!==1) boosts.push("HP ×"+item.hpMul);
+            if(item.dmgMul && item.dmgMul!==1) boosts.push("DMG ×"+item.dmgMul);
+            if(item.speedMul && item.speedMul!==1) boosts.push("SPD ×"+item.speedMul);
+            const desc=boosts.length?boosts.join(" · "):"Colour customization";
             addShopCard(
                 grid,
                 item.name,
-                "Colour customization",
+                desc,
                 item.cost,
                 save.ownedSkins.includes(i),
                 save.skin===i,
                 ()=>buySkin(i)
+            );
+        });
+    }
+    if(tab==="accessories"){
+        accessories.forEach((item,i)=>{
+            addShopCard(
+                grid,
+                item.name,
+                item.desc,
+                item.cost,
+                (save.ownedAccessories||[0]).includes(i),
+                (save.accessory|0)===i,
+                ()=>buyAccessory(i)
             );
         });
     }
@@ -1347,6 +1583,150 @@ function buySkin(i){
     saveGame();
     openShop();
 }
+function buyAccessory(i){
+    const a=accessories[i];
+    if(!save.ownedAccessories) save.ownedAccessories=[0];
+    if(save.ownedAccessories.includes(i)){
+        save.accessory=i;
+        saveGame();
+        openShop();
+        return;
+    }
+    if(!christmasFreeItemAvailable() && save.coins<a.cost){
+        return;
+    }
+    if(!christmasFreeItemAvailable()){
+        save.coins-=a.cost;
+    }
+    if(isChristmasFreeShop()){
+        claimChristmasFreeItem();
+    }
+    save.ownedAccessories.push(i);
+    save.accessory=i;
+    saveGame();
+    openShop();
+}
+
+/* =========================================================
+   SPIN SYSTEM — 500 coins; prizes under 500k or coin drops
+========================================================= */
+const SPIN_COST = 500;
+function openSpin(){
+    document.getElementById("homeInfo").innerHTML=`
+    <div class="card" style="border-color:#8b5cf6">
+      <h3>🎰 CAT OPS SPIN</h3>
+      <p>Cost: <b class="gold">${SPIN_COST} 🪙</b> per spin.</p>
+      <p style="font-size:13px;opacity:.85">Prizes: <b>2,000</b> or <b>3,000</b> coins · random <b>class / gun / skin / accessory</b> costing under <b>500,000</b>.</p>
+      <p style="font-size:12px;opacity:.7">Duplicates on items → convert to coins (10% of item cost, min 50).</p>
+      <button class="primary" id="doSpinBtn" onclick="doSpin()" style="width:100%;margin-top:8px;background:#7c3aed;color:#fff">SPIN!</button>
+      <div id="spinResult" style="margin-top:12px;min-height:40px"></div>
+    </div>`;
+}
+function pickSpinPool(){
+    const pool=[];
+    // coin prizes
+    pool.push({type:"coins",amount:2000,label:"2,000 🪙",weight:22});
+    pool.push({type:"coins",amount:3000,label:"3,000 🪙",weight:14});
+    // classes under 500k (not christmas-only unless christmas day)
+    classes.forEach((c,i)=>{
+        if(c.cost>0 && c.cost<500000 && !(c.christmasOnly && !isChristmasDay())){
+            pool.push({type:"class",index:i,label:"Class: "+c.name,weight:8});
+        }
+    });
+    guns.forEach((g,i)=>{
+        if(g.cost>0 && g.cost<500000){
+            pool.push({type:"gun",index:i,label:"Gun: "+g.name,weight:8});
+        }
+    });
+    skins.forEach((s,i)=>{
+        if(s.cost>0 && s.cost<500000){
+            pool.push({type:"skin",index:i,label:"Skin: "+s.name,weight:8});
+        }
+    });
+    accessories.forEach((a,i)=>{
+        if(a.cost>0 && a.cost<500000){
+            pool.push({type:"accessory",index:i,label:"Accessory: "+a.name,weight:8});
+        }
+    });
+    return pool;
+}
+function weightedPick(pool){
+    let total=0;
+    for(const p of pool) total+=p.weight;
+    let r=Math.random()*total;
+    for(const p of pool){
+        r-=p.weight;
+        if(r<=0) return p;
+    }
+    return pool[pool.length-1];
+}
+function doSpin(){
+    const resultEl=document.getElementById("spinResult");
+    const btn=document.getElementById("doSpinBtn");
+    if(save.coins<SPIN_COST){
+        if(resultEl) resultEl.innerHTML='<span class="locked">Need '+SPIN_COST+' coins to spin.</span>';
+        return;
+    }
+    if(btn) btn.disabled=true;
+    save.coins-=SPIN_COST;
+    const prize=weightedPick(pickSpinPool());
+    let msg="";
+    if(prize.type==="coins"){
+        save.coins+=prize.amount;
+        msg="🎉 You won <b class=\"gold\">"+prize.amount.toLocaleString()+" 🪙</b>!";
+    }else if(prize.type==="class"){
+        const i=prize.index;
+        if(save.ownedClasses.includes(i)){
+            const refund=Math.max(50,Math.round(classes[i].cost*0.1));
+            save.coins+=refund;
+            msg="📋 "+classes[i].name+" (duplicate) → <b class=\"gold\">+"+refund.toLocaleString()+" 🪙</b>";
+        }else{
+            save.ownedClasses.push(i);
+            save.class=i;
+            msg="📋 New class: <b>"+classes[i].name+"</b> equipped!";
+        }
+    }else if(prize.type==="gun"){
+        const i=prize.index;
+        if(save.ownedGuns.includes(i)){
+            const refund=Math.max(50,Math.round(guns[i].cost*0.1));
+            save.coins+=refund;
+            msg="🔫 "+guns[i].name+" (duplicate) → <b class=\"gold\">+"+refund.toLocaleString()+" 🪙</b>";
+        }else{
+            save.ownedGuns.push(i);
+            save.gun=i;
+            msg="🔫 New gun: <b>"+guns[i].name+"</b> equipped!";
+        }
+    }else if(prize.type==="skin"){
+        const i=prize.index;
+        if(save.ownedSkins.includes(i)){
+            const refund=Math.max(50,Math.round(skins[i].cost*0.1));
+            save.coins+=refund;
+            msg="🎨 "+skins[i].name+" (duplicate) → <b class=\"gold\">+"+refund.toLocaleString()+" 🪙</b>";
+        }else{
+            save.ownedSkins.push(i);
+            save.skin=i;
+            msg="🎨 New skin: <b>"+skins[i].name+"</b> equipped!";
+        }
+    }else if(prize.type==="accessory"){
+        const i=prize.index;
+        if(!save.ownedAccessories) save.ownedAccessories=[0];
+        if(save.ownedAccessories.includes(i)){
+            const refund=Math.max(50,Math.round(accessories[i].cost*0.1));
+            save.coins+=refund;
+            msg="🎀 "+accessories[i].name+" (duplicate) → <b class=\"gold\">+"+refund.toLocaleString()+" 🪙</b>";
+        }else{
+            save.ownedAccessories.push(i);
+            save.accessory=i;
+            msg="🎀 New accessory: <b>"+accessories[i].name+"</b> equipped!";
+        }
+    }
+    saveGame();
+    if(resultEl) resultEl.innerHTML=msg;
+    if(btn){
+        setTimeout(()=>{ btn.disabled=false; }, 400);
+    }
+}
+
 /* =========================================================
    CRAFTING — UNLOCKS AT LEVEL 1000
 ========================================================= */
@@ -1404,7 +1784,7 @@ function craftGun(){
    MAIN SCREEN LANGUAGE
 ========================================================= */
 const translations={
-  en:{play:"PLAY",how:"❓ HOW TO PLAY",craft:"🛠️ CRAFTING — LEVEL 1000",lang:"🌐 Language",classes:"📋 ALL 36 classes",shop:"🛒 SHOP",reserved:""},
+  en:{play:"PLAY",how:"❓ HOW TO PLAY",craft:"🛠️ CRAFTING — LEVEL 1000",lang:"🌐 Language",classes:"📋 ALL 66 classes",shop:"🛒 SHOP",reserved:""},
   kn:{play:"à²†à²Ÿ à²ªà³à²°à²¾à²°à²‚à²­à²¿à²¸à²¿",how:"❓ à²¹à³‡à²—à³† à²†à²¡à³à²µà³à²¦à³",craft:"🛠️ à²•à³à²°à²¾à²«à³à²Ÿà²¿à²‚à²—à³ — à²®à²Ÿà³à²Ÿ 1000",lang:"🌐 à²­à²¾à²·à³†",classes:"📋 à²Žà²²à³à²²à²¾ 30 à²•à³à²²à²¾à²¸à³à²—à²³à³",shop:"🛒 à²…à²‚à²—à²¡à²¿",reserved:"à²¸à³ƒà²·à³à²Ÿà²¿à²•à²°à³à²¤à²° à²¹à³†à²¸à²°à³ M_A_N_A_S à²•à²¾à²¯à³à²¦à²¿à²°à²¿à²¸à²²à²¾à²—à²¿à²¦à³†."},
   hi:{play:"à¤–à¥‡à¤²à¥‡à¤‚",how:"❓ à¤•à¥ˆà¤¸à¥‡ à¤–à¥‡à¤²à¥‡à¤‚",craft:"🛠️ à¤•à¥à¤°à¤¾à¤«à¥à¤Ÿà¤¿à¤‚à¤— — à¤²à¥‡à¤µà¤² 1000",lang:"🌐 à¤­à¤¾à¤·à¤¾",classes:"📋 à¤¸à¤­à¥€ 30 à¤•à¥à¤²à¤¾à¤¸",shop:"🛒 à¤¦à¥à¤•à¤¾à¤¨",reserved:"à¤•à¥à¤°à¤¿à¤à¤Ÿà¤° à¤•à¤¾ à¤¨à¤¾à¤® M_A_N_A_S à¤†à¤°à¤•à¥à¤·à¤¿à¤¤ à¤¹à¥ˆà¥¤"},
   te:{play:"à°†à°¡à°‚à°¡à°¿",how:"❓ à°Žà°²à°¾ à°†à°¡à°¾à°²à°¿",craft:"🛠️ à°•à±à°°à°¾à°«à±à°Ÿà°¿à°‚à°—à± — à°²à±†à°µà°²à± 1000",lang:"🌐 à°­à°¾à°·",classes:"📋 à°…à°¨à±à°¨à°¿ 30 à°•à±à°²à°¾à°¸à±à°²à±",shop:"🛒 à°·à°¾à°ªà±",reserved:"à°•à±à°°à°¿à°¯à±‡à°Ÿà°°à± à°ªà±‡à°°à± M_A_N_A_S à°°à°¿à°œà°°à±à°µà± à°šà±‡à°¯à°¬à°¡à°¿à°‚à°¦à°¿."}
@@ -1522,10 +1902,11 @@ function buildForestCanvas(){
     forestCanvas.width=canvas.width;
     forestCanvas.height=canvas.height;
     const fctx=forestCanvas.getContext("2d");
-    fctx.fillStyle="#08150b";
+    const t=(typeof game!=="undefined" && game)?getTerrain():TERRAINS[0];
+    fctx.fillStyle=t.bg;
     fctx.fillRect(0,0,forestCanvas.width,forestCanvas.height);
     const grid=80;
-    fctx.strokeStyle="rgba(45,100,52,.16)";
+    fctx.strokeStyle=t.grid;
     fctx.lineWidth=1;
     for(let x=0;x<forestCanvas.width;x+=grid){
         fctx.beginPath();
@@ -1539,12 +1920,37 @@ function buildForestCanvas(){
         fctx.lineTo(forestCanvas.width,y);
         fctx.stroke();
     }
+    // terrain props
     for(let x=50;x<forestCanvas.width;x+=160){
         for(let y=50;y<forestCanvas.height;y+=160){
-            fctx.fillStyle="#102719";
-            fctx.beginPath();
-            fctx.arc(x,y,18,0,Math.PI*2);
-            fctx.fill();
+            fctx.fillStyle=t.accent;
+            if(t.id==="volcano"){
+                // jagged rocks
+                fctx.beginPath();
+                fctx.moveTo(x,y-20); fctx.lineTo(x+16,y+14); fctx.lineTo(x-16,y+14);
+                fctx.closePath(); fctx.fill();
+                fctx.fillStyle="rgba(255,80,20,.25)";
+                fctx.beginPath(); fctx.arc(x,y+4,8,0,Math.PI*2); fctx.fill();
+            }else if(t.id==="mountains"){
+                fctx.beginPath();
+                fctx.moveTo(x-22,y+16); fctx.lineTo(x,y-22); fctx.lineTo(x+22,y+16);
+                fctx.closePath(); fctx.fill();
+                fctx.fillStyle="rgba(220,230,240,.2)";
+                fctx.beginPath(); fctx.moveTo(x-6,y-6); fctx.lineTo(x,y-22); fctx.lineTo(x+8,y-2); fctx.closePath(); fctx.fill();
+            }else if(t.id==="tundra"){
+                fctx.beginPath(); fctx.arc(x,y,14,0,Math.PI*2); fctx.fill();
+                fctx.strokeStyle="rgba(180,220,255,.25)"; fctx.lineWidth=2;
+                fctx.beginPath(); fctx.arc(x,y,18,0,Math.PI*2); fctx.stroke();
+            }else if(t.id==="abyss"){
+                fctx.fillStyle="rgba(40,10,60,.7)";
+                fctx.beginPath(); fctx.arc(x,y,20,0,Math.PI*2); fctx.fill();
+                fctx.fillStyle="rgba(0,0,0,.8)";
+                fctx.beginPath(); fctx.arc(x,y,10,0,Math.PI*2); fctx.fill();
+            }else{
+                fctx.beginPath();
+                fctx.arc(x,y,18,0,Math.PI*2);
+                fctx.fill();
+            }
         }
     }
 }
@@ -1727,6 +2133,7 @@ function startGame(){
     game.enemyTimer=0;
     game.waveSpawned=false;
     game.wave=1;
+    game.terrainIndex=0;
     game.bossActive=false;
     game.timeSinceDamage=0;
     game.bullets=[];
@@ -1761,6 +2168,7 @@ function startGame(){
     game.player.angle=0;
     syncTouchUI();
     resizeCanvas();
+    setTerrainForWave(1, false);
     game.player.x=canvas.width/2;
     game.player.y=canvas.height/2;
     document.getElementById(
@@ -1785,6 +2193,13 @@ function playerMaxHP(){
     if(classes[save.class].name==="Berserker"){
         hp=120;
     }
+    if(classes[save.class].name==="Divine Beast"){
+        hp=180;
+    }
+    const sk=skins[save.skin];
+    if(sk && sk.hpMul) hp=Math.round(hp*sk.hpMul);
+    const acc=getAccessory();
+    if(acc && acc.hpAdd) hp+=acc.hpAdd;
     return hp;
 }
 function playerSpeed(){
@@ -1802,6 +2217,12 @@ function playerSpeed(){
         speed*=1.1;
     }
     if(game.player.awakenSpeedMul) speed*=game.player.awakenSpeedMul;
+    const sk=skins[save.skin];
+    if(sk && sk.speedMul) speed*=sk.speedMul;
+    const acc=getAccessory();
+    if(acc && acc.speedMul) speed*=acc.speedMul;
+    const ter=getTerrain();
+    if(ter && ter.playerSpd) speed*=ter.playerSpd;
     return speed;
 }
 function playerDamage(){
@@ -1848,15 +2269,21 @@ function playerDamage(){
         d*=2;
         game.player.critShotsLeft--;
     }
+    const sk=skins[save.skin];
+    if(sk && sk.dmgMul) d*=sk.dmgMul;
+    const acc=getAccessory();
+    if(acc && acc.dmgMul) d*=acc.dmgMul;
     return d;
 }
 /* =========================================================
    ENEMY LIMIT
 ========================================================= */
 function enemyCount(){
+    let cap=28;
+    if(game.wave>=50) cap=Math.min(40, 28+Math.floor((game.wave-50)/2));
     return Math.min(
-        28,
-        5+game.night*1.5
+        cap,
+        5+game.night*1.5+(game.wave>=50?6:0)
     );
 }
 /* =========================================================
@@ -1909,13 +2336,9 @@ function spawnEnemy(){
         type==="tank"
         ?120+game.night*20
         :30+game.night*4;
-    game.enemies.push({
-        x:x,
-        y:y,
-        type:type,
-        hp:hp,
-        maxHp:hp,
-        speed:
+    const terN=getTerrain();
+    const hardN=waveHardScale(game.wave||1);
+    let baseSpd=
             type==="fast"
             ?2.7
             :type==="tank"
@@ -1926,7 +2349,15 @@ function spawnEnemy(){
             ?1.8
             :type==="shadow"
             ?2.0
-            :1.6,
+            :1.6;
+    hp=hp*terN.enemyHp*hardN.hp;
+    game.enemies.push({
+        x:x,
+        y:y,
+        type:type,
+        hp:hp,
+        maxHp:hp,
+        speed:baseSpd*terN.enemySpd*hardN.spd,
         size:
             type==="tank"
             ?25
@@ -1946,7 +2377,8 @@ function spawnEnemy(){
         shadowTimer:Math.random()*240,
         boss:false,
         reward:1,
-        touchCooldown:0
+        touchCooldown:0,
+        touchMul:terN.enemyDmg*hardN.touch
     });
 }
 /* =========================================================
@@ -1961,22 +2393,25 @@ function spawnMiniboss(){
     game.bossActive=true;
     game.waveSpawned=false;
     const pos=spawnAtVisibleEdge(56);
+    const terB=getTerrain();
+    const hardB=waveHardScale(game.wave||1);
     const hp=
-        500+game.night*100;
+        (500+game.night*100)*terB.enemyHp*hardB.hp;
     game.enemies.push({
         x: pos.x,
         y: pos.y,
         type:"miniboss",
         hp:hp,
         maxHp:hp,
-        speed:1.15,
+        speed:1.15*terB.enemySpd*hardB.spd,
         size:35,
         shoot:450,
         dashTimer:3200,
         freeze:0,
         boss:true,
         reward:5,
-        touchCooldown:0
+        touchCooldown:0,
+        touchMul:(terB.enemyDmg||1)*(hardB.touch||1)
     });
     document.getElementById("bossBar").style.display="block";
     document.getElementById("bossName").textContent="MINIBOSS";
@@ -1993,23 +2428,27 @@ function spawnMegaBoss(){
     game.bossActive=true;
     game.waveSpawned=false;
     const pos=spawnAtVisibleEdge(70);
+    const terM=getTerrain();
+    const hardM=waveHardScale(game.wave||1);
     const hp=
-        1800+game.night*300;
+        (2800+game.night*450)*terM.enemyHp*hardM.hp;
     game.enemies.push({
         x: pos.x,
         y: pos.y,
         type:"mega",
         hp:hp,
         maxHp:hp,
-        speed:.8,
-        size:55,
-        shoot:1200,
-        shieldTimer:4200,
+        speed:.95*terM.enemySpd*Math.max(1,hardM.spd*0.9),
+        size:60,
+        shoot:900,
+        shieldTimer:2800,
         shield:0,
         freeze:0,
         boss:true,
         reward:10,
-        touchCooldown:0
+        touchCooldown:0,
+        armor:0.2,
+        touchMul:(terM.enemyDmg||1)*(hardM.touch||1)
     });
     document.getElementById(
         "bossBar"
@@ -2021,14 +2460,17 @@ function spawnMegaBoss(){
 }
 function magSize(){
     const g=guns[save.gun];
-    if(g.name==="Minigun") return 80;
-    if(g.name==="SMG") return 32;
-    if(g.name==="Shotgun") return 8;
-    if(g.name==="Burst Rifle") return 24;
-    if(g.name==="Sniper" || g.name==="Rocket Launcher") return 6;
-    if(g.name==="Plasma Cannon" || g.name==="Thunder Gun") return 10;
-    if(g.name==="Omega Blaster") return 16;
-    return 14;
+    let m=14;
+    if(g.name==="Minigun") m=80;
+    else if(g.name==="SMG") m=32;
+    else if(g.name==="Shotgun") m=8;
+    else if(g.name==="Burst Rifle") m=24;
+    else if(g.name==="Sniper" || g.name==="Rocket Launcher") m=6;
+    else if(g.name==="Plasma Cannon" || g.name==="Thunder Gun") m=10;
+    else if(g.name==="Omega Blaster") m=16;
+    const acc=getAccessory();
+    if(acc && acc.magMul) m=Math.max(1, Math.round(m*acc.magMul));
+    return m;
 }
 function spawnAtVisibleEdge(pad){
     pad = pad || 48;
@@ -2343,6 +2785,151 @@ function activateAwakening(){
                 });
             }
             break;
+        /* ---- New high-tier class awakenings ---- */
+        case "Nebula Veil":
+        case "Nebula Dominion":
+            game.enemies.forEach(e=>{ e.freeze=Math.max(e.freeze||0, isPrem?180:100); });
+            game.hazards.push({type:"void",x:cx,y:cy,radius:isPrem?200:140,life:aw.duration*60,tick:0,damage:isPrem?14:8});
+            break;
+        case "Quantum Split":
+        case "Quantum Cascade":
+            p.awakenDmgMul=isPrem?2.2:1.6; p.critShotsLeft=isPrem?12:6; break;
+        case "Phoenix Rise":
+        case "Phoenix Immortal":
+            p.hp=playerMaxHP(); p.awakenLifesteal=isPrem?0.35:0.2;
+            game.hazards.push({type:"fireZone",x:cx,y:cy,radius:isPrem?150:100,life:aw.duration*60,tick:0,damage:(isPrem?20:12)+game.night});
+            break;
+        case "Tidal Ruin":
+        case "Leviathan Tide":
+            for(let i=0;i<(isPrem?10:6);i++){
+                const a=i*Math.PI/(isPrem?5:3);
+                explosion(cx+Math.cos(a)*(isPrem?100:70), cy+Math.sin(a)*(isPrem?100:70), isPrem?110:80, (isPrem?80:45)+game.night*2);
+            }
+            break;
+        case "Arcane Barrage":
+        case "Archmage Storm":
+        case "Starfall Barrage":
+        case "Celestial Rain":
+            for(let i=0;i<(isPrem?18:10);i++){
+                const ang=p.angle+(Math.random()-.5)*1.2;
+                game.bullets.push({x:cx,y:cy,vx:Math.cos(ang)*16,vy:Math.sin(ang)*16,damage:playerDamage()*(isPrem?1.8:1.3),life:100,enemyBullet:false,weaponName:"Awaken"});
+            }
+            break;
+        case "Wraith Form":
+        case "True Wraith":
+            p.awakenSpeedMul=isPrem?2.5:1.9; p.awakenInvuln=aw.duration*60; break;
+        case "Dominion Fear":
+        case "Overlord Decree":
+            game.enemies.forEach(e=>{ e.freeze=Math.max(e.freeze||0,isPrem?120:70); e.hp-=isPrem?25:12; });
+            break;
+        case "Rune Cage":
+        case "Mythic Runes":
+            game.enemies.forEach(e=>{ e.freeze=Math.max(e.freeze||0,isPrem?200:120); });
+            p.awakenDmgMul=isPrem?2:1.4; break;
+        case "Storm Crown":
+        case "Tempest Lord":
+            for(let i=0;i<(isPrem?14:7);i++){
+                const e=game.enemies[Math.floor(Math.random()*Math.max(1,game.enemies.length))];
+                if(e){ e.hp-=(isPrem?60:35)+game.night*3; createParticles(e.x,e.y,4); if(e.hp<=0) killEnemy(e,-1); }
+            }
+            break;
+        case "Blood Eclipse":
+        case "Bloodmoon Feast":
+            p.awakenDmgMul=isPrem?2.4:1.7; p.awakenLifesteal=isPrem?0.45:0.28; break;
+        case "Aether Beam":
+        case "Aether Annihilator":
+            for(let i=0;i<(isPrem?3:1);i++){
+                const ang=p.angle+(i-(isPrem?1:0))*0.08;
+                game.bullets.push({x:cx+Math.cos(ang)*28,y:cy+Math.sin(ang)*28,vx:Math.cos(ang)*22,vy:Math.sin(ang)*22,damage:playerDamage()*(isPrem?6:3.5),life:140,piercing:true,enemyBullet:false,weaponName:"Awaken"});
+            }
+            break;
+        case "Glacier Throne":
+        case "Absolute Glacier":
+            game.enemies.forEach(e=>{ e.freeze=Math.max(e.freeze||0,isPrem?220:140); if(isPrem) e.hp-=20; });
+            p.awakenInvuln=isPrem?120:60; break;
+        case "Solar Flare":
+        case "Solar Cataclysm":
+            game.hazards.push({type:"fireZone",x:cx,y:cy,radius:isPrem?180:120,life:aw.duration*60,tick:0,damage:(isPrem?28:16)+game.night});
+            explosion(cx,cy,isPrem?140:90,(isPrem?90:50)+game.night*3);
+            break;
+        case "Null Pulse":
+        case "Void Empress Rule":
+        case "Umbra Field":
+        case "Total Eclipse":
+            game.hazards.push({type:"void",x:cx,y:cy,radius:isPrem?220:150,life:aw.duration*60,tick:0,damage:isPrem?18:10});
+            break;
+        case "Epoch Rewind":
+        case "Chronarch Lock":
+            game.enemies.forEach(e=>{ e.freeze=Math.max(e.freeze||0,isPrem?200:130); });
+            p.awakenSpeedMul=1.5; break;
+        case "Origin Blast":
+        case "Primordial Fury":
+            explosion(cx,cy,isPrem?260:180,(isPrem?130:70)+game.night*4); break;
+        case "Supernova":
+        case "Hypernova":
+            p.awakenDmgMul=isPrem?2.5:1.8;
+            explosion(cx,cy,isPrem?160:100,(isPrem?80:45)+game.night*2);
+            break;
+        case "Doomsday":
+        case "Ragnarok End":
+            p.awakenDmgMul=isPrem?3.5:2.2; break;
+        case "Astral Dash":
+        case "Astral Sovereign":
+            p.x+=Math.cos(p.angle)*(isPrem?160:110);
+            p.y+=Math.sin(p.angle)*(isPrem?160:110);
+            p.awakenDmgMul=isPrem?3.5:2; p.awakenInvuln=40;
+            explosion(p.x,p.y,isPrem?90:60,isPrem?55:30);
+            break;
+        case "Abyss Pull":
+        case "Abyss Emperor":
+            game.hazards.push({type:"void",x:cx,y:cy,radius:isPrem?200:140,life:aw.duration*60,tick:0,damage:isPrem?20:11});
+            game.enemies.forEach(e=>{ e.x+=(cx-e.x)*0.25; e.y+=(cy-e.y)*0.25; });
+            break;
+        case "Beast Form":
+        case "Divine Beast Form":
+            p.hp=Math.min(playerMaxHP()*(isPrem?1.8:1.4), p.hp+(isPrem?120:70));
+            p.awakenDmgMul=isPrem?2.8:1.9; p.awakenInvuln=isPrem?100:50;
+            break;
+        case "Infinity Clip":
+        case "True Infinity":
+            p.ammo=magSize()*2; p.awakenDmgMul=isPrem?1.8:1.3; break;
+        case "Omega Stack":
+        case "Omega Apex":
+            p.awakenDmgMul=isPrem?4:2.5; p.awakenSpeedMul=isPrem?1.6:1.3; break;
+        case "Event Horizon+":
+        case "True Singularity":
+            game.hazards.push({type:"void",x:cx,y:cy,radius:isPrem?240:170,life:aw.duration*60,tick:0,damage:isPrem?22:12});
+            break;
+        case "Royal Decree":
+        case "Cosmic Decree":
+            game.enemies.forEach(e=>{ e.freeze=Math.max(e.freeze||0,isPrem?180:100); e.hp-=isPrem?40:18; if(e.hp<=0) killEnemy(e,-1); });
+            break;
+        case "Eternity Beam":
+        case "Eternal Judgment":
+            for(let i=0;i<(isPrem?5:2);i++){
+                const ang=p.angle+(Math.random()-.5)*0.15;
+                game.bullets.push({x:cx,y:cy,vx:Math.cos(ang)*20,vy:Math.sin(ang)*20,damage:playerDamage()*(isPrem?5:3),life:160,piercing:true,enemyBullet:false,weaponName:"Awaken"});
+            }
+            break;
+        case "Mythic Proc":
+        case "Mythic Ascension":
+            p.awakenDmgMul=isPrem?2.5:1.7; p.awakenLifesteal=0.2;
+            game.enemies.forEach(e=>{ if(Math.random()<0.3) e.freeze=Math.max(e.freeze||0,90); });
+            break;
+        case "Ultimate Pulse":
+        case "ULTIMATE Collapse":
+            {
+                const rad=isPrem?320:220;
+                const dmg=isPrem?160:100+game.night*5;
+                explosion(cx,cy,rad,dmg);
+                game.enemies.slice().forEach(e=>{
+                    if(e.hp>0 && Math.hypot(e.x-cx,e.y-cy)<rad){
+                        e.hp-=(isPrem?140:80)+game.night*6;
+                        if(e.hp<=0) killEnemy(e,-1);
+                    }
+                });
+            }
+            break;
         default:
             p.awakenDmgMul=isPrem?2.5:1.5;
     }
@@ -2591,7 +3178,8 @@ function updateBullets(dt){
                     )<
                     e.size+5
                 ){
-                    const finalDamage = e.shield>0 ? b.damage*0.25 : b.damage;
+                    let finalDamage = e.shield>0 ? b.damage*0.25 : b.damage;
+                    if(e.armor) finalDamage*=(1-e.armor);
                     e.hp-=finalDamage;
                     hit=true;
                     if(b.freeze){
@@ -2669,6 +3257,18 @@ function killEnemy(e,index){
     }
     if(e.type==="mega"){
         reward=150;
+    }
+    const acc=getAccessory();
+    if(acc && acc.coinMul && acc.coinMul!==1){
+        reward=Math.max(1, Math.round(reward*acc.coinMul));
+    }
+    const terR=getTerrain();
+    if(terR && terR.coinMul && terR.coinMul!==1){
+        reward=Math.max(1, Math.round(reward*terR.coinMul));
+    }
+    // Wave 50+ base coin bump (hard grind pays)
+    if(game.wave>=50){
+        reward=Math.max(1, Math.round(reward*(1.5+Math.min(2,(game.wave-50)*0.02))));
     }
     save.coins+=reward;
     const oldLevel=getPlayerLevel();
@@ -2973,9 +3573,15 @@ function updateEnemies(dt){
         if(e.type==="mega"){
             e.shoot -= 16.67*dt;
             if(e.shoot<=0){
-                e.shoot=2600;
+                e.shoot=2000;
                 summonMegaRockets();
             }
+            e.shieldTimer = (e.shieldTimer||0) - 16.67*dt;
+            if(e.shieldTimer<=0){
+                e.shieldTimer=3200;
+                e.shield=900; // shield active ~15s at 60fps units
+            }
+            if(e.shield>0) e.shield-=dt;
         }
         if(
             e.type==="ranged" &&
@@ -3019,11 +3625,12 @@ function updateEnemies(dt){
         const hitRadius = e.size + 22;
         if(dist2 <= hitRadius && !e.touchCooldown && !e.invisible){
             e.touchCooldown = 45;
-            const touchDamage =
+            const touchDamage = (
                 e.type==="mega" ? 30 :
                 e.type==="miniboss" ? 22 :
                 e.type==="tank" ? 16 :
-                10;
+                10
+            ) * (e.touchMul || 1);
             /* Contact explosion (small AoE, does not re-damage via nested kill loops unsafely) */
             explosion(
                 game.player.x,
@@ -3086,18 +3693,19 @@ function updateNight(dt){
             "🌙 NIGHT "+game.night,
             1000
         );
-        /* Only one boss at a time. Mega boss takes priority. */
+        /* Boss cadence is wave-driven (miniboss every 5 waves, megaboss every 10).
+           Night only fills in if no boss is active and kills are high enough. */
         if(
             save.kills>20 &&
             !game.bossActive &&
-            game.night%7===0
+            game.night%10===0
         ){
             spawnMegaBoss();
         }
         else if(
             save.kills>20 &&
             !game.bossActive &&
-            game.night%3===0
+            game.night%5===0
         ){
             spawnMiniboss();
         }
@@ -3205,6 +3813,12 @@ function updateHUD(){
         game.night;
     const waveEl=document.getElementById("waveText");
     if(waveEl) waveEl.textContent=game.wave;
+    const terEl=document.getElementById("terrainText");
+    if(terEl){
+        const t=getTerrain();
+        terEl.textContent=t.icon+" "+t.name+(game.wave>=50?" ⚠":"");
+        terEl.title=t.desc+" · coin ×"+t.coinMul;
+    }
     const ammoEl=document.getElementById("ammoText");
     if(ammoEl){
         if(game.player.reloadTimer>0){
@@ -3687,9 +4301,12 @@ function spawnEnemyForced(type){
     else if(edge===2){x=Math.random()*canvas.width;y=canvas.height+40;}
     else{x=-40;y=Math.random()*canvas.height;}
     const scale=1+Math.floor((game.wave-1)/10)*0.35;
+    const ter=getTerrain();
+    const hard=waveHardScale(game.wave);
     const cfg={basic:[1.6,17,30],fast:[2.7,13,30],tank:[1,25,120],ranged:[1.3,17,30],bomber:[1.8,19,30],shadow:[2,16,30]}[type]||[1.6,17,30];
-    const hp=cfg[2]*scale+game.night*4;
-    game.enemies.push({x,y,type,hp,maxHp:hp,speed:cfg[0],size:cfg[1],shoot:Math.random()*1200,freeze:0,burn:0,burnDamage:0,invisible:false,shadowTimer:Math.random()*240,boss:false,reward:1,touchCooldown:0});
+    let hp=(cfg[2]*scale+game.night*4)*ter.enemyHp*hard.hp;
+    let spd=cfg[0]*ter.enemySpd*hard.spd;
+    game.enemies.push({x,y,type,hp,maxHp:hp,speed:spd,size:cfg[1],shoot:Math.random()*1200,freeze:0,burn:0,burnDamage:0,invisible:false,shadowTimer:Math.random()*240,boss:false,reward:1,touchCooldown:0,touchMul:ter.enemyDmg*hard.touch});
 }
 function spawnCurrentWave(){
     const w=game.wave;
@@ -3703,7 +4320,10 @@ function spawnCurrentWave(){
     if(w===7){spawnEnemyForced("ranged");spawnEnemyForced("ranged");spawnEnemyForced("fast");return;}
     if(w===8){spawnEnemyForced("tank");spawnEnemyForced("bomber");spawnEnemyForced("fast");return;}
     if(w===9){spawnEnemyForced("shadow");spawnEnemyForced("ranged");spawnEnemyForced("tank");spawnEnemyForced("bomber");return;}
-    const count=Math.min(8,2+Math.floor(w/4)); const types=["basic","fast","tank","ranged","bomber","shadow"];
+    const hard=waveHardScale(w);
+    let count=Math.min(8,2+Math.floor(w/4))+hard.count;
+    if(w>=50) count=Math.min(20, count+4);
+    const types=["basic","fast","tank","ranged","bomber","shadow"];
     for(let i=0;i<count;i++) spawnEnemyForced(types[Math.floor(Math.random()*types.length)]);
 }
 /* =========================================================
@@ -3716,7 +4336,7 @@ function update(dt){
     updateHazards(dt);
     updateEnemies(dt);
     updateNight(dt);
-    /* WAVE SYSTEM: 1-10 fixed patterns, 5 miniboss, 10 mega. */
+    /* WAVE SYSTEM: miniboss every 5 waves, megaboss every 10 waves. */
     if(!game.bossActive && game.enemies.length===0 && !game.waveSpawned){
         spawnCurrentWave();
         game.waveSpawned=true;
@@ -3724,7 +4344,12 @@ function update(dt){
     if(!game.bossActive && game.waveSpawned && game.enemies.length===0){
         game.wave++;
         game.waveSpawned=false;
-        gameMessage("🌊 WAVE "+game.wave+"!",800);
+        setTerrainForWave(game.wave, true);
+        if(game.wave>=50){
+            gameMessage("🌊 WAVE "+game.wave+"! ⚠️ HARD MODE",900);
+        }else{
+            gameMessage("🌊 WAVE "+game.wave+"!",800);
+        }
     }
     updateParticles(dt);
     // Passive out-of-combat regen (HUD already hints at this)
@@ -3852,7 +4477,7 @@ const ACHIEVEMENTS = [
   {id:"level_1000",name:"Immortal",desc:"Reach Level 1000",icon:"🔮",check:s=>Math.floor(s.kills/10)+1>=1000,reward:2000},
   {id:"class_5",name:"Collector",desc:"Own 5 classes",icon:"📋",check:s=>(s.ownedClasses||[]).length>=5,reward:100},
   {id:"class_15",name:"Class Act",desc:"Own 15 classes",icon:"🎖️",check:s=>(s.ownedClasses||[]).length>=15,reward:300},
-  {id:"class_all",name:"Completionist",desc:"Own all 36 classes",icon:"🏅",check:s=>(s.ownedClasses||[]).length>=36,reward:2000},
+  {id:"class_all",name:"Completionist",desc:"Own all 66 classes",icon:"🏅",check:s=>(s.ownedClasses||[]).length>=66,reward:2000},
   {id:"gun_5",name:"Arsenal",desc:"Own 5 guns",icon:"🔫",check:s=>(s.ownedGuns||[]).length>=5,reward:80},
   {id:"gun_10",name:"Gun Nut",desc:"Own 10 guns",icon:"🧰",check:s=>(s.ownedGuns||[]).length>=10,reward:200},
   {id:"skin_3",name:"Stylish",desc:"Own 3 skins",icon:"🎨",check:s=>(s.ownedSkins||[]).length>=3,reward:50},
