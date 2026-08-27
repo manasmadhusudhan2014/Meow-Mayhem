@@ -445,22 +445,6 @@ tr:hover td{
 <div class="subtitle">
     FOREST SURVIVAL
 </div>
-<!-- =========================================================
-     HEADING — DIRECT HTML EDIT AREA
-     Change the text inside <h2> whenever you want.
-========================================================= -->
-<h2 id="directHeading">HEADING</h2>
-<div style="font-size:12px;opacity:.8;margin:4px 0 10px;">Direct HTML heading area</div>
-<div id="updatePanel" style="margin:10px 0;padding:10px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:rgba(0,0,0,.18);">
-  <div style="font-weight:700;margin-bottom:6px;">🔐 UPDATE AREA</div>
-  <input id="updatePassword" type="password" placeholder="Enter update password" autocomplete="off" style="width:100%;padding:8px;border-radius:7px;border:1px solid #555;background:#111;color:#fff;">
-  <button class="secondary" onclick="unlockUpdates()" style="margin-top:6px;">UNLOCK UPDATES</button>
-  <div id="updateEditor" style="display:none;margin-top:8px;">
-    <input id="headingEditor" maxlength="60" placeholder="Write new heading" style="width:100%;padding:8px;border-radius:7px;border:1px solid #555;background:#111;color:#fff;">
-    <button class="primary" onclick="applyHeadingUpdate()" style="margin-top:6px;">SAVE UPDATE</button>
-  </div>
-  <div id="updateMessage" style="font-size:12px;margin-top:6px;opacity:.85;"></div>
-</div>
 <div style="margin:8px 0 12px;">
   <button class="secondary" onclick="toggleLowGraphics()" id="lowGraphicsButton">⚡ LOW GRAPHICS: OFF</button>
 </div>
@@ -4862,26 +4846,6 @@ setInterval(
     document.documentElement.dir=(code==="ar" ? "rtl" : "ltr");
   }
   window.catopsSetLanguage=applyLanguage;
-function unlockUpdates(){
-    const password=document.getElementById("updatePassword").value;
-    const msg=document.getElementById("updateMessage");
-    if(password==="MAS studios$"){
-        document.getElementById("updateEditor").style.display="block";
-        msg.textContent="✅ Updates unlocked.";
-        msg.style.color="#7CFF8A";
-    }else{
-        document.getElementById("updateEditor").style.display="none";
-        msg.textContent="❌ Wrong password.";
-        msg.style.color="#ff7777";
-    }
-}
-function applyHeadingUpdate(){
-    const heading=document.getElementById("headingEditor").value.trim();
-    if(!heading) return;
-    document.getElementById("directHeading").textContent=heading;
-    document.getElementById("updateMessage").textContent="✅ Update applied.";
-}
-
   document.addEventListener("DOMContentLoaded",()=>{
     const s=document.getElementById("languageSelect");
     if(s) s.addEventListener("change",()=>applyLanguage(s.value));
