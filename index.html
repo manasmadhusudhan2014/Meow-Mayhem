@@ -1709,6 +1709,19 @@ function getSpinCooldownText(){
     const sec=totalSec%60;
     return h+"h "+String(m).padStart(2,"0")+"m "+String(sec).padStart(2,"0")+"s";
 }
+function updateSpinUI(){
+    const btn=document.getElementById("doSpinBtn");
+    const status=document.getElementById("spinCooldownText");
+    if(!btn && !status) return;
+    const remaining=Math.max(0,(save.spinNextAt||0)-Date.now());
+    const ready=remaining<=0;
+    if(status) status.textContent=ready ? "READY" : "Next spin in: "+getSpinCooldownText();
+    if(btn){
+        btn.disabled=!ready;
+        btn.textContent=ready ? "SPIN!" : "⏳ "+getSpinCooldownText();
+        btn.style.opacity=ready ? "1" : ".65";
+    }
+}
 function openSpin(){
     document.getElementById("homeInfo").innerHTML=`
     <div class="card" style="border-color:#8b5cf6">
@@ -1716,9 +1729,14 @@ function openSpin(){
       <p>Cost: <b class="gold">${SPIN_COST} 🪙</b> per spin.</p>
       <p style="font-size:13px;opacity:.85">Prizes: <b>2,000</b> or <b>3,000</b> coins · random <b>class / gun / skin / accessory</b> costing under <b>500,000</b>.</p>
       <p style="font-size:12px;opacity:.7">Duplicates on items → convert to coins (10% of item cost, min 50).</p>
+      <div id="spinCooldownText" style="margin:8px 0;font-weight:bold;text-align:center"></div>
       <button class="primary" id="doSpinBtn" onclick="doSpin()" style="width:100%;margin-top:8px;background:#7c3aed;color:#fff">SPIN!</button>
       <div id="spinResult" style="margin-top:12px;min-height:40px"></div>
     </div>`;
+    updateSpinUI();
+}
+if(!window.__catOpsSpinTimer){
+    window.__catOpsSpinTimer=setInterval(updateSpinUI,1000);
 }
 function pickSpinPool(){
     const pool=[];
@@ -2241,7 +2259,7 @@ function startGame(){
     game.enemyTimer=0;
     game.waveSpawned=false;
     game.wave=1;
-    game.terrainIndex=0;
+    game.terrainIndex=(typeof save.terrainChoice==="number" && save.terrainChoice>=0 && save.terrainChoice<TERRAINS.length) ? save.terrainChoice : 0;
     game.bossActive=false;
     game.timeSinceDamage=0;
     game.bullets=[];
