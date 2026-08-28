@@ -691,7 +691,7 @@ Every class has a <b>Free Awakening</b> (any level · <b>0 🪙</b>) and a <b>Pr
 </div>
 <div id="gameMessage"></div>
 <div class="controls">
-WASD / Arrows = Move | Mouse = Aim | Click = Shoot | E = Awakening
+WASD / Arrow Keys = Move (A/D = left/right) | Mouse = Aim | Click = Shoot | E = Awakening
 </div>
 <div class="touchControls" id="touchControls">
     <div class="joystick" id="moveStick"><div class="joystickKnob"></div></div>
@@ -1266,7 +1266,9 @@ function resetSave(){
         skin:0,
         nicknameLocked:false,
         customGuns:[],
-        language:"en"
+        language:"en",
+        terrainChoice:-1,
+        spinNextAt:0
     };
     // drop custom guns from guns list
     for(let i=guns.length-1;i>=0;i--){
@@ -1909,8 +1911,8 @@ function craftGun(){
 ========================================================= */
 const translations={
   en:{play:"PLAY",how:"❓ HOW TO PLAY",craft:"🛠️ CRAFTING — LEVEL 1000",lang:"🌐 Language",classes:"📋 ALL 66 classes",shop:"🛒 SHOP",reserved:""},
-  kn:{play:"à²†à²Ÿ à²ªà³à²°à²¾à²°à²‚à²­à²¿à²¸à²¿",how:"❓ à²¹à³‡à²—à³† à²†à²¡à³à²µà³à²¦à³",craft:"🛠️ à²•à³à²°à²¾à²«à³à²Ÿà²¿à²‚à²—à³ — à²®à²Ÿà³à²Ÿ 1000",lang:"🌐 à²­à²¾à²·à³†",classes:"📋 à²Žà²²à³à²²à²¾ 30 à²•à³à²²à²¾à²¸à³à²—à²³à³",shop:"🛒 à²…à²‚à²—à²¡à²¿",reserved:"à²¸à³ƒà²·à³à²Ÿà²¿à²•à²°à³à²¤à²° à²¹à³†à²¸à²°à³ M_A_N_A_S à²•à²¾à²¯à³à²¦à²¿à²°à²¿à²¸à²²à²¾à²—à²¿à²¦à³†."},
-  hi:{play:"à¤–à¥‡à¤²à¥‡à¤‚",how:"❓ à¤•à¥ˆà¤¸à¥‡ à¤–à¥‡à¤²à¥‡à¤‚",craft:"🛠️ à¤•à¥à¤°à¤¾à¤«à¥à¤Ÿà¤¿à¤‚à¤— — à¤²à¥‡à¤µà¤² 1000",lang:"🌐 à¤­à¤¾à¤·à¤¾",classes:"📋 à¤¸à¤­à¥€ 30 à¤•à¥à¤²à¤¾à¤¸",shop:"🛒 à¤¦à¥à¤•à¤¾à¤¨",reserved:"à¤•à¥à¤°à¤¿à¤à¤Ÿà¤° à¤•à¤¾ à¤¨à¤¾à¤® M_A_N_A_S à¤†à¤°à¤•à¥à¤·à¤¿à¤¤ à¤¹à¥ˆà¥¤"},
+  kn:{play:"à²†à²Ÿ à²ªà³à²°à²¾à²°à²‚à²­à²¿à²¸à²¿",how:"❓ à²¹à³‡à²—à³† à²†à²¡à³à²µà³à²¦à³",craft:"🛠️ à²•à³à²°à²¾à²«à³à²Ÿà²¿à²‚à²—à³ — à²®à²Ÿà³à²Ÿ 1000",lang:"🌐 à²­à²¾à²·à³†",classes:"📋 à²Žà²²à³à²²à²¾ 30 à²•à³à²²à²¾à²¸à³à²—à²³à³",shop:"🛒 à²…à²‚à²—à²¡à²¿",reserved:""},
+  hi:{play:"à¤–à¥‡à¤²à¥‡à¤‚",how:"❓ à¤•à¥ˆà¤¸à¥‡ à¤–à¥‡à¤²à¥‡à¤‚",craft:"🛠️ à¤•à¥à¤°à¤¾à¤«à¥à¤Ÿà¤¿à¤‚à¤— — à¤²à¥‡à¤µà¤² 1000",lang:"🌐 à¤­à¤¾à¤·à¤¾",classes:"📋 à¤¸à¤­à¥€ 30 à¤•à¥à¤²à¤¾à¤¸",shop:"🛒 à¤¦à¥à¤•à¤¾à¤¨",reserved:""},
   te:{play:"à°†à°¡à°‚à°¡à°¿",how:"❓ à°Žà°²à°¾ à°†à°¡à°¾à°²à°¿",craft:"🛠️ à°•à±à°°à°¾à°«à±à°Ÿà°¿à°‚à°—à± — à°²à±†à°µà°²à± 1000",lang:"🌐 à°­à°¾à°·",classes:"📋 à°…à°¨à±à°¨à°¿ 30 à°•à±à°²à°¾à°¸à±à°²à±",shop:"🛒 à°·à°¾à°ªà±",reserved:"à°•à±à°°à°¿à°¯à±‡à°Ÿà°°à± à°ªà±‡à°°à± M_A_N_A_S à°°à°¿à°œà°°à±à°µà± à°šà±‡à°¯à°¬à°¡à°¿à°‚à°¦à°¿."}
 };
 function setLanguage(lang){
@@ -2214,23 +2216,34 @@ window.addEventListener('resize', syncTouchUI);
 /* Admin command input */
 
 /* =========================================================
-   KEYBOARD
+   KEYBOARD — FIXED / RELIABLE WASD + ARROWS
 ========================================================= */
 const keys={};
-window.addEventListener(
-    "keydown",
-    function(e){
-        keys[e.key]=true;
-        keys[e.key.toLowerCase()]=true;
+
+const GAME_KEY_CODES = new Set([
+    "KeyW","KeyA","KeyS","KeyD",
+    "ArrowUp","ArrowDown","ArrowLeft","ArrowRight",
+    "KeyE"
+]);
+
+window.addEventListener("keydown", function(e){
+    if(GAME_KEY_CODES.has(e.code)){
+        e.preventDefault();
+        keys[e.code]=true;
     }
-);
-window.addEventListener(
-    "keyup",
-    function(e){
-        keys[e.key]=false;
-        keys[e.key.toLowerCase()]=false;
+});
+
+window.addEventListener("keyup", function(e){
+    if(GAME_KEY_CODES.has(e.code)){
+        e.preventDefault();
+        keys[e.code]=false;
     }
-);
+});
+
+/* Prevent a stuck key if the browser window loses focus. */
+window.addEventListener("blur", function(){
+    for(const k of GAME_KEY_CODES) keys[k]=false;
+});
 /* =========================================================
    START GAME
 ========================================================= */
@@ -2298,6 +2311,7 @@ function startGame(){
     game.player.awakenLifesteal=0;
     game.player.turret=null;
     awakenKeyLatched=false;
+    for(const k of GAME_KEY_CODES) keys[k]=false;
     mouse.down=false;
     mouse.x=canvas.width*0.75;
     mouse.y=canvas.height/2;
@@ -3164,7 +3178,7 @@ function updateAwakening(dt){
 }
 function updatePlayer(dt){
     // E = awakening
-    if(keys["e"]||keys["E"]){
+    if(keys["KeyE"]){
         if(!awakenKeyLatched){
             awakenKeyLatched=true;
             activateAwakening();
@@ -3173,30 +3187,11 @@ function updatePlayer(dt){
 
     let dx=touchState.moveX;
     let dy=touchState.moveY;
-    if(
-        keys["w"] ||
-        keys["ArrowUp"]
-    ){
-        dy--;
-    }
-    if(
-        keys["s"] ||
-        keys["ArrowDown"]
-    ){
-        dy++;
-    }
-    if(
-        keys["a"] ||
-        keys["ArrowLeft"]
-    ){
-        dx--;
-    }
-    if(
-        keys["d"] ||
-        keys["ArrowRight"]
-    ){
-        dx++;
-    }
+
+    if(keys["KeyW"] || keys["ArrowUp"]) dy--;
+    if(keys["KeyS"] || keys["ArrowDown"]) dy++;
+    if(keys["KeyA"] || keys["ArrowLeft"]) dx--;
+    if(keys["KeyD"] || keys["ArrowRight"]) dx++;
     if(dx||dy){
         const len=
             Math.hypot(dx,dy);
@@ -3846,9 +3841,11 @@ function updateNight(dt){
         );
         /* Boss cadence is wave-driven (miniboss every 5 waves, megaboss every 10).
            Night only fills in if no boss is active and kills are high enough. */
+        /* Bosses are locked until the player has MORE than 20 kills. */
         if(
             save.kills>20 &&
             !game.bossActive &&
+            game.enemies.length===0 &&
             game.night%10===0
         ){
             spawnMegaBoss();
@@ -3856,6 +3853,7 @@ function updateNight(dt){
         else if(
             save.kills>20 &&
             !game.bossActive &&
+            game.enemies.length===0 &&
             game.night%5===0
         ){
             spawnMiniboss();
@@ -4474,8 +4472,18 @@ function spawnEnemyForced(type){
 }
 function spawnCurrentWave(){
     const w=game.wave;
-    if(w%10===0){spawnMegaBoss();gameMessage("🔴 MEGA BOSS WAVE!",1200);return;}
-    if(w%10===5){spawnMiniboss();gameMessage("🔶 MINIBOSS WAVE!",1200);return;}
+
+    /* No boss before the player has more than 20 kills. */
+    if(save.kills>20 && w%10===0){
+        spawnMegaBoss();
+        gameMessage("🔴 MEGA BOSS WAVE!",1200);
+        return;
+    }
+    if(save.kills>20 && w%10===5){
+        spawnMiniboss();
+        gameMessage("🔶 MINIBOSS WAVE!",1200);
+        return;
+    }
     if(w===1){spawnEnemyForced("basic");spawnEnemyForced("basic");return;}
     if(w===2){spawnEnemyForced("fast");spawnEnemyForced("fast");return;}
     if(w===3){spawnEnemyForced("tank");spawnEnemyForced("basic");return;}
