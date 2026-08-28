@@ -2036,7 +2036,7 @@ function buildForestCanvas(){
     const t=(typeof game!=="undefined" && game)?getTerrain():TERRAINS[0];
     fctx.fillStyle=t.bg;
     fctx.fillRect(0,0,forestCanvas.width,forestCanvas.height);
-    const grid=80;
+    const grid=game && game.lowGraphics ? 120 : 96;
     fctx.strokeStyle=t.grid;
     fctx.lineWidth=1;
     for(let x=0;x<forestCanvas.width;x+=grid){
@@ -2051,9 +2051,10 @@ function buildForestCanvas(){
         fctx.lineTo(forestCanvas.width,y);
         fctx.stroke();
     }
-    // terrain props
-    for(let x=50;x<forestCanvas.width;x+=160){
-        for(let y=50;y<forestCanvas.height;y+=160){
+    // terrain props (sparser = faster build + slightly lighter look)
+    const propStep = game && game.lowGraphics ? 220 : 180;
+    for(let x=50;x<forestCanvas.width;x+=propStep){
+        for(let y=50;y<forestCanvas.height;y+=propStep){
             fctx.fillStyle=t.accent;
             if(t.id==="volcano"){
                 // jagged rocks
@@ -2103,8 +2104,9 @@ function resizeCanvas(){
        every fixed-size sprite (player, enemies, bullets, grid tiles)
        look zoomed in / enlarged the moment low graphics kicked in
        (including the automatic low-FPS fallback in updatePerformance).
-       Low graphics now only cuts particles/hazards/lighting and slows
-       the render cadence — it never touches resolution. */
+       Full resolution always (320k) so strong PCs look sharp and sprites
+       never suddenly zoom when low-graphics toggles. Soft limits (particles,
+       enemy caps, draw rate) still lighten the load on weaker devices. */
     const maxPixels = 320000;
     const w = Math.max(320, window.innerWidth);
     const h = Math.max(240, window.innerHeight);
@@ -2432,11 +2434,12 @@ function playerDamage(){
    ENEMY LIMIT
 ========================================================= */
 function enemyCount(){
-    let cap=28;
-    if(game.wave>=50) cap=Math.min(40, 28+Math.floor((game.wave-50)/2));
+    /* Full caps on strong PCs; tighter when LOW GRAPHICS is on. */
+    let cap = game.lowGraphics ? 18 : 28;
+    if(game.wave>=50) cap = Math.min(game.lowGraphics ? 22 : 40, cap + Math.floor((game.wave-50)/(game.lowGraphics?3:2)));
     return Math.min(
         cap,
-        5+game.night*1.5+(game.wave>=50?6:0)
+        (game.lowGraphics ? 4 : 5) + game.night * (game.lowGraphics ? 1.2 : 1.5) + (game.wave>=50 ? (game.lowGraphics?4:6) : 0)
     );
 }
 /* =========================================================
@@ -3869,8 +3872,8 @@ function createParticles(
     count
 ){
     if(game.lowGraphics) return;
-    count=Math.min(count,2);
-    if(game.particles.length>=12) return;
+    count=Math.min(count, 2);
+    if(game.particles.length >= 12) return;
     for(
         let i=0;
         i<count;
@@ -3921,7 +3924,12 @@ function updateParticles(dt){
 /* =========================================================
    HUD
 ========================================================= */
+let _hudFrame = 0;
 function updateHUD(){
+    /* Throttle DOM writes — they are expensive on mobile/low-end CPUs. */
+    _hudFrame++;
+    if(_hudFrame % 3 !== 0 && game.player.hp > 0) return;
+
     const hp=
         Math.max(
             0,
@@ -3940,11 +3948,6 @@ function updateHUD(){
             0,
             hp/max*100
         )+"%";
-    const terrainRegen = getTerrain().regen || 0;
-    if(terrainRegen>0 && game.timeSinceDamage>=60 && hp<max){
-        game.player.hp=Math.min(max,game.player.hp + max*terrainRegen*dt);
-        hp=game.player.hp;
-    }
     const regenActive =
         game.timeSinceDamage >= 360 &&
         hp < max;
@@ -4457,6 +4460,7 @@ function draw(){
 ========================================================= */
 function spawnEnemyForced(type){
     if(game.bossActive) return;
+    if(game.enemies.length >= enemyCount()) return;
     const edge=Math.floor(Math.random()*4); let x,y;
     if(edge===0){x=Math.random()*canvas.width;y=-40;}
     else if(edge===1){x=canvas.width+40;y=Math.random()*canvas.height;}
@@ -4494,7 +4498,7 @@ function spawnCurrentWave(){
     if(w===9){spawnEnemyForced("shadow");spawnEnemyForced("ranged");spawnEnemyForced("tank");spawnEnemyForced("bomber");return;}
     const hard=waveHardScale(w);
     let count=Math.min(8,2+Math.floor(w/4))+hard.count;
-    if(w>=50) count=Math.min(26, count+6);
+    if(w>=50) count=Math.min(game.lowGraphics?14:26, count+(game.lowGraphics?4:6));
     const types=w>=50
         ? ["fast","fast","tank","ranged","bomber","shadow","tank","fast"]
         : ["basic","fast","tank","ranged","bomber","shadow"];
@@ -4533,17 +4537,27 @@ function update(dt){
         }
     }
     updateParticles(dt);
-    // Passive out-of-combat regen (HUD already hints at this)
+    // Passive out-of-combat regen + terrain regen (moved out of HUD — dt was undefined there)
     game.timeSinceDamage += dt;
     if(
-        game.timeSinceDamage >= 360 &&
         game.player.hp > 0 &&
         game.player.hp < playerMaxHP()
     ){
-        game.player.hp = Math.min(
-            playerMaxHP(),
-            game.player.hp + 0.012 * dt
-        );
+        const maxHp = playerMaxHP();
+        if(game.timeSinceDamage >= 360){
+            game.player.hp = Math.min(maxHp, game.player.hp + 0.012 * dt);
+        }
+        const terrainRegen = getTerrain().regen || 0;
+        if(terrainRegen > 0 && game.timeSinceDamage >= 60){
+            game.player.hp = Math.min(maxHp, game.player.hp + maxHp * terrainRegen * dt);
+        }
+    }
+    /* Cap bullets / hazards so spray weapons cannot explode entity count */
+    if(game.bullets.length > 90){
+        game.bullets.splice(0, game.bullets.length - 90);
+    }
+    if(game.hazards.length > 20){
+        game.hazards.splice(0, game.hazards.length - 20);
     }
     updateHUD();
 }
@@ -4582,17 +4596,13 @@ function toggleLowGraphics(){
     if(b) b.textContent=game.lowGraphics?"⚡ LOW GRAPHICS: ON":"⚡ LOW GRAPHICS: OFF";
     if(game.lowGraphics){
         game.particles.length=0;
-        game.hazards=game.hazards.filter(h=>h.type==="enemyBullet");
+        /* Keep only essential hazards (rockets / fire zones); drop pure visuals */
+        game.hazards=game.hazards.filter(h=>h.type==="rocket"||h.type==="fireZone"||h.type==="void"||h.type==="turret2");
+        if(game.enemies.length > enemyCount()){
+            game.enemies.length = enemyCount();
+        }
     }
-    /* NOTE (fix): resizeCanvas() used to be called here, and its
-       old low-graphics branch shrank the internal canvas resolution.
-       Since the on-screen CSS size never changed, that made every
-       fixed-size sprite (player, enemies, bullets, forest grid tiles)
-       look suddenly bigger/zoomed the instant low graphics turned on —
-       including automatically, via the FPS-based auto-trigger below.
-       Resolution now stays fixed always (see resizeCanvas), so this
-       toggle only affects particles/hazards and render cadence, never
-       apparent object size. */
+    /* Resolution stays fixed (see resizeCanvas) so sprites never suddenly zoom. */
     game.lastRenderTime=0;
 }
 function updatePerformance(time){
@@ -4602,8 +4612,8 @@ function updatePerformance(time){
         game.fps=(game.fpsFrames*1000)/(time-game.fpsSampleTime);
         game.fpsFrames=0;
         game.fpsSampleTime=time;
-        // Automatically reduce expensive effects on weak/laggy PCs.
-        if(game.fps<30 && !game.lowGraphics) toggleLowGraphics();
+        // Auto low-graphics earlier (under 40 FPS) so lag never snowballs.
+        if(game.fps<40 && !game.lowGraphics) toggleLowGraphics();
     }
 }
 /* =========================================================
@@ -4621,9 +4631,10 @@ function loop(time){
     game.lastTime=time;
     updatePerformance(time);
     try{
-        // Keep simulation responsive, but reduce expensive redraws on weak PCs.
+        // Keep simulation responsive. Strong PCs always draw at ~60 FPS;
+        // low-graphics mode drops to ~20 FPS for weak devices only.
         update(dt);
-        const renderInterval=game.lowGraphics ? 33.333 : 16.667;
+        const renderInterval = game.lowGraphics ? 50 : 16.667;
         if(!game.lastRenderTime || time-game.lastRenderTime>=renderInterval){
             draw();
             game.lastRenderTime=time;
