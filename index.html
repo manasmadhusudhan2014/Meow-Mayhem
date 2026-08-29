@@ -625,7 +625,7 @@ Every class has a <b>Free Awakening</b> (any level · <b>0 🪙</b>) and a <b>Pr
     Accessories
 </button>
 </div>
-<div style="font-size:12px;opacity:.75;margin:6px 0">🎀 Accessories: equip one passive boost.</div>
+<div style="font-size:12px;opacity:.75;margin:6px 0">🎀 Accessories provide passive boosts. · 🔊 M = Mute/Unmute.</div>
 <div id="shopGrid" class="shop-grid"></div>
 <br>
 <button onclick="goHome()">
@@ -702,31 +702,267 @@ WASD / Arrow Keys = Move (A/D = left/right) | Mouse = Aim | Click = Shoot | E = 
 </div>
 <script>
 /* =========================================================
-   CAT OPS — LIGHTWEIGHT WEB AUDIO
+   CAT OPS — UNIQUE CLASS PASSIVE PATCH
 ========================================================= */
-let audioCtx=null,audioMaster=null,audioSfx=null,audioMusic=null,soundMuted=false;
-function initAudio(){
-  if(audioCtx){if(audioCtx.state==="suspended")audioCtx.resume();return;}
-  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
-  audioCtx=new AC();audioMaster=audioCtx.createGain();audioSfx=audioCtx.createGain();audioMusic=audioCtx.createGain();
-  audioMaster.gain.value=.7;audioSfx.gain.value=.65;audioMusic.gain.value=.22;audioSfx.connect(audioMaster);audioMusic.connect(audioMaster);audioMaster.connect(audioCtx.destination);
+
+/* =========================================================
+   CAT OPS — UNIQUE CLASS PASSIVE PATCH
+   Every class gets a gameplay-affecting passive.
+   This layer augments the existing class/awakening systems.
+========================================================= */
+
+window.CAT_OPS_UNIQUE_PASSIVES = [
+  {name:"Rookie",       hook:"balanced",   desc:"No special passive; reliable baseline."},
+  {name:"Runner Cat",   hook:"speed",      desc:"Moves faster and gains a short burst after a kill."},
+  {name:"Ice Cat",      hook:"slow",       desc:"Bullets apply a stronger slow."},
+  {name:"Fire Cat",     hook:"flame",      desc:"Bullets deal 12% passive fire damage over time."},
+  {name:"Bomber Cat",   hook:"blast",      desc:"Explosions have increased radius."},
+  {name:"Shield Cat",   hook:"shield",     desc:"Reduces incoming contact damage."},
+  {name:"Scout",        hook:"scout",      desc:"Enemies are detected at a larger effective range."},
+  {name:"Hunter",       hook:"crit",       desc:"Higher critical-hit chance against enemies."},
+  {name:"Medic",        hook:"regen",      desc:"Regenerates HP while not recently damaged."},
+  {name:"Ranger",       hook:"range",      desc:"Projectiles retain damage over longer distances."},
+  {name:"Gunner",       hook:"firerate",   desc:"Gradually improves fire rate while continuously firing."},
+  {name:"Sniper",       hook:"precision",  desc:"Long-range hits deal bonus damage."},
+  {name:"Pyro",         hook:"pyro",       desc:"Bullets deal 25% passive fire damage with a longer burn."},
+  {name:"Frost",        hook:"freeze",     desc:"Repeated hits build freeze stacks."},
+  {name:"Vampire",      hook:"lifesteal",  desc:"A portion of bullet damage heals the player."},
+  {name:"Assassin",     hook:"execute",    desc:"Deals bonus damage to low-HP enemies."},
+  {name:"Engineer",     hook:"repair",     desc:"Deployments reduce ability cooldown pressure."},
+  {name:"Storm",        hook:"shock",      desc:"Hits have a chance to chain lightning to a nearby enemy."},
+  {name:"Ninja",        hook:"dash",       desc:"Kills grant a brief movement burst."},
+  {name:"Berserker",    hook:"rage",       desc:"Damage increases as player HP gets lower."},
+  {name:"Paladin",      hook:"armor",      desc:"Reduces incoming damage while above half HP."},
+  {name:"Necromancer",  hook:"soul",       desc:"Kills build soul stacks that boost damage."},
+  {name:"Druid",        hook:"nature",     desc:"Slowly heals and roots enemies on repeated hits."},
+  {name:"Samurai",      hook:"counter",    desc:"Taking damage empowers the next attack."},
+  {name:"Cyber Cat",    hook:"overclock",  desc:"Every kill briefly increases fire rate."},
+  {name:"Void Walker",  hook:"void",       desc:"Hits have a chance to weaken nearby enemies."},
+  {name:"Dragon",       hook:"dragon",     desc:"Bullets have a chance to create a small burst."},
+  {name:"Titan",        hook:"fortress",   desc:"Maximum HP is increased and knockback is reduced."},
+  {name:"Shadow Lord",  hook:"shadow",     desc:"Briefly becomes harder to hit after taking damage."},
+  {name:"Galaxy",       hook:"orbit",      desc:"A periodic cosmic pulse damages nearby enemies."},
+  {name:"Time Cat",     hook:"time",       desc:"Occasionally slows enemies for a short duration."},
+  {name:"Inferno King", hook:"inferno",    desc:"Burning enemies spread a small burn to nearby targets."},
+  {name:"Death Cat",    hook:"death",      desc:"Critical hits deal extra damage to wounded enemies."},
+  {name:"God Cat",      hook:"divine",     desc:"Incoming damage is occasionally reduced dramatically."},
+  {name:"OMEGA CAT",    hook:"omega",      desc:"Kills temporarily stack bonus damage."},
+  {name:"Santa Cat",    hook:"gift",       desc:"Kills have a chance to drop a bonus coin gift."},
+  {name:"Nebula Cat",   hook:"nebula",     desc:"Periodic nebula pulses weaken nearby enemies."},
+  {name:"Quantum Cat",  hook:"quantum",    desc:"Projectiles have a chance to split into a secondary shot."},
+  {name:"Phoenix Cat",  hook:"phoenix",    desc:"Once per night, lethal damage triggers a revive."},
+  {name:"Leviathan",    hook:"tidal",      desc:"Every few hits releases a wide knockback wave."},
+  {name:"Archmage",     hook:"magic",      desc:"Ability effects gain a small chance to repeat."},
+  {name:"Wraith",       hook:"wraith",     desc:"After a kill, briefly gains damage reduction."},
+  {name:"Celestial",    hook:"homing",     desc:"Projectiles gain mild homing toward nearby targets."},
+  {name:"Overlord",     hook:"fear",       desc:"Nearby enemies deal reduced contact damage."},
+  {name:"Mythmancer",   hook:"rune",       desc:"Kills cycle through temporary rune bonuses."},
+  {name:"Stormbringer", hook:"storm",      desc:"Bullets have a stronger chance to call lightning."},
+  {name:"Bloodmoon",    hook:"blood",      desc:"Lifesteal becomes stronger during dangerous/night phases."},
+  {name:"Aether Cat",   hook:"pierce",     desc:"Projectiles can pierce an additional enemy."},
+  {name:"Glacier King", hook:"armorice",   desc:"Taking damage grants temporary ice armor."},
+  {name:"Solar Knight", hook:"solar",      desc:"Continuous fire builds a heat meter for bonus damage."},
+  {name:"Void Empress", hook:"pulse",      desc:"Kills release a damaging void pulse."},
+  {name:"Chronarch",    hook:"rewind",     desc:"Once per cooldown, lethal damage is prevented and HP is restored."},
+  {name:"Primordial",   hook:"primal",     desc:"Deals increasing bonus damage against bosses."},
+  {name:"Eclipse Cat",  hook:"eclipse",    desc:"Alternates between damage and defense bonuses."},
+  {name:"Nova Cat",     hook:"nova",       desc:"Kills can trigger a nova burst around the defeated enemy."},
+  {name:"Ragnarok",     hook:"doom",       desc:"Bosses accumulate doom stacks from repeated hits."},
+  {name:"Astral Lord",  hook:"astral",     desc:"Kills briefly increase projectile speed and movement speed."},
+  {name:"Abyss Walker", hook:"abyss",      desc:"Hits pull nearby enemies slightly toward the target."},
+  {name:"Divine Beast", hook:"beast",      desc:"At high HP gains damage; at low HP gains defense."},
+  {name:"Infinity Cat", hook:"infinity",   desc:"Ammo consumption has a chance to be ignored."},
+  {name:"Omega+ Cat",   hook:"omegaPlus",  desc:"Each consecutive kill increases damage until the chain breaks."},
+  {name:"Singularity Cat",hook:"singularity",desc:"Hits briefly slow nearby enemies around the target."},
+  {name:"Cosmic Emperor",hook:"stun",      desc:"Repeated hits can stun normal enemies."},
+  {name:"Eternal Cat",  hook:"eternal",    desc:"Regenerates a small amount of HP while attacking."},
+  {name:"Mythic Cat",   hook:"mythic",     desc:"Each hit has a small chance to trigger a random combat boon."},
+  {name:"ULTIMATE CAT", hook:"ultimate",   desc:"Combines small versions of several elite passive effects."}
+];
+
+(function installUniquePassives(){
+  if(window.__CAT_OPS_UNIQUE_PASSIVES_INSTALLED) return;
+  window.__CAT_OPS_UNIQUE_PASSIVES_INSTALLED = true;
+
+  window.catOpsPassiveState = {
+    stacks:0, combo:0, lastDamage:0, lastHit:0, lastKill:0,
+    phoenixUsed:false, chronarchUsed:false, samuraiCharge:false,
+    solar:0, rune:0, rewindCooldown:0
+  };
+
+  function player(){ return window.game && game.player ? game.player : null; }
+  function cls(){
+    const p=player();
+    if(!p) return null;
+    const classes=window.classes || window.CLASSES || [];
+    return classes[p.class ?? 0] || null;
+  }
+  function cname(){
+    const c=cls();
+    return c && (c.name || c.id || "") || "";
+  }
+
+  window.CAT_OPS_GET_PASSIVE = function(){
+    const n=cname();
+    return window.CAT_OPS_UNIQUE_PASSIVES.find(x=>x.name===n) || null;
+  };
+
+  window.CAT_OPS_PASSIVE_DAMAGE = function(baseDamage, target){
+    const p=player(), n=cname();
+    if(!p) return baseDamage;
+    let d=baseDamage;
+    const hp=p.hp || 1, max=p.maxHp || hp;
+
+    if(n==="Fire Cat") d*=1.12;
+    if(n==="Pyro") d*=1.25;
+    if(n==="Berserker") d*=1 + Math.max(0,1-hp/max)*0.75;
+    if(n==="Assassin" && target && target.hp < target.maxHp*0.30) d*=1.35;
+    if(n==="Sniper" && target && target.dist && target.dist > 300) d*=1.25;
+    if(n==="Primordial" && target && target.type && String(target.type).toLowerCase().includes("boss")) d*=1.35;
+    if(n==="Death Cat" && target && target.hp < target.maxHp*0.40) d*=1.20;
+    if(n==="Omega+ Cat") d*=1 + Math.min(0.50, (catOpsPassiveState.combo||0)*0.02);
+    if(n==="Divine Beast") d*=hp/max > 0.5 ? 1.12 : 1.04;
+    if(n==="Solar Knight") d*=1 + Math.min(0.30, (catOpsPassiveState.solar||0)*0.01);
+    if(n==="Necromancer") d*=1 + Math.min(0.35, (catOpsPassiveState.stacks||0)*0.025);
+    return d;
+  };
+
+  window.CAT_OPS_PASSIVE_ON_HIT = function(target, damage){
+    const p=player(), n=cname();
+    if(!p) return;
+    const s=catOpsPassiveState;
+    s.lastHit=performance.now();
+
+    if(n==="Vampire" || n==="Bloodmoon"){
+      const heal=damage*(n==="Bloodmoon" ? 0.10 : 0.07);
+      p.hp=Math.min(p.maxHp || p.hp,p.hp+heal);
+    }
+    if(n==="Necromancer") s.stacks=Math.min(20,(s.stacks||0)+0.08);
+    if(n==="Solar Knight") s.solar=Math.min(30,(s.solar||0)+0.25);
+    if(n==="Samurai") s.samuraiCharge=true;
+    if(n==="Omega+ Cat") s.combo=Math.min(25,(s.combo||0)+1);
+    if(n==="Stormbringer" && Math.random()<0.12 && typeof window.soundCritical==="function") window.soundCritical();
+  };
+
+  window.CAT_OPS_PASSIVE_ON_KILL = function(){
+    const p=player(), n=cname();
+    if(!p) return;
+    const s=catOpsPassiveState;
+    s.lastKill=performance.now();
+
+    if(n==="Runner Cat" || n==="Ninja" || n==="Astral Lord"){
+      p.speedBoostUntil=performance.now()+1800;
+    }
+    if(n==="Cyber Cat") p.fireRateBoostUntil=performance.now()+2200;
+    if(n==="Omega CAT") s.stacks=Math.min(25,(s.stacks||0)+1);
+    if(n==="Santa Cat" && Math.random()<0.20 && window.save){
+      save.coins=(save.coins||0)+1;
+      if(typeof window.saveGame==="function") saveGame();
+    }
+    if(n==="Nova Cat" || n==="Void Empress"){
+      if(typeof window.soundExplosion==="function") window.soundExplosion();
+    }
+  };
+
+  window.CAT_OPS_PASSIVE_ON_DAMAGE = function(amount){
+    const p=player(), n=cname();
+    if(!p) return amount;
+    const s=catOpsPassiveState;
+
+    if(n==="Shield Cat") amount*=0.80;
+    if(n==="Paladin" && p.hp > (p.maxHp||p.hp)*0.50) amount*=0.82;
+    if(n==="Titan") amount*=0.88;
+    if(n==="Overlord") amount*=0.90;
+
+    if(n==="Samurai") s.samuraiCharge=true;
+
+    if(n==="Chronarch" && p.hp-amount<=0 && !s.chronarchUsed){
+      s.chronarchUsed=true;
+      p.hp=Math.max(1,(p.maxHp||100)*0.35);
+      amount=0;
+    }
+
+    if(n==="Phoenix Cat" && p.hp-amount<=0 && !s.phoenixUsed){
+      s.phoenixUsed=true;
+      p.hp=Math.max(1,(p.maxHp||100)*0.50);
+      amount=0;
+    }
+
+    return Math.max(0,amount);
+  };
+
+  window.addEventListener("keydown",e=>{
+    if(e.key==="m" || e.key==="M"){
+      if(typeof window.toggleSound==="function") window.toggleSound();
+    }
+  });
+})();
+
+/* =========================================================
+   CAT OPS AUDIO — LIGHTWEIGHT WEB AUDIO
+   No external audio files required for SFX.
+   M = mute / unmute.
+========================================================= */
+let catAudio=null, catMaster=null, catSfx=null, catMuted=false;
+let catAudioReady=false, catAudioNodes=0;
+function initCatAudio(){
+  if(catAudioReady && catAudio){ if(catAudio.state==='suspended') catAudio.resume(); return; }
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC) return;
+  try{
+    catAudio=new AC(); catMaster=catAudio.createGain(); catSfx=catAudio.createGain();
+    catMaster.gain.value=.7; catSfx.gain.value=.65; catSfx.connect(catMaster); catMaster.connect(catAudio.destination);
+    catAudioReady=true; if(catAudio.state==='suspended') catAudio.resume();
+  }catch(e){ console.warn('CAT OPS audio unavailable',e); }
 }
-function beep(f,d,type="sine",v=.06,end=null){
-  if(soundMuted)return;initAudio();if(!audioCtx)return;const n=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.setValueAtTime(f,n);if(end)o.frequency.exponentialRampToValueAtTime(Math.max(20,end),n+d);g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(v,n+.008);g.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(g);g.connect(audioSfx);o.start(n);o.stop(n+d+.02);}
-function soundShoot(){beep(150,.05,"square",.045,65)}
-function soundHit(){beep(420,.04,"triangle",.035,220)}
-function soundKill(){beep(520,.06,"square",.045,800)}
-function soundDamage(){beep(110,.11,"sawtooth",.07,45)}
-function soundExplosion(){beep(90,.25,"sawtooth",.08,25)}
-function soundBoss(){beep(80,.35,"sawtooth",.10,25);setTimeout(()=>beep(220,.25,"triangle",.07,600),180)}
-function soundRocket(){beep(180,.22,"sawtooth",.06,650)}
-function soundHeal(){beep(520,.10,"sine",.05,800)}
-function soundLevel(){beep(440,.09,"sine",.05,700);setTimeout(()=>beep(700,.12,"sine",.06,1100),100)}
-function soundAwaken(){beep(180,.12,"sawtooth",.06,420);setTimeout(()=>beep(700,.22,"triangle",.07,1300),120)}
-function soundCoin(){beep(900,.05,"square",.04,1250)}
-function soundSpin(){beep(500,.03,"square",.025,700)}
-function toggleSound(){initAudio();soundMuted=!soundMuted;if(audioMaster)audioMaster.gain.value=soundMuted?0:.7;return soundMuted;}
-window.addEventListener("pointerdown",()=>initAudio(),{passive:true});
+function catTone(f,d,type='sine',v=.08,endF=null){
+  if(catMuted) return; initCatAudio(); if(!catAudioReady || catAudioNodes>18) return;
+  catAudioNodes++;
+  const now=catAudio.currentTime, o=catAudio.createOscillator(), g=catAudio.createGain();
+  o.type=type; o.frequency.setValueAtTime(Math.max(20,f),now);
+  if(endF!==null) o.frequency.exponentialRampToValueAtTime(Math.max(20,endF),now+d);
+  g.gain.setValueAtTime(.0001,now); g.gain.exponentialRampToValueAtTime(Math.max(.0001,v),now+.008); g.gain.exponentialRampToValueAtTime(.0001,now+d);
+  o.connect(g); g.connect(catSfx); o.start(now); o.stop(now+d+.02); o.onended=()=>catAudioNodes=Math.max(0,catAudioNodes-1);
+}
+function catNoise(d=.18,v=.06){
+  if(catMuted) return; initCatAudio(); if(!catAudioReady || catAudioNodes>18) return;
+  catAudioNodes++; const n=catAudio.createBufferSource(), b=catAudio.createBuffer(1,Math.floor(catAudio.sampleRate*d),catAudio.sampleRate), data=b.getChannelData(0);
+  for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*(1-i/data.length);
+  const g=catAudio.createGain(); g.gain.setValueAtTime(v,catAudio.currentTime); g.gain.exponentialRampToValueAtTime(.0001,catAudio.currentTime+d);
+  n.buffer=b; n.connect(g); g.connect(catSfx); n.start(); n.onended=()=>catAudioNodes=Math.max(0,catAudioNodes-1);
+}
+function catSfxShot(c){ if(c==='Ninja'||c==='Gunner') catTone(220,.035,'square',.045,90); else if(c==='Sniper'||c==='Titan') catTone(90,.10,'sawtooth',.09,35); else catTone(150,.055,'square',.06,65); }
+function catSfxHit(){catTone(420,.045,'triangle',.035,220)}
+function catSfxKill(){catTone(500,.06,'square',.045,750)}
+function catSfxDamage(){catTone(120,.12,'sawtooth',.07,55)}
+function catSfxHeal(){catTone(520,.12,'sine',.05,760); setTimeout(()=>catTone(760,.12,'sine',.045,1000),80)}
+function catSfxExplosion(){catNoise(.20,.06); catTone(95,.25,'sawtooth',.08,25)}
+function catSfxBoss(mega=false){catTone(mega?70:180,mega?.35:.18,'sawtooth',.11,mega?25:80); setTimeout(()=>catTone(mega?55:120,mega?.35:.20,'square',.09,mega?20:45),120)}
+function catSfxRocket(impact=false){ if(impact){catSfxExplosion()} else catTone(180,.22,'sawtooth',.06,650) }
+function catSfxLevel(){catTone(440,.1,'sine',.05,660);setTimeout(()=>catTone(660,.1,'sine',.05,880),100);setTimeout(()=>catTone(880,.15,'sine',.06,1200),200)}
+function catSfxAwaken(){catTone(180,.15,'sawtooth',.06,400);setTimeout(()=>catTone(400,.15,'triangle',.06,800),100);setTimeout(()=>catTone(800,.25,'sine',.07,1400),200)}
+function catSfxSpin(){catTone(500,.025,'square',.025,700)}
+function catSfxWin(){catTone(500,.1,'sine',.05,800);setTimeout(()=>catTone(800,.12,'sine',.055,1200),100);setTimeout(()=>catTone(1200,.2,'triangle',.06,1600),220)}
+function catSfxWave(){catTone(260,.1,'triangle',.045,400);setTimeout(()=>catTone(400,.12,'triangle',.05,620),110)}
+function catSfxGameOver(){catTone(300,.2,'sawtooth',.06,180);setTimeout(()=>catTone(180,.3,'sawtooth',.06,70),180)}
+function catSfxVictory(){catTone(500,.1,'triangle',.05,700);setTimeout(()=>catTone(700,.1,'triangle',.05,900),100);setTimeout(()=>catTone(900,.25,'triangle',.06,1400),200)}
+function toggleCatMute(){
+  initCatAudio(); catMuted=!catMuted; if(catMaster) catMaster.gain.value=catMuted?0:.7;
+  try{ localStorage.setItem('catOpsMuted',catMuted?'1':'0'); }catch(e){}
+  gameMessage(catMuted?'🔇 SOUND MUTED':'🔊 SOUND ON',700);
+}
+try{catMuted=localStorage.getItem('catOpsMuted')==='1';}catch(e){}
+
+/* =========================================================
+   ALL 66 CLASS PASSIVES
+   Every class has an always-active identity.
+========================================================= */
+const CLASS_PASSIVES=[
+['Rookie','Steady Paws','Balanced baseline stats.'],['Runner Cat','Swift Paws','+20% movement speed.'],['Ice Cat','Frostbite Rounds','Bullets slow enemies and add chill damage.'],['Fire Cat','Ember Rounds','Every bullet deals +12% passive fire damage and burns briefly.'],['Bomber Cat','Blast Training','Explosions have +25% radius and damage.'],['Shield Cat','Guard Stance','Takes 35% less contact/bullet damage.'],['Scout','Recon','+15% speed and slightly faster shooting.'],['Hunter','Predator Mark','25% chance for double bullet damage.'],['Medic','Combat Medic','Regenerates HP while not recently hit.'],['Ranger','Deadeye Range','+18% bullet speed and +8% damage.'],['Gunner','Suppressing Fire','+15% damage and +10% fire rate.'],['Sniper','Longshot','+70% damage and +25% bullet speed.'],['Pyro','Infernal Rounds','Every bullet deals +25% passive fire damage with a longer burn.'],['Frost','Deep Freeze','Hits have a chance to heavily slow enemies.'],['Vampire','Blood Feast','Kills heal 10 HP and bullets lifesteal.'],['Assassin','Executioner','+45% damage; bonus damage against weakened enemies.'],['Engineer','Auto Turret','Every 8 seconds, fires a free helper shot at the nearest enemy.'],['Storm','Chain Current','Shots can zap nearby enemies.'],['Ninja','Shadow Step','+30% speed and occasional movement dash.'],['Berserker','Rage Core','Below 40% HP, damage doubles.'],['Paladin','Holy Guard','+40 max HP, +20% damage, reduced damage.'],['Necromancer','Soul Harvest','Kills occasionally fire a soul bolt at a nearby enemy.'],['Druid','Nature Renewal','Slow passive regeneration and chance to root attackers.'],['Samurai','Counter Slash','Every few seconds, releases a short-range slash pulse.'],['Cyber Cat','Overclock','+30% damage and faster shooting.'],['Void Walker','Void Pressure','Nearby enemies are periodically damaged and slowed.'],['Dragon','Dragonfire','+35% damage and explosive rounds.'],['Titan','Titan Frame','220 base HP and reduced knockback/contact damage.'],['Shadow Lord','Dark Aura','Nearby enemies move slower.'],['Galaxy','Meteor Core','Every few seconds a meteor strikes a nearby enemy.'],['Time Cat','Chrono Field','+10% speed; nearby enemies are slowed.'],['Inferno King','Inferno Core','Fire explosions and passive burn damage.'],['Death Cat','Death Mark','+60% damage and 30% chance for 4x critical shots.'],['God Cat','Divine Power','+150% damage.'],['OMEGA CAT','Omega Arsenal','+2 extra projectiles and +100% damage.'],['Santa Cat','Gift Shot','Christmas gift projectiles explode.'],['Nebula Cat','Nebula Drift','Nearby enemies are periodically slowed; +15% damage.'],['Quantum Cat','Quantum Split','Bullets have a chance to spawn a second mini projectile.'],['Phoenix Cat','Rebirth','Once per night, lethal damage instead restores HP to 50%.'],['Leviathan','Tidal Force','Periodic arena wave damages enemies.'],['Archmage','Arcane Volley','Every few seconds casts an automatic magic bolt.'],['Wraith','Phase Shift','15% chance to ignore incoming damage.'],['Celestial','Guiding Stars','Bullets gain mild homing toward nearby enemies.'],['Overlord','Fear Aura','Nearby enemies deal 20% less contact damage.'],['Mythmancer','Rune Pulse','Periodic rune pulse damages and slows nearby enemies.'],['Stormbringer','Tempest Core','15% chance every bullet to call a lightning strike.'],['Bloodmoon','Crimson Night','At night, +35% lifesteal and +20% damage.'],['Aether Cat','Aether Pierce','Bullets pierce enemies and gain +20% damage.'],['Glacier King','Glacial Armor','Reduced damage and strong enemy slow on hit.'],['Solar Knight','Solar Burn','Bullets ignite enemies and deal bonus burn damage.'],['Void Empress','Null Pulse','Periodic void pulse damages nearby enemies.'],['Chronarch','Time Rewind','Every 12 seconds, restores 15 HP and slows enemies.'],['Primordial','Origin Force','+90% damage and +15 max HP.'],['Eclipse Cat','Umbra Field','Nearby enemies take periodic damage.'],['Nova Cat','Nova Burst','Every kill triggers a small nova against nearby enemies.'],['Ragnarok','Doom Stack','Each kill adds temporary stacking damage.'],['Astral Lord','Astral Dash','Every 6 seconds gains a short automatic dash toward aim.'],['Abyss Walker','Abyss Pull','Nearby enemies are periodically pulled toward the player and damaged.'],['Divine Beast','Beast Form','+80 max HP and +35% damage.'],['Infinity Cat','Infinity Ammo','Ammo does not decrease while passive is active.'],['Omega+ Cat','Omega Ascension','Kills stack temporary damage, up to 10 stacks.'],['Singularity Cat','Event Horizon','Periodic mini singularity damages nearby enemies.'],['Cosmic Emperor','Royal Decree','Periodic stun pulse freezes nearby enemies.'],['Eternal Cat','Eternity Beam','Periodic beam damages the nearest enemy.'],['Mythic Cat','Mythic Proc','Every shot has a 12% chance to trigger a random bonus effect.'],['ULTIMATE CAT','Apex Core','+200% damage, +50 max HP, +15% speed.']
+].map(x=>({name:x[0],id:x[1],desc:x[2]}));
+function classPassive(){return CLASS_PASSIVES[save.class]||CLASS_PASSIVES[0];}
+function passiveHas(id){return classPassive().id===id;}
+
 /* =========================================================
    DATA
 ========================================================= */
@@ -817,20 +1053,6 @@ const classes = [
 {name:"Mythic Cat",weapon:"Mythic Relic",ability:"Random mythic proc",cost:50000000},
 {name:"ULTIMATE CAT",weapon:"Ultimate Destroyer",ability:"Endgame apex class",cost:99999999}
 ];
-/* =========================================================
-   CLASS PASSIVES — every class has a real always-on identity
-========================================================= */
-const CLASS_PASSIVES = {
-  "Rookie":{desc:"+5% damage",dmg:1.05},"Runner Cat":{desc:"+20% movement speed",speed:1.20},"Ice Cat":{desc:"15% chance to freeze targets",freeze:.15},"Fire Cat":{desc:"Bullets always apply a light burn",burn:.12},"Bomber Cat":{desc:"Explosions are 35% larger",explosion:1.35},"Shield Cat":{desc:"Take 35% less damage",damageReduction:.35},"Scout":{desc:"+15% speed and +8% fire rate",speed:1.15,fireRate:1.08},"Hunter":{desc:"25% critical-shot chance",crit:.25},"Medic":{desc:"Regenerates after 45 seconds unharmed",regen:.65},"Ranger":{desc:"+25% bullet speed and +20% range",bulletSpeed:1.25,bulletLife:1.20},"Gunner":{desc:"+12% fire rate",fireRate:1.12},"Sniper":{desc:"+15% bullet speed",bulletSpeed:1.15},"Pyro":{desc:"Bullets always apply a heavy burn",burn:.25},"Frost":{desc:"25% chance to freeze targets",freeze:.25},"Vampire":{desc:"Restore 4% of bullet damage as HP",lifesteal:.04},"Assassin":{desc:"10% execute chance on weakened foes",execute:.10},"Engineer":{desc:"Deploys an automatic support turret",periodic:"engineer"},"Storm":{desc:"25% chance to chain lightning",chain:.25},"Ninja":{desc:"+1 projectile and combat dash",extraShots:1},"Berserker":{desc:"Double damage below 40% HP"},"Paladin":{desc:"Extra HP and 35% damage reduction",damageReduction:.35},"Necromancer":{desc:"Periodically fires a soul bolt",periodic:"necro"},"Druid":{desc:"Slow vines and passive regeneration",periodic:"druid",regen:.22},"Samurai":{desc:"Periodic blade strike",periodic:"samurai"},"Cyber Cat":{desc:"Energy shots deal +30% damage"},"Void Walker":{desc:"Hits pull nearby enemies inward",pull:90},"Dragon":{desc:"Bullets explode and burn",explosion:1.15,burn:.10},"Titan":{desc:"Heavy resistance",damageReduction:.12},"Shadow Lord":{desc:"Nearby enemies are slowed",auraSlow:.18},"Galaxy":{desc:"10% chance for a mini meteor burst",novaOnHit:.10},"Time Cat":{desc:"Shots slow enemies; +10% speed",freeze:.12,speed:1.10},"Inferno King":{desc:"Explosive bullets leave burn damage",explosion:1.20,burn:.16},"Death Cat":{desc:"30% chance for a 4x critical"},"God Cat":{desc:"Massive damage"},"OMEGA CAT":{desc:"4x damage and +2 projectiles",extraShots:2},"Santa Cat":{desc:"Gift-box bullets explode",explosion:1.10},"Nebula Cat":{desc:"Nearby foes are slowed",auraSlow:.15},"Quantum Cat":{desc:"15% chance to split a hit",split:.15},"Phoenix Cat":{desc:"Revives once each night at 35% HP",phoenix:true},"Leviathan":{desc:"Bullets create larger bursts",explosion:1.25},"Archmage":{desc:"Periodic arcane bolt",periodic:"archmage"},"Wraith":{desc:"12% chance to phase through damage",dodge:.12},"Celestial":{desc:"Shots gain mild homing",homing:.045},"Overlord":{desc:"Nearby enemies lose 20% speed",auraSlow:.20},"Mythmancer":{desc:"Hits can briefly root targets",freeze:.14},"Stormbringer":{desc:"Every bullet has lightning chance",chain:.32},"Bloodmoon":{desc:"+25% lifesteal at night",nightLifesteal:.25},"Aether Cat":{desc:"Bullets pierce enemies",piercing:true},"Glacier King":{desc:"15% damage reduction and chill shots",damageReduction:.15,freeze:.18},"Solar Knight":{desc:"Hits ignite enemies",burn:.18},"Void Empress":{desc:"Hits create short void pulses",voidPulse:.12},"Chronarch":{desc:"Hits briefly stop enemy movement",rewind:.15},"Primordial":{desc:"+45% raw bullet damage",dmg:1.45},"Eclipse Cat":{desc:"Hits create dark damage fields",eclipse:.12},"Nova Cat":{desc:"Kills trigger a small nova",novaOnKill:true},"Ragnarok":{desc:"Kills build doom damage",doom:true},"Astral Lord":{desc:"Periodic astral dash burst",periodic:"astral"},"Abyss Walker":{desc:"Hits pull and crush nearby foes",pull:130},"Divine Beast":{desc:"+15% damage"},"Infinity Cat":{desc:"Never consumes ammo while firing",ammoInfinite:true},"Omega+ Cat":{desc:"Kills stack permanent run damage",omegaStack:true},"Singularity Cat":{desc:"Hits create miniature gravity fields",singularity:true},"Cosmic Emperor":{desc:"Shots can stun",freeze:.20},"Eternal Cat":{desc:"Piercing shots that slow targets",piercing:true,freeze:.12},"Mythic Cat":{desc:"Every shot rolls a random proc",randomProc:true},"ULTIMATE CAT":{desc:"+75% damage, +15% speed, +10% crit",dmg:1.75,speed:1.15,crit:.10}
-};
-function getClassPassive(){return CLASS_PASSIVES[classes[save.class].name]||{};}
-function passiveDamageTakenMultiplier(){const p=getClassPassive(),c=classes[save.class].name;if(p.dodge&&Math.random()<p.dodge)return 0;if(c==="Shield Cat")return 1;if(c==="Paladin")return 1;if(c==="Titan")return 1;return 1-(p.damageReduction||0);}
-function passiveBullet(b){const p=getClassPassive(),c=classes[save.class].name;if(p.burn){b.burn=true;b.burnDamage=Math.max(b.burnDamage||0,b.damage*p.burn);b.burnDuration=c==="Pyro"?240:180;}if(p.freeze&&Math.random()<p.freeze){b.freeze=true;b.freezeTime=c==="Frost"?210:150;}if(p.lifesteal||(p.nightLifesteal&&game.night>1))b.lifesteal=true;if(p.piercing)b.piercing=true;if(p.explosion){b.explosive=true;b.explosionMul=p.explosion;}if(p.chain&&Math.random()<p.chain)b.lightning=true;if(p.homing)b.homing=true;return b;}
-function passiveOnHit(e,b,damage){const p=getClassPassive();if(b.freeze)e.freeze=Math.max(e.freeze||0,b.freezeTime||150);if(p.pull){for(const o of game.enemies){if(o!==e&&Math.hypot(o.x-e.x,o.y-e.y)<p.pull){o.x+=(e.x-o.x)*.08;o.y+=(e.y-o.y)*.08;}}}if(p.rewind&&Math.random()<p.rewind)e.freeze=Math.max(e.freeze||0,60);if(p.execute&&e.hp>0&&e.hp/e.maxHp<.10&&Math.random()<p.execute)e.hp=0;if(p.voidPulse&&Math.random()<p.voidPulse)game.hazards.push({type:"void",x:e.x,y:e.y,radius:48,life:180,tick:0,damage:Math.max(2,damage*.06)});if(p.eclipse&&Math.random()<p.eclipse)game.hazards.push({type:"void",x:e.x,y:e.y,radius:42,life:160,tick:0,damage:Math.max(2,damage*.05)});if(p.singularity)game.hazards.push({type:"void",x:e.x,y:e.y,radius:36,life:100,tick:0,damage:Math.max(1,damage*.03)});if(p.novaOnHit&&Math.random()<p.novaOnHit)explosion(e.x,e.y,45,damage*.12);if(p.split&&Math.random()<p.split){const o=game.enemies.find(x=>x!==e);if(o)o.hp-=damage*.35;}if(p.randomProc){const r=Math.random();if(r<.12)e.freeze=Math.max(e.freeze||0,120);else if(r<.20){e.burn=120;e.burnDamage=Math.max(2,damage*.08);}else if(r<.25)explosion(e.x,e.y,38,damage*.10);}}
-function passiveOnKill(e){const p=getClassPassive();if(p.novaOnKill===true)explosion(e.x,e.y,58,playerDamage()*.18);if(p.omegaStack)game.player.passiveStacks=Math.min(10,(game.player.passiveStacks||0)+1);if(p.doom)game.player.passiveStacks=Math.min(8,(game.player.passiveStacks||0)+1);}
-function passiveTick(dt){const p=getClassPassive(),pl=game.player;pl.passiveTimer=(pl.passiveTimer||0)-dt;if(p.auraSlow){for(const e of game.enemies){if(Math.hypot(e.x-pl.x,e.y-pl.y)<150)e.freeze=Math.max(e.freeze||0,18);}}if(p.regen&&game.timeSinceDamage>=45)pl.hp=Math.min(playerMaxHP(),pl.hp+p.regen*dt);if(pl.passiveTimer>0)return;if(p.periodic==="engineer"){pl.passiveTimer=900;pl.turret={x:pl.x+35,y:pl.y,life:850,shoot:0,hp:80,dmg:20};}else if(p.periodic==="necro"||p.periodic==="archmage"){pl.passiveTimer=p.periodic==="necro"?180:240;const e=game.enemies[0];if(e){const a=Math.atan2(e.y-pl.y,e.x-pl.x);game.bullets.push({x:pl.x,y:pl.y,vx:Math.cos(a)*14,vy:Math.sin(a)*14,damage:playerDamage()*.55,life:100,enemyBullet:false,weaponName:"Passive"});}}else if(p.periodic==="druid"){pl.passiveTimer=180;pl.hp=Math.min(playerMaxHP(),pl.hp+8);for(const e of game.enemies)if(Math.hypot(e.x-pl.x,e.y-pl.y)<140)e.freeze=Math.max(e.freeze||0,45);}else if(p.periodic==="samurai"){pl.passiveTimer=240;explosion(pl.x,pl.y,55,playerDamage()*.45);}else if(p.periodic==="astral"){pl.passiveTimer=300;pl.x=Math.max(25,Math.min(canvas.width-25,pl.x+Math.cos(pl.angle)*55));pl.y=Math.max(25,Math.min(canvas.height-25,pl.y+Math.sin(pl.angle)*55));explosion(pl.x,pl.y,48,playerDamage()*.35);}else pl.passiveTimer=60;}
-function tryPhoenixRevive(){const p=getClassPassive();if(!p.phoenix||game.player.phoenixUsedNight===game.night)return false;game.player.phoenixUsedNight=game.night;game.player.hp=Math.max(1,Math.round(playerMaxHP()*.35));game.player.awakenInvuln=120;createParticles(game.player.x,game.player.y,12);gameMessage("🔥 PHOENIX REVIVE!",1200);return true;}
-classes.forEach(c=>{const p=CLASS_PASSIVES[c.name];if(p)c.ability += " • Passive: "+p.desc;});
 /* =========================================================
    CLASS AWAKENINGS — Free: Level 0 (0 coins) | Premium: Level 2000 (50,000 coins)
    Press E in-game to activate (once awakened for that class).
@@ -2059,10 +2281,7 @@ const game={
         awakenDmgMul:1,
         awakenSpeedMul:1,
         awakenLifesteal:0,
-        turret:null,
-        passiveTimer:60,
-        passiveStacks:0,
-        phoenixUsedNight:0
+        turret:null
     }
 };
 /* =========================================================
@@ -2079,7 +2298,7 @@ function buildForestCanvas(){
     const t=(typeof game!=="undefined" && game)?getTerrain():TERRAINS[0];
     fctx.fillStyle=t.bg;
     fctx.fillRect(0,0,forestCanvas.width,forestCanvas.height);
-    const grid=game && game.lowGraphics ? 120 : 96;
+    const grid=80;
     fctx.strokeStyle=t.grid;
     fctx.lineWidth=1;
     for(let x=0;x<forestCanvas.width;x+=grid){
@@ -2094,10 +2313,9 @@ function buildForestCanvas(){
         fctx.lineTo(forestCanvas.width,y);
         fctx.stroke();
     }
-    // terrain props (sparser = faster build + slightly lighter look)
-    const propStep = game && game.lowGraphics ? 220 : 180;
-    for(let x=50;x<forestCanvas.width;x+=propStep){
-        for(let y=50;y<forestCanvas.height;y+=propStep){
+    // terrain props
+    for(let x=50;x<forestCanvas.width;x+=160){
+        for(let y=50;y<forestCanvas.height;y+=160){
             fctx.fillStyle=t.accent;
             if(t.id==="volcano"){
                 // jagged rocks
@@ -2147,9 +2365,8 @@ function resizeCanvas(){
        every fixed-size sprite (player, enemies, bullets, grid tiles)
        look zoomed in / enlarged the moment low graphics kicked in
        (including the automatic low-FPS fallback in updatePerformance).
-       Full resolution always (320k) so strong PCs look sharp and sprites
-       never suddenly zoom when low-graphics toggles. Soft limits (particles,
-       enemy caps, draw rate) still lighten the load on weaker devices. */
+       Low graphics now only cuts particles/hazards/lighting and slows
+       the render cadence — it never touches resolution. */
     const maxPixels = 320000;
     const w = Math.max(320, window.innerWidth);
     const h = Math.max(240, window.innerHeight);
@@ -2268,13 +2485,14 @@ const keys={};
 const GAME_KEY_CODES = new Set([
     "KeyW","KeyA","KeyS","KeyD",
     "ArrowUp","ArrowDown","ArrowLeft","ArrowRight",
-    "KeyE"
+    "KeyE","KeyM"
 ]);
 
 window.addEventListener("keydown", function(e){
     if(GAME_KEY_CODES.has(e.code)){
         e.preventDefault();
         keys[e.code]=true;
+        if(e.code==="KeyM" && !e.repeat) toggleCatMute();
     }
 });
 
@@ -2347,6 +2565,7 @@ function startGame(){
     game.player.reloadTimer=0;
     game.player.ammo=magSize();
     game.player.awakenCooldown=0;
+    game.player.passiveTimer=120; game.player.turretTimer=300; game.player.astralTimer=240; game.player.doomStacks=0; game.player.omegaStacks=0;
     game.player.awakenActive=0;
     game.player.awakenType="";
     game.player.critShotsLeft=0;
@@ -2355,9 +2574,6 @@ function startGame(){
     game.player.awakenSpeedMul=1;
     game.player.awakenLifesteal=0;
     game.player.turret=null;
-    game.player.passiveTimer=60;
-    game.player.passiveStacks=0;
-    game.player.phoenixUsedNight=0;
     awakenKeyLatched=false;
     for(const k of GAME_KEY_CODES) keys[k]=false;
     mouse.down=false;
@@ -2393,8 +2609,9 @@ function playerMaxHP(){
     if(classes[save.class].name==="Divine Beast"){
         hp=180;
     }
-    const cp=getClassPassive();
-    if(cp.hp) hp+=cp.hp;
+    if(passiveHas("Origin Force")) hp+=15;
+    if(passiveHas("Beast Form")) hp+=80;
+    if(passiveHas("Apex Core")) hp+=50;
     const sk=skins[save.skin];
     if(sk && sk.hpMul) hp=Math.round(hp*sk.hpMul);
     const acc=getAccessory();
@@ -2415,8 +2632,7 @@ function playerSpeed(){
     if(classes[save.class].name==="Time Cat"){
         speed*=1.1;
     }
-    const cp=getClassPassive();
-    if(cp.speed) speed*=cp.speed;
+    if(passiveHas("Apex Core")) speed*=1.15;
     if(game.player.awakenSpeedMul) speed*=game.player.awakenSpeedMul;
     const sk=skins[save.skin];
     if(sk && sk.speedMul) speed*=sk.speedMul;
@@ -2469,11 +2685,6 @@ function playerDamage(){
     if(c==="OMEGA CAT"){
         d*=4;
     }
-    const cp=getClassPassive();
-    if(cp.dmg) d*=cp.dmg;
-    if(cp.lowHpDmg && game.player.hp<playerMaxHP()*.4 && classes[save.class].name!=="Berserker") d*=cp.lowHpDmg;
-    if(cp.omegaStack && game.player.passiveStacks) d*=1+game.player.passiveStacks*.03;
-    if(cp.doom && game.player.passiveStacks) d*=1+game.player.passiveStacks*.04;
     if(game.player.awakenDmgMul) d*=game.player.awakenDmgMul;
     if(game.player.critShotsLeft>0){
         d*=2;
@@ -2483,18 +2694,26 @@ function playerDamage(){
     if(sk && sk.dmgMul) d*=sk.dmgMul;
     const acc=getAccessory();
     if(acc && acc.dmgMul) d*=acc.dmgMul;
+    if(passiveHas("Deadeye Range")) d*=1.08;
+    if(passiveHas("Overclock")) d*=1.30;
+    if(passiveHas("Origin Force")) d*=1.90;
+    if(passiveHas("Beast Form")) d*=1.35;
+    if(passiveHas("Aether Pierce")) d*=1.20;
+    if(passiveHas("Apex Core")) d*=3.0;
+    if(passiveHas("Bloodmoon")) d*=1.20;
+    if(passiveHas("Doom Stack")) d*=1+Math.min(.75,(game.player.doomStacks||0)*.075);
+    if(passiveHas("Omega Ascension")) d*=1+Math.min(1,(game.player.omegaStacks||0)*.10);
     return d;
 }
 /* =========================================================
    ENEMY LIMIT
 ========================================================= */
 function enemyCount(){
-    /* Full caps on strong PCs; tighter when LOW GRAPHICS is on. */
-    let cap = game.lowGraphics ? 18 : 28;
-    if(game.wave>=50) cap = Math.min(game.lowGraphics ? 22 : 40, cap + Math.floor((game.wave-50)/(game.lowGraphics?3:2)));
+    let cap=28;
+    if(game.wave>=50) cap=Math.min(40, 28+Math.floor((game.wave-50)/2));
     return Math.min(
         cap,
-        (game.lowGraphics ? 4 : 5) + game.night * (game.lowGraphics ? 1.2 : 1.5) + (game.wave>=50 ? (game.lowGraphics?4:6) : 0)
+        5+game.night*1.5+(game.wave>=50?6:0)
     );
 }
 /* =========================================================
@@ -2608,6 +2827,7 @@ function spawnMiniboss(){
     const hardB=waveHardScale(game.wave||1);
     const hp=
         (500+game.night*100)*terB.enemyHp*hardB.hp;
+    catSfxBoss(false);
     game.enemies.push({
         x: pos.x,
         y: pos.y,
@@ -2626,7 +2846,6 @@ function spawnMiniboss(){
     });
     document.getElementById("bossBar").style.display="block";
     document.getElementById("bossName").textContent="MINIBOSS";
-    soundBoss();
 }
 /* =========================================================
    MEGA BOSS
@@ -2644,6 +2863,7 @@ function spawnMegaBoss(){
     const hardM=waveHardScale(game.wave||1);
     const hp=
         (2800+game.night*450)*terM.enemyHp*hardM.hp;
+    catSfxBoss(true);
     game.enemies.push({
         x: pos.x,
         y: pos.y,
@@ -2669,7 +2889,6 @@ function spawnMegaBoss(){
         "bossName"
     ).textContent=
         "👑 MEGA BOSS";
-    soundBoss();
 }
 function magSize(){
     const g=guns[save.gun];
@@ -2716,15 +2935,14 @@ function shoot(){
         gameMessage("RELOADING", 500);
         return;
     }
-    const cp=getClassPassive();
     game.player.shootCooldown=
-        gun.rate/(cp.fireRate||1);
-    if(!getClassPassive().ammoInfinite) game.player.ammo--;
-    soundShoot();
+        gun.rate;
     const c=
         classes[save.class].name;
     // OP classes alternate: special shot, then normal shot.
     const opShot = getOpShotType(c);
+    if(!passiveHas("Infinity Ammo")) game.player.ammo--;
+    catSfxShot(c);
     let shots=
         gun.shots;
     if(c==="Santa Cat"){
@@ -2737,8 +2955,6 @@ function shoot(){
     if(c==="OMEGA CAT"){
         shots+=2;
     }
-    const cpShot=getClassPassive();
-    if(cpShot.extraShots && c!=="Ninja" && c!=="OMEGA CAT") shots+=cpShot.extraShots;
     for(let i=0;i<shots;i++){
         let spread=
             shots===1
@@ -2760,10 +2976,6 @@ function shoot(){
             Math.random()<.3
         ){
             damage*=4;
-        }
-        const cpCrit=getClassPassive();
-        if(cpCrit.crit && c!=="Hunter" && c!=="Death Cat" && Math.random()<cpCrit.crit){
-            damage*=2;
         }
         const barrel=28;
         game.bullets.push({
@@ -2796,12 +3008,13 @@ function shoot(){
             lifesteal:
                 c==="Vampire",
             enemyBullet:false,
-            weaponName:gun.name
+            weaponName:gun.name,
+            passiveBurn: c==="Fire Cat" ? .12 : (c==="Pyro" ? .25 : (c==="Solar Knight" ? .16 : (c==="Inferno King" ? .12 : 0))),
+            homing: c==="Celestial",
+            passivePierce: c==="Aether Cat",
+            quantum: c==="Quantum Cat",
+            mythic: c==="Mythic Cat"
         });
-        passiveBullet(game.bullets[game.bullets.length-1]);
-        const cpB=getClassPassive();
-        if(cpB.bulletSpeed){const bb=game.bullets[game.bullets.length-1];bb.vx*=cpB.bulletSpeed;bb.vy*=cpB.bulletSpeed;}
-        if(cpB.bulletLife) game.bullets[game.bullets.length-1].life*=cpB.bulletLife;
     }
 }
 /* =========================================================
@@ -2821,6 +3034,7 @@ function getActiveAwakening(){
 }
 function activateAwakening(){
     if(!game.running) return;
+    catSfxAwaken();
     const aw=getActiveAwakening();
     if(!aw){
         gameMessage("Unlock free awaken in Classes table first",900);
@@ -2842,7 +3056,6 @@ function activateAwakening(){
     p.critShotsLeft=0;
     const cx=p.x, cy=p.y;
     gameMessage((isPrem?"👑 ":"✨ ")+aw.name+"!",1000);
-    soundAwaken();
     createParticles(cx,cy,isPrem?12:8);
 
     switch(aw.name){
@@ -3325,7 +3538,6 @@ function updatePlayer(dt){
     }else if(game.player.ammo<=0){
         game.player.reloadTimer=55;
     }
-    passiveTick(dt);
     if(classes[save.class].name==="Medic" && game.timeSinceDamage>=45){
         game.player.hp=Math.min(playerMaxHP(),game.player.hp+.65*dt);
     }
@@ -3356,17 +3568,18 @@ function updateBullets(dt){
                     game.bullets.splice(i,1);
                     continue;
                 }
+                if(passiveHas("Phase Shift") && Math.random()<.15){ game.bullets.splice(i,1); continue; }
                 let reduced = classes[save.class].name==="Shield Cat" ? b.damage*0.65 : b.damage;
-                reduced*=passiveDamageTakenMultiplier();
+                if(passiveHas("Guard Stance") || passiveHas("Glacial Armor")) reduced*=.9;
                 if(getTerrain().id==="mountains") reduced*=0.92;
                 game.player.hp-=reduced;
-                soundDamage();
                 game.timeSinceDamage=0;
                 game.bullets.splice(i,1);
                 if(
                     game.player.hp<=0
                 ){
-                    if(!tryPhoenixRevive()){ gameOver(); return; }
+                    gameOver();
+                    return;
                 }
                 continue;
             }
@@ -3389,21 +3602,38 @@ function updateBullets(dt){
                     e.size+5
                 ){
                     let finalDamage = e.shield>0 ? b.damage*0.25 : b.damage;
+                    if(passiveHas("Guard Stance") || passiveHas("Glacial Armor")) finalDamage*=.9;
                     if(e.armor) finalDamage*=(1-e.armor);
-                    e.hp-=finalDamage;
-                    soundHit();
-                    passiveOnHit(e,b,finalDamage);
+                    finalDamage = (typeof window.CAT_OPS_PASSIVE_DAMAGE==='function') ? window.CAT_OPS_PASSIVE_DAMAGE(finalDamage,e) : finalDamage;
+        e.hp-=finalDamage;
+        if(typeof window.CAT_OPS_PASSIVE_ON_HIT==='function') window.CAT_OPS_PASSIVE_ON_HIT(e,finalDamage);
                     hit=true;
                     if(b.freeze){
-                        e.freeze=b.freezeTime||150;
+                        e.freeze=150;
                     }
                     const trHit=getTerrain();
                     if(trHit.enemySlowChance && Math.random()<trHit.enemySlowChance){
                         e.freeze=Math.max(e.freeze||0,90);
                     }
-                    if(b.burn){
-                        e.burn=b.burnDuration||180;
-                        e.burnDamage=Math.max(2,b.burnDamage||b.damage*0.08);
+                    if(b.burn || b.passiveBurn>0){
+                        e.burn=Math.max(e.burn||0,b.passiveBurn>0 ? (b.passiveBurn>=.25?240:180) : 180);
+                        e.burnDamage=Math.max(2,b.damage*Math.max(.08,b.passiveBurn||0));
+                    }
+                    if(passiveHas("Deep Freeze") && Math.random()<.25) e.freeze=Math.max(e.freeze||0,180);
+                    if(passiveHas("Glacial Armor")) e.freeze=Math.max(e.freeze||0,130);
+                    if(passiveHas("Tempest Core") && Math.random()<.15){ e.hp-=b.damage*.45; createParticles(e.x,e.y,3); }
+                    if(passiveHas("Quantum Split") && b.quantum && Math.random()<.18){
+                        const a=Math.atan2(b.vy,b.vx)+(.22*(Math.random()<.5?-1:1));
+                        game.bullets.push({x:b.x,y:b.y,vx:Math.cos(a)*12,vy:Math.sin(a)*12,damage:b.damage*.45,life:55,explosive:false,freeze:false,burn:false,fireZone:false,bomber:false,lightning:false,piercing:false,lifesteal:false,enemyBullet:false,weaponName:"Quantum Split"});
+                    }
+                    if(passiveHas("Mythic Proc") && b.mythic && Math.random()<.12){
+                        e.freeze=Math.max(e.freeze||0,180); e.burn=120; e.burnDamage=Math.max(3,b.damage*.12);
+                        game.player.hp=Math.min(playerMaxHP(),game.player.hp+3);
+                    }
+                    if(passiveHas("Aether Pierce")) b.piercing=true;
+                    if(passiveHas("Guiding Stars") && !b.enemyBullet){
+                        let target=null,best=260; for(const q of game.enemies){const dd=Math.hypot(q.x-b.x,q.y-b.y); if(dd<best){best=dd;target=q;}}
+                        if(target){const a=Math.atan2(target.y-b.y,target.x-b.x); const sp=Math.hypot(b.vx,b.vy); b.vx=b.vx*.82+Math.cos(a)*sp*.18; b.vy=b.vy*.82+Math.sin(a)*sp*.18;}
                     }
                     if(b.lifesteal || game.player.awakenLifesteal>0){
                         const ls=(b.lifesteal?0.04:0)+(game.player.awakenLifesteal||0);
@@ -3434,7 +3664,7 @@ function updateBullets(dt){
                         explosion(
                             b.x,
                             b.y,
-                            (b.bomber ? 105 : 70)*(b.explosionMul||1),
+                            b.bomber ? 105 : 70,
                             b.damage*.45
                         );
                     }
@@ -3490,16 +3720,17 @@ function killEnemy(e,index){
         reward=Math.max(1, Math.round(reward*(1.5+Math.min(2,(game.wave-50)*0.02))));
     }
     save.coins+=reward;
-    soundCoin();
+    catSfxKill();
+    if(passiveHas("Doom Stack")) game.player.doomStacks=Math.min(10,(game.player.doomStacks||0)+1);
+    if(passiveHas("Omega Ascension")) game.player.omegaStacks=Math.min(10,(game.player.omegaStacks||0)+1);
+    if(passiveHas("Nova Burst")) explosion(e.x,e.y,42,Math.max(8,playerDamage()*.16));
     const oldLevel=getPlayerLevel();
     save.kills++;
     const newLevel=getPlayerLevel();
     if(newLevel>oldLevel){
         gameMessage("⭐ LEVEL UP! You reached Level "+newLevel+"!");
-        soundLevel();
+        catSfxLevel();
     }
-    passiveOnKill(e);
-    soundKill();
     createParticles(
         e.x,
         e.y,
@@ -3558,7 +3789,6 @@ function explosion(
     radius,
     damage
 ){
-    soundExplosion();
     createParticles(
         x,
         y,
@@ -3588,6 +3818,7 @@ function explosion(
 ========================================================= */
 function summonMegaRockets(){
     if(!game.bossActive) return;
+    catSfxRocket(false);
     for(let i=0;i<2;i++){
         const offset=(i===0?-75:75);
         const tx=Math.max(45,Math.min(canvas.width-45,game.player.x+offset));
@@ -3636,19 +3867,20 @@ function updateHazards(dt){
         }
         h.y+=h.fallSpeed*dt;
         if(h.y>=h.targetY){
+            catSfxRocket(true);
             const d=Math.hypot(
                 game.player.x-h.x,
                 game.player.y-h.targetY
             );
             if(d<h.radius && !(game.player.awakenInvuln>0 )){
-                const rocketDamage=(classes[save.class].name==="Shield Cat"?h.damage*0.65:h.damage)*passiveDamageTakenMultiplier();
+                const rocketDamage=classes[save.class].name==="Shield Cat"?h.damage*0.65:h.damage;
                 game.player.hp=Math.max(0,game.player.hp-rocketDamage);
-                soundDamage();
-                soundRocket();
                 game.timeSinceDamage=0;
                 gameMessage("🚀 ROCKET HIT! -"+Math.ceil(rocketDamage)+" HP",650);
                 if(game.player.hp<=0){
-                    if(!tryPhoenixRevive()){ game.hazards.splice(i,1); gameOver(); return; }
+                    game.hazards.splice(i,1);
+                    gameOver();
+                    return;
                 }
             }
             explosion(h.x,h.targetY,h.radius,h.damage*.15);
@@ -3875,13 +4107,11 @@ function updateEnemies(dt){
                 e.y -= dy2/Math.max(dist2,0.01) * 40;
             } else {
             let contactDamage = classes[save.class].name==="Shield Cat" ? touchDamage*0.65 : touchDamage;
-            contactDamage*=passiveDamageTakenMultiplier();
             if(getTerrain().id==="mountains") contactDamage*=0.92;
             game.player.hp = Math.max(
                 0,
                 game.player.hp - contactDamage
             );
-            soundDamage();
             gameMessage("💥 HIT! -"+Math.ceil(contactDamage)+" HP", 450);
             game.timeSinceDamage = 0;
             }
@@ -3890,7 +4120,8 @@ function updateEnemies(dt){
             e.x -= dx2/safeDist * 40;
             e.y -= dy2/safeDist * 40;
             if(game.player.hp<=0){
-                if(!tryPhoenixRevive()){ gameOver(); return; }
+                gameOver();
+                return;
             }
         }
         if(e.touchCooldown){
@@ -3952,8 +4183,8 @@ function createParticles(
     count
 ){
     if(game.lowGraphics) return;
-    count=Math.min(count, 2);
-    if(game.particles.length >= 12) return;
+    count=Math.min(count,2);
+    if(game.particles.length>=12) return;
     for(
         let i=0;
         i<count;
@@ -4004,12 +4235,7 @@ function updateParticles(dt){
 /* =========================================================
    HUD
 ========================================================= */
-let _hudFrame = 0;
 function updateHUD(){
-    /* Throttle DOM writes — they are expensive on mobile/low-end CPUs. */
-    _hudFrame++;
-    if(_hudFrame % 3 !== 0 && game.player.hp > 0) return;
-
     const hp=
         Math.max(
             0,
@@ -4028,6 +4254,11 @@ function updateHUD(){
             0,
             hp/max*100
         )+"%";
+    const terrainRegen = getTerrain().regen || 0;
+    if(terrainRegen>0 && game.timeSinceDamage>=60 && hp<max){
+        game.player.hp=Math.min(max,game.player.hp + max*terrainRegen*dt);
+        hp=game.player.hp;
+    }
     const regenActive =
         game.timeSinceDamage >= 360 &&
         hp < max;
@@ -4302,22 +4533,860 @@ function drawBullets(){
    DRAW ENEMIES
 ========================================================= */
 function drawEnemies(){
-  for(const e of game.enemies){
-    ctx.save();ctx.globalAlpha=e.invisible?.18:1;ctx.translate(e.x,e.y);
-    if(e.type==="mega"){ctx.fillStyle="#8d2222";ctx.beginPath();ctx.arc(0,0,e.size,0,Math.PI*2);ctx.fill();ctx.strokeStyle=e.shield>0?"#66d9ff":"#ff3d3d";ctx.lineWidth=4;ctx.stroke();if(e.shield>0){ctx.beginPath();ctx.arc(0,0,e.size+8,0,Math.PI*2);ctx.stroke();}}
-    else if(e.type==="miniboss"){ctx.fillStyle="#8f9692";ctx.fillRect(-e.size,-e.size,e.size*2,e.size*2);ctx.strokeStyle="#d8dedb";ctx.lineWidth=4;ctx.strokeRect(-e.size,-e.size,e.size*2,e.size*2);}
-    else{ctx.fillStyle=e.type==="tank"?"#777":e.type==="fast"?"#ffd84a":e.type==="ranged"?"#63c5ff":e.type==="bomber"?"#ff7043":e.type==="shadow"?"#6d5a88":"#b94b4b";ctx.beginPath();ctx.arc(0,0,e.size,0,Math.PI*2);ctx.fill();ctx.fillStyle="#111";ctx.beginPath();ctx.arc(5,-4,2.5,0,Math.PI*2);ctx.arc(5,4,2.5,0,Math.PI*2);ctx.fill();}
-    ctx.restore();
-    if(e.hp>0&&!e.boss){const w=Math.max(24,e.size*2);ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(e.x-w/2,e.y-e.size-10,w,4);ctx.fillStyle="#68e06f";ctx.fillRect(e.x-w/2,e.y-e.size-10,w*Math.max(0,e.hp/e.maxHp),4);}
-  }
+    for(
+        let i=0;
+        i<game.enemies.length;
+        i++
+    ){
+        const e=
+            game.enemies[i];
+        ctx.save();
+        ctx.globalAlpha = e.invisible ? 0.18 : 1;
+        ctx.translate(
+            e.x,
+            e.y
+        );
+        if(e.type==="mega"){
+            ctx.fillStyle="#8d2222";
+            ctx.beginPath();
+            ctx.arc(
+                0,
+                0,
+                e.size,
+                0,
+                Math.PI*2
+            );
+            ctx.fill();
+            ctx.strokeStyle="#ff3d3d";
+            ctx.lineWidth=4;
+            ctx.stroke();
+        }
+        else if(e.type==="miniboss"){
+            ctx.fillStyle="#8f9692";
+            ctx.fillRect(
+                -e.size,
+                -e.size,
+                e.size*2,
+                e.size*2
+            );
+            ctx.strokeStyle="#d8dedb";
+            ctx.lineWidth=3;
+            ctx.strokeRect(
+                -e.size,
+                -e.size,
+                e.size*2,
+                e.size*2
+            );
+            ctx.fillStyle="#2d332f";
+            ctx.fillRect(-4,-18,8,30);
+            ctx.beginPath();
+            ctx.moveTo(0,-25);
+            ctx.lineTo(-8,-12);
+            ctx.lineTo(8,-12);
+            ctx.closePath();
+            ctx.fill();
+        }
+        else if(e.type==="tank"){
+            ctx.fillStyle="#59615b";
+            ctx.fillRect(
+                -e.size,
+                -e.size,
+                e.size*2,
+                e.size*2
+            );
+        }
+        else if(e.type==="bomber"){
+            ctx.fillStyle="#e4c53d";
+            ctx.beginPath(); ctx.arc(0,0,e.size,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle="#ff6b35"; ctx.fillRect(-5,-5,10,10);
+        }
+        else if(e.type==="shadow"){
+            ctx.fillStyle="#15151f";
+            ctx.beginPath(); ctx.arc(0,0,e.size,0,Math.PI*2); ctx.fill();
+            ctx.strokeStyle="#8b6cff"; ctx.lineWidth=2; ctx.stroke();
+        }
+        else if(e.type==="fast"){
+            ctx.fillStyle="#c64b4b";
+            ctx.beginPath();
+            ctx.arc(
+                0,
+                0,
+                e.size,
+                0,
+                Math.PI*2
+            );
+            ctx.fill();
+        }
+        else{
+            ctx.fillStyle="#a83f3f";
+            ctx.beginPath();
+            ctx.arc(
+                0,
+                0,
+                e.size,
+                0,
+                Math.PI*2
+            );
+            ctx.fill();
+        }
+        /* HEALTH BAR */
+        ctx.fillStyle="#111";
+        ctx.fillRect(
+            -e.size,
+            -e.size-9,
+            e.size*2,
+            4
+        );
+        ctx.fillStyle="#61e45e";
+        ctx.fillRect(
+            -e.size,
+            -e.size-9,
+            e.size*2*
+            Math.max(
+                0,
+                e.hp/e.maxHp
+            ),
+            4
+        );
+        if(e.freeze>0){
+            ctx.strokeStyle="#68d9ff"; ctx.lineWidth=4;
+            ctx.beginPath(); ctx.arc(0,0,e.size+7,0,Math.PI*2); ctx.stroke();
+        }
+        if(e.burn>0){
+            ctx.strokeStyle="#ff7a22"; ctx.lineWidth=3;
+            ctx.beginPath(); ctx.arc(0,0,e.size+10,0,Math.PI*2); ctx.stroke();
+        }
+        if(e.shield>0){
+            ctx.strokeStyle="#74b9ff"; ctx.lineWidth=6;
+            ctx.globalAlpha=.75;
+            ctx.beginPath(); ctx.arc(0,0,e.size+13,0,Math.PI*2); ctx.stroke();
+        }
+        ctx.restore();
+    }
 }
-function drawParticles(){for(const p of game.particles){ctx.globalAlpha=Math.max(0,p.life/60);ctx.fillStyle="#ffd45c";ctx.fillRect(p.x,p.y,p.size,p.size);}ctx.globalAlpha=1;}
-function gameOver(){game.running=false;mouse.down=false;for(const k of GAME_KEY_CODES)keys[k]=false;document.getElementById("bossBar").style.display="none";const msg=document.getElementById("gameMessage");if(msg)msg.textContent="💀 GAME OVER — Wave "+game.wave+" · Kills "+save.kills;try{saveGame();}catch(e){}setTimeout(()=>{document.getElementById("gameScreen")?.classList.add("hidden");document.getElementById("homeScreen")?.classList.remove("hidden");},900);}
-function spawnWaveIfNeeded(dt){if(game.bossActive||game.enemies.length>0||game.waveSpawned)return;game.spawnTimer+=dt;if(game.spawnTimer<25)return;game.spawnTimer=0;if(save.kills>20&&game.wave%10===0){spawnMegaBoss();return;}if(save.kills>20&&game.wave%5===0){spawnMiniboss();return;}game.waveSpawned=true;spawnEnemy();spawnEnemy();}
-function advanceWaveIfCleared(){if(game.bossActive||game.enemies.length!==0||!game.waveSpawned)return;game.wave++;game.waveSpawned=false;setTerrainForWave(game.wave,false);gameMessage("🌊 WAVE "+game.wave+"!",800);}
-function loop(now){if(!game.running)return;const dt=Math.min(2,Math.max(.1,(now-game.lastTime)/16.67));game.lastTime=now;game.timeSinceDamage+=dt;spawnWaveIfNeeded(dt);updatePlayer(dt);updateBullets(dt);updateHazards(dt);updateEnemies(dt);updateNight(dt);updateParticles(dt);if(game.enemies.length===0&&game.waveSpawned&&!game.bossActive)advanceWaveIfCleared();updateHUD();ctx.clearRect(0,0,canvas.width,canvas.height);drawForest();drawHazards();drawEnemies();drawBullets();drawPlayer();drawParticles();requestAnimationFrame(loop);}
-window.addEventListener("keydown",function(e){if(e.code==="KeyM"){e.preventDefault();if(typeof toggleSound==="function")toggleSound();}});
-window.addEventListener("pointerdown",function(){if(typeof initAudio==="function")initAudio();},{passive:true});
+/* =========================================================
+   DRAW PARTICLES
+========================================================= */
+function drawParticles(){
+    if(game.lowGraphics) return;
+    for(
+        let i=0;
+        i<game.particles.length;
+        i++
+    ){
+        const p=
+            game.particles[i];
+        ctx.globalAlpha=
+            Math.max(
+                0,
+                p.life/50
+            );
+        ctx.fillStyle="#ffd34d";
+        ctx.fillRect(
+            p.x,
+            p.y,
+            p.size,
+            p.size
+        );
+        ctx.globalAlpha=1;
+    }
+}
+/* =========================================================
+   DRAW
+========================================================= */
+function drawMediumLighting(){
+    if(game.lowGraphics) return;
+    const px=game.player.x;
+    const py=game.player.y;
+    const glow=ctx.createRadialGradient(px,py,25,px,py,210);
+    glow.addColorStop(0,"rgba(255,240,170,0.10)");
+    glow.addColorStop(0.45,"rgba(120,220,120,0.035)");
+    glow.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.fillStyle=glow;
+    ctx.fillRect(
+        Math.max(0,px-220),
+        Math.max(0,py-220),
+        440,
+        440
+    );
+    if(!vignetteGradient){
+        buildVignette();
+    }
+    ctx.fillStyle=vignetteGradient;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+}
+function drawAwakeningExtras(){
+    const p=game.player;
+    if(p.turret){
+        ctx.save();
+        ctx.fillStyle="#6ee7b7";
+        ctx.beginPath();
+        ctx.arc(p.turret.x,p.turret.y,12,0,Math.PI*2);
+        ctx.fill();
+        ctx.strokeStyle="#fff";
+        ctx.lineWidth=2;
+        ctx.stroke();
+        ctx.restore();
+    }
+    for(const h of game.hazards){
+        if(h.type!=="turret2") continue;
+        ctx.save();
+        ctx.fillStyle="#fbbf24";
+        ctx.beginPath();
+        ctx.arc(h.x,h.y,12,0,Math.PI*2);
+        ctx.fill();
+        ctx.strokeStyle="#fff";
+        ctx.lineWidth=2;
+        ctx.stroke();
+        ctx.restore();
+    }
+    if(p.awakenActive>0 || p.awakenInvuln>0){
+        ctx.save();
+        ctx.strokeStyle=p.awakenInvuln>0 ? "rgba(120,200,255,0.7)" : "rgba(255,216,74,0.55)";
+        ctx.lineWidth=3;
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,26+Math.sin(performance.now()/100)*3,0,Math.PI*2);
+        ctx.stroke();
+        ctx.restore();
+    }
+}
+function draw(){
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+    drawForest();
+    drawParticles();
+    drawHazards();
+    drawEnemies();
+    drawBullets();
+    drawPlayer();
+    drawAwakeningExtras();
+    drawMediumLighting();
+}
+/* =========================================================
+   WAVE SPAWNER
+========================================================= */
+function spawnEnemyForced(type){
+    if(game.bossActive) return;
+    const edge=Math.floor(Math.random()*4); let x,y;
+    if(edge===0){x=Math.random()*canvas.width;y=-40;}
+    else if(edge===1){x=canvas.width+40;y=Math.random()*canvas.height;}
+    else if(edge===2){x=Math.random()*canvas.width;y=canvas.height+40;}
+    else{x=-40;y=Math.random()*canvas.height;}
+    const scale=1+Math.floor((game.wave-1)/10)*0.35;
+    const ter=getTerrain();
+    const hard=waveHardScale(game.wave);
+    const cfg={basic:[1.6,17,30],fast:[2.7,13,30],tank:[1,25,120],ranged:[1.3,17,30],bomber:[1.8,19,30],shadow:[2,16,30]}[type]||[1.6,17,30];
+    let hp=(cfg[2]*scale+game.night*4)*ter.enemyHp*hard.hp*(ter.enemyHpBonus||1);
+    let spd=cfg[0]*ter.enemySpd*hard.spd;
+    game.enemies.push({x,y,type,hp,maxHp:hp,speed:spd,size:cfg[1],shoot:Math.random()*1200,freeze:0,burn:0,burnDamage:0,invisible:false,shadowTimer:Math.random()*240,boss:false,reward:1,touchCooldown:0,touchMul:ter.enemyDmg*hard.touch});
+}
+function spawnCurrentWave(){
+    const w=game.wave;
+
+    /* No boss before the player has more than 20 kills. */
+    if(save.kills>20 && w%10===0){
+        spawnMegaBoss();
+        gameMessage("🔴 MEGA BOSS WAVE!",1200);
+        return;
+    }
+    if(save.kills>20 && w%10===5){
+        spawnMiniboss();
+        gameMessage("🔶 MINIBOSS WAVE!",1200);
+        return;
+    }
+    if(w===1){spawnEnemyForced("basic");spawnEnemyForced("basic");return;}
+    if(w===2){spawnEnemyForced("fast");spawnEnemyForced("fast");return;}
+    if(w===3){spawnEnemyForced("tank");spawnEnemyForced("basic");return;}
+    if(w===4){spawnEnemyForced("ranged");spawnEnemyForced("ranged");return;}
+    if(w===6){spawnEnemyForced("fast");spawnEnemyForced("tank");spawnEnemyForced("ranged");return;}
+    if(w===7){spawnEnemyForced("ranged");spawnEnemyForced("ranged");spawnEnemyForced("fast");return;}
+    if(w===8){spawnEnemyForced("tank");spawnEnemyForced("bomber");spawnEnemyForced("fast");return;}
+    if(w===9){spawnEnemyForced("shadow");spawnEnemyForced("ranged");spawnEnemyForced("tank");spawnEnemyForced("bomber");return;}
+    const hard=waveHardScale(w);
+    let count=Math.min(8,2+Math.floor(w/4))+hard.count;
+    if(w>=50) count=Math.min(26, count+6);
+    const types=w>=50
+        ? ["fast","fast","tank","ranged","bomber","shadow","tank","fast"]
+        : ["basic","fast","tank","ranged","bomber","shadow"];
+    for(let i=0;i<count;i++) spawnEnemyForced(types[Math.floor(Math.random()*types.length)]);
+}
+/* =========================================================
+   GAME UPDATE
+========================================================= */
+function update(dt){
+    updatePlayer(dt);
+    updateAwakening(dt);
+    updateBullets(dt);
+    updateHazards(dt);
+    updateEnemies(dt);
+    updateNight(dt);
+    /* WAVE SYSTEM: miniboss every 5 waves, megaboss every 10 waves. */
+    if(!game.bossActive && game.enemies.length===0 && !game.waveSpawned){
+        spawnCurrentWave();
+        game.waveSpawned=true;
+    }
+    if(!game.bossActive && game.waveSpawned && game.enemies.length===0){
+        game.wave++;
+        game.waveSpawned=false;
+        setTerrainForWave(game.wave, true);
+        if(game.wave>=50){
+            const bonus = game.wave===50 ? 5000 : (game.wave%10===0 ? game.wave*250 : 0);
+            if(bonus>0){
+                save.coins += bonus;
+                saveGame();
+                gameMessage("🌊 WAVE "+game.wave+"! ☠️ NIGHTMARE MODE · +"+bonus.toLocaleString()+" 🪙",1400);
+            }else{
+                gameMessage("🌊 WAVE "+game.wave+"! ☠️ NIGHTMARE MODE · ENEMIES ARE FASTER",1000);
+            }
+        }else{
+            gameMessage("🌊 WAVE "+game.wave+"!",800);
+        }
+    }
+    updateParticles(dt);
+    // Passive out-of-combat regen (HUD already hints at this)
+    game.timeSinceDamage += dt;
+    if(
+        game.timeSinceDamage >= 360 &&
+        game.player.hp > 0 &&
+        game.player.hp < playerMaxHP()
+    ){
+        game.player.hp = Math.min(
+            playerMaxHP(),
+            game.player.hp + 0.012 * dt
+        );
+    }
+    updateHUD();
+}
+/* =========================================================
+   MESSAGE
+========================================================= */
+function gameMessage(
+    text,
+    time
+){
+    const el=
+        document.getElementById(
+            "gameMessage"
+        );
+    el.innerHTML=
+        `<div class="bigMessage">
+            ${text}
+        </div>`;
+    setTimeout(
+        function(){
+            if(
+                el.innerHTML.includes(text)
+            ){
+                el.innerHTML="";
+            }
+        },
+        time
+    );
+}
+/* =========================================================
+   LOW GRAPHICS / LAG MODE
+========================================================= */
+function toggleLowGraphics(){
+    game.lowGraphics=!game.lowGraphics;
+    const b=document.getElementById("lowGraphicsButton");
+    if(b) b.textContent=game.lowGraphics?"⚡ LOW GRAPHICS: ON":"⚡ LOW GRAPHICS: OFF";
+    if(game.lowGraphics){
+        game.particles.length=0;
+        game.hazards=game.hazards.filter(h=>h.type==="enemyBullet");
+    }
+    /* NOTE (fix): resizeCanvas() used to be called here, and its
+       old low-graphics branch shrank the internal canvas resolution.
+       Since the on-screen CSS size never changed, that made every
+       fixed-size sprite (player, enemies, bullets, forest grid tiles)
+       look suddenly bigger/zoomed the instant low graphics turned on —
+       including automatically, via the FPS-based auto-trigger below.
+       Resolution now stays fixed always (see resizeCanvas), so this
+       toggle only affects particles/hazards and render cadence, never
+       apparent object size. */
+    game.lastRenderTime=0;
+}
+function updatePerformance(time){
+    game.fpsFrames++;
+    if(!game.fpsSampleTime) game.fpsSampleTime=time;
+    if(time-game.fpsSampleTime>=1000){
+        game.fps=(game.fpsFrames*1000)/(time-game.fpsSampleTime);
+        game.fpsFrames=0;
+        game.fpsSampleTime=time;
+        // Automatically reduce expensive effects on weak/laggy PCs.
+        if(game.fps<30 && !game.lowGraphics) toggleLowGraphics();
+    }
+}
+/* =========================================================
+   GAME LOOP
+========================================================= */
+function loop(time){
+    if(!game.running){
+        return;
+    }
+    const dt=
+        Math.min(
+            2,
+            (time-game.lastTime)/16.67
+        );
+    game.lastTime=time;
+    updatePerformance(time);
+    try{
+        // Keep simulation responsive, but reduce expensive redraws on weak PCs.
+        update(dt);
+        const renderInterval=game.lowGraphics ? 33.333 : 16.667;
+        if(!game.lastRenderTime || time-game.lastRenderTime>=renderInterval){
+            draw();
+            game.lastRenderTime=time;
+        }
+    }catch(err){
+        console.error("CAT OPS frame error (game kept running):",err);
+    }
+    requestAnimationFrame(loop);
+}
+/* =========================================================
+   GAME OVER
+========================================================= */
+function gameOver(){
+    if(!game.running){
+        return;
+    }
+    game.running=false;
+    mouse.down=false;
+    catSfxGameOver();
+    save._achGameOver=true;
+    saveGame();
+    setTimeout(
+        function(){
+            alert(
+                "CAT OPS GAME OVER!\n\n"+
+                "Kills: "+
+                save.kills+
+                "\nCoins: "+
+                save.coins+
+                "\nNight reached: "+
+                game.night
+            );
+            goHome();
+        },
+        100
+    );
+}
+/* =========================================================
+   EXIT
+========================================================= */
+function endGame(clear=true){
+    game.running=false;
+    mouse.down=false;
+    touchState.moveX=0; touchState.moveY=0;
+    touchState.aimX=0; touchState.aimY=0; touchState.aiming=false;
+    if(clear){
+        hideScreens();
+        document.getElementById(
+            "homeScreen"
+        ).classList.remove("hidden");
+    }
+}
+
+/* =========================================================
+   ACHIEVEMENTS
+========================================================= */
+const ACHIEVEMENTS = [
+  {id:"first_blood",name:"First Blood",desc:"Get your first kill",icon:"💀",check:s=>s.kills>=1,reward:25},
+  {id:"killer_10",name:"Warm Up",desc:"Reach 10 kills",icon:"🔫",check:s=>s.kills>=10,reward:50},
+  {id:"killer_50",name:"Hunter",desc:"Reach 50 kills",icon:"🎯",check:s=>s.kills>=50,reward:100},
+  {id:"killer_100",name:"Slayer",desc:"Reach 100 kills",icon:"⚔️",check:s=>s.kills>=100,reward:200},
+  {id:"killer_500",name:"Exterminator",desc:"Reach 500 kills",icon:"💥",check:s=>s.kills>=500,reward:500},
+  {id:"killer_1000",name:"Legend",desc:"Reach 1,000 kills",icon:"👑",check:s=>s.kills>=1000,reward:1000},
+  {id:"killer_5000",name:"Cat of War",desc:"Reach 5,000 kills",icon:"🏆",check:s=>s.kills>=5000,reward:2500},
+  {id:"coins_100",name:"Pocket Change",desc:"Hold 100 coins",icon:"🪙",check:s=>s.coins>=100,reward:20},
+  {id:"coins_1000",name:"Saver",desc:"Hold 1,000 coins",icon:"💰",check:s=>s.coins>=1000,reward:50},
+  {id:"coins_10000",name:"Rich Cat",desc:"Hold 10,000 coins",icon:"💎",check:s=>s.coins>=10000,reward:200},
+  {id:"coins_100000",name:"Tycoon",desc:"Hold 100,000 coins",icon:"🏦",check:s=>s.coins>=100000,reward:500},
+  {id:"level_10",name:"Rising Star",desc:"Reach Level 10",icon:"⭐",check:s=>Math.floor(s.kills/10)+1>=10,reward:50},
+  {id:"level_50",name:"Veteran",desc:"Reach Level 50",icon:"🌟",check:s=>Math.floor(s.kills/10)+1>=50,reward:150},
+  {id:"level_100",name:"Centurion",desc:"Reach Level 100",icon:"✨",check:s=>Math.floor(s.kills/10)+1>=100,reward:300},
+  {id:"level_1000",name:"Immortal",desc:"Reach Level 1000",icon:"🔮",check:s=>Math.floor(s.kills/10)+1>=1000,reward:2000},
+  {id:"class_5",name:"Collector",desc:"Own 5 classes",icon:"📋",check:s=>(s.ownedClasses||[]).length>=5,reward:100},
+  {id:"class_15",name:"Class Act",desc:"Own 15 classes",icon:"🎖️",check:s=>(s.ownedClasses||[]).length>=15,reward:300},
+  {id:"class_all",name:"Completionist",desc:"Own all 66 classes",icon:"🏅",check:s=>(s.ownedClasses||[]).length>=66,reward:2000},
+  {id:"gun_5",name:"Arsenal",desc:"Own 5 guns",icon:"🔫",check:s=>(s.ownedGuns||[]).length>=5,reward:80},
+  {id:"gun_10",name:"Gun Nut",desc:"Own 10 guns",icon:"🧰",check:s=>(s.ownedGuns||[]).length>=10,reward:200},
+  {id:"skin_3",name:"Stylish",desc:"Own 3 skins",icon:"🎨",check:s=>(s.ownedSkins||[]).length>=3,reward:50},
+  {id:"awaken_1",name:"Awakened",desc:"Free-awaken 1 class",icon:"✨",check:s=>(s.awakenedClasses||[]).length>=1,reward:100},
+  {id:"awaken_5",name:"Power Surge",desc:"Free-awaken 5 classes",icon:"⚡",check:s=>(s.awakenedClasses||[]).length>=5,reward:300},
+  {id:"premium_1",name:"Premium Power",desc:"Premium-awaken 1 class",icon:"👑",check:s=>(s.premiumAwakenedClasses||[]).length>=1,reward:500},
+  {id:"night_5",name:"Night Owl",desc:"Reach Night 5 in a run",icon:"🌙",check:()=>typeof game!=="undefined"&&game.night>=5,reward:75},
+  {id:"night_10",name:"Midnight",desc:"Reach Night 10 in a run",icon:"🌑",check:()=>typeof game!=="undefined"&&game.night>=10,reward:150},
+  {id:"night_20",name:"Endless Dark",desc:"Reach Night 20 in a run",icon:"👁️",check:()=>typeof game!=="undefined"&&game.night>=20,reward:400},
+  {id:"wave_10",name:"Wave Rider",desc:"Reach Wave 10",icon:"🌊",check:()=>typeof game!=="undefined"&&game.wave>=10,reward:100},
+  {id:"wave_25",name:"Tsunami",desc:"Reach Wave 25",icon:"🌊",check:()=>typeof game!=="undefined"&&game.wave>=25,reward:250},
+  {id:"miniboss",name:"Boss Breaker",desc:"Defeat a Miniboss",icon:"👹",check:s=>!!s._achMiniboss,reward:150},
+  {id:"megaboss",name:"Mega Slayer",desc:"Defeat a Mega Boss",icon:"👑",check:s=>!!s._achMegaboss,reward:300},
+  {id:"craft",name:"Engineer",desc:"Craft a custom gun",icon:"🛠️",check:s=>(s.customGuns||[]).length>=1,reward:500},
+  {id:"survive_1",name:"Survivor",desc:"Finish a run (game over once)",icon:"❤️",check:s=>!!s._achGameOver,reward:30},
+  {id:"wave_50",name:"Nightmare Walker",desc:"Reach Wave 50",icon:"☠️",check:()=>typeof game!=="undefined"&&game.wave>=50,reward:1000},
+  {id:"wave_75",name:"Hell Walker",desc:"Reach Wave 75",icon:"🔥",check:()=>typeof game!=="undefined"&&game.wave>=75,reward:2500},
+  {id:"wave_100",name:"Century of Pain",desc:"Reach Wave 100",icon:"💀",check:()=>typeof game!=="undefined"&&game.wave>=100,reward:5000},
+  {id:"volcano_visit",name:"Into the Volcano",desc:"Play in Volcano terrain",icon:"🌋",check:()=>typeof game!=="undefined"&&getTerrain().id==="volcano",reward:250},
+  {id:"mountain_visit",name:"Mountain Grinder",desc:"Play in Mountains terrain",icon:"⛰️",check:()=>typeof game!=="undefined"&&getTerrain().id==="mountains",reward:300},
+  {id:"tundra_visit",name:"Frozen Paws",desc:"Play in Tundra terrain",icon:"❄️",check:()=>typeof game!=="undefined"&&getTerrain().id==="tundra",reward:300},
+  {id:"abyss_visit",name:"Abyss Diver",desc:"Enter the Abyss terrain",icon:"🕳️",check:()=>typeof game!=="undefined"&&getTerrain().id==="abyss",reward:500},
+  {id:"terrain_master",name:"Biome Master",desc:"Visit every terrain",icon:"🗺️",check:s=>!!s._terrainForest&&!!s._terrainVolcano&&!!s._terrainMountains&&!!s._terrainTundra&&!!s._terrainAbyss,reward:2500},
+  {id:"coins_million",name:"Millionaire Cat",desc:"Hold 1,000,000 coins",icon:"💰",check:s=>s.coins>=1000000,reward:5000},
+  {id:"accessory_10",name:"Accessory Hoarder",desc:"Own 10 accessories",icon:"🎀",check:s=>(s.ownedAccessories||[]).length>=10,reward:500},
+  {id:"accessory_25",name:"Fashion Overload",desc:"Own 25 accessories",icon:"👑",check:s=>(s.ownedAccessories||[]).length>=25,reward:1500},
+  {id:"accessory_all",name:"Accessory King",desc:"Own all accessories",icon:"💎",check:s=>(s.ownedAccessories||[]).length>=accessories.length,reward:5000}
+];
+
+function hasAchievement(id){
+  return (save.achievements||[]).includes(id);
+}
+function unlockAchievement(id){
+  if(!save.achievements) save.achievements=[];
+  if(hasAchievement(id)) return false;
+  const def=ACHIEVEMENTS.find(a=>a.id===id);
+  if(!def) return false;
+  save.achievements.push(id);
+  if(def.reward) save.coins+=(def.reward|0);
+  saveGame();
+  try{
+    if(typeof gameMessage==="function" && game && game.running){
+      gameMessage("🏆 "+def.name+"! +"+(def.reward||0)+" 🪙",1400);
+    }
+  }catch(e){}
+  // toast on menu
+  try{
+    const info=document.getElementById("homeInfo");
+    if(info && (!game||!game.running)){
+      info.innerHTML='<div class="card"><h3>🏆 Achievement unlocked</h3><p><b>'+def.name+'</b> — '+def.desc+'</p><p class="gold">+'+(def.reward||0)+' 🪙</p></div>';
+    }
+  }catch(e){}
+  return true;
+}
+function checkAchievements(){
+  if(window.__checkingAch) return false;
+  window.__checkingAch=true;
+  let any=false;
+  try{
+    for(const a of ACHIEVEMENTS){
+      if(hasAchievement(a.id)) continue;
+      try{
+        if(a.check(save)){ if(unlockAchievement(a.id)) any=true; }
+      }catch(e){}
+    }
+  }finally{
+    window.__checkingAch=false;
+  }
+  return any;
+}
+function showAchievements(){
+  hideScreens();
+  const scr=document.getElementById("achievementsScreen");
+  if(scr) scr.classList.remove("hidden");
+  buildAchievementsList();
+}
+function buildAchievementsList(){
+  const list=document.getElementById("achievementsList");
+  if(!list) return;
+  list.innerHTML="";
+  let unlocked=0;
+  ACHIEVEMENTS.forEach(a=>{
+    const done=hasAchievement(a.id);
+    if(done) unlocked++;
+    const card=document.createElement("div");
+    card.className="card";
+    card.style.opacity=done?"1":"0.55";
+    card.style.borderColor=done?"#58d85a":"#314a35";
+    card.innerHTML=`
+      <h3 style="margin:0 0 6px">${a.icon} ${a.name}</h3>
+      <p style="margin:0 0 8px;min-height:auto">${a.desc}</p>
+      <div class="price">${done?"✅ UNLOCKED":"🔒 LOCKED"} · Reward ${a.reward||0} 🪙</div>
+    `;
+    list.appendChild(card);
+  });
+  const u=document.getElementById("achUnlockedCount");
+  const tot=document.getElementById("achTotalCount");
+  if(u) u.textContent=unlocked;
+  if(tot) tot.textContent=ACHIEVEMENTS.length;
+}
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+function lockNicknameInput(){
+    const input=document.getElementById("nicknameInput");
+    if(!input) return;
+    input.value=(save.nickname || "").toLowerCase().replace(/[^a-z]/g,"");
+    input.disabled=!!save.nicknameLocked;
+    input.title=save.nicknameLocked
+        ? "Nickname is permanently locked for this account."
+        : "Lowercase letters only (a–z).";
+}
+/* Force nickname fields to lowercase letters only while typing */
+function bindLowercaseNickname(el){
+    if(!el) return;
+    el.addEventListener("input",function(){
+        const pos=el.selectionStart;
+        const cleaned=el.value.toLowerCase().replace(/[^a-z]/g,"");
+        if(el.value!==cleaned){
+            el.value=cleaned;
+            try{ el.setSelectionRange(pos-1,pos-1); }catch(err){}
+        }
+    });
+}
+bindLowercaseNickname(document.getElementById("nicknameInput"));
+bindLowercaseNickname(document.getElementById("newNickname"));
+/* Existing saves from older versions remain compatible.
+   If an old save already has a nickname, lock it now. */
+if(save.nickname && save.nickname.trim()){
+    save.nicknameLocked=true;
+}
+lockNicknameInput();
+updateDisplays();
+buildClassTable();
+/* AUTO SAVE */
+setInterval(
+    function(){
+        saveGame();
+    },
+    10000
+);
+</script>
+<script>
+(function(){
+  const names = {
+    en:"English", es:"Español", fr:"Français", de:"Deutsch", it:"Italiano",
+    pt:"Português", ru:"Русский", zh:"中文", ja:"日本語", ko:"한국어",
+    hi:"हिन्दी", kn:"ಕನ್ನಡ", te:"తెలుగు", ta:"தமிழ்", ml:"മലയാളം",
+    id:"Bahasa Indonesia", tr:"Türkçe", vi:"Tiếng Việt", th:"ไทย", ar:"العربية"
+  };
+  const dict = {
+    en:{language:"Language",shop:"SHOP",play:"PLAY",craft:"CRAFTING",classes:"CLASSES",
+        nickname:"Nickname",coins:"Coins",level:"Level",wave:"Wave",start:"Start Game"},
+    es:{language:"Idioma",shop:"TIENDA",play:"JUGAR",craft:"FABRICACIÃ“N",classes:"CLASES",
+        nickname:"Apodo",coins:"Monedas",level:"Nivel",wave:"Oleada",start:"Iniciar partida"},
+    fr:{language:"Langue",shop:"BOUTIQUE",play:"JOUER",craft:"FABRICATION",classes:"CLASSES",
+        nickname:"Pseudo",coins:"PiÃ¨ces",level:"Niveau",wave:"Vague",start:"Commencer"},
+    de:{language:"Sprache",shop:"SHOP",play:"SPIELEN",craft:"HERSTELLEN",classes:"KLASSEN",
+        nickname:"Spitzname",coins:"MÃ¼nzen",level:"Level",wave:"Welle",start:"Spiel starten"},
+    it:{language:"Lingua",shop:"NEGOZIO",play:"GIOCA",craft:"CREAZIONE",classes:"CLASSI",
+        nickname:"Nickname",coins:"Monete",level:"Livello",wave:"Ondata",start:"Inizia partita"},
+    pt:{language:"Idioma",shop:"LOJA",play:"JOGAR",craft:"CRIAÃ‡ÃƒO",classes:"CLASSES",
+        nickname:"Apelido",coins:"Moedas",level:"NÃ­vel",wave:"Onda",start:"ComeÃ§ar jogo"},
+    ru:{language:"Ð¯Ð·Ñ‹Ðº",shop:"ÐœÐÐ“ÐÐ—Ð˜Ð",play:"Ð˜Ð“Ð ÐÐ¢Ð¬",craft:"ÐšÐ ÐÐ¤Ð¢",classes:"ÐšÐ›ÐÐ¡Ð¡Ð«",
+        nickname:"ÐÐ¸ÐºÐ½ÐµÐ¹Ð¼",coins:"ÐœÐ¾Ð½ÐµÑ‚Ñ‹",level:"Ð£Ñ€Ð¾Ð²ÐµÐ½ÑŒ",wave:"Ð’Ð¾Ð»Ð½Ð°",start:"ÐÐ°Ñ‡Ð°Ñ‚ÑŒ Ð¸Ð³Ñ€Ñƒ"},
+    zh:{language:"è¯­è¨€",shop:"å•†åº—",play:"å¼€å§‹æ¸¸æˆ",craft:"åˆ¶ä½œ",classes:"èŒä¸š",
+        nickname:"æ˜µç§°",coins:"é‡‘å¸",level:"ç­‰çº§",wave:"æ³¢æ¬¡",start:"å¼€å§‹"},
+    ja:{language:"è¨€èªž",shop:"ã‚·ãƒ§ãƒƒãƒ—",play:"ãƒ—ãƒ¬ã‚¤",craft:"ã‚¯ãƒ©ãƒ•ãƒˆ",classes:"ã‚¯ãƒ©ã‚¹",
+        nickname:"ãƒ‹ãƒƒã‚¯ãƒãƒ¼ãƒ ",coins:"ã‚³ã‚¤ãƒ³",level:"ãƒ¬ãƒ™ãƒ«",wave:"ã‚¦ã‚§ãƒ¼ãƒ–",start:"ã‚²ãƒ¼ãƒ é–‹å§‹"},
+    ko:{language:"ì–¸ì–´",shop:"ìƒì ",play:"í”Œë ˆì´",craft:"ì œìž‘",classes:"í´ëž˜ìŠ¤",
+        nickname:"ë‹‰ë„¤ìž„",coins:"ì½”ì¸",level:"ë ˆë²¨",wave:"ì›¨ì´ë¸Œ",start:"ê²Œìž„ ì‹œìž‘"},
+    hi:{language:"à¤­à¤¾à¤·à¤¾",shop:"à¤¦à¥à¤•à¤¾à¤¨",play:"à¤–à¥‡à¤²à¥‡à¤‚",craft:"à¤•à¥à¤°à¤¾à¤«à¥à¤Ÿà¤¿à¤‚à¤—",classes:"à¤•à¥à¤²à¤¾à¤¸",
+        nickname:"à¤‰à¤ªà¤¨à¤¾à¤®",coins:"à¤¸à¤¿à¤•à¥à¤•à¥‡",level:"à¤²à¥‡à¤µà¤²",wave:"à¤µà¥‡à¤µ",start:"à¤—à¥‡à¤® à¤¶à¥à¤°à¥‚ à¤•à¤°à¥‡à¤‚"},
+    kn:{language:"à²­à²¾à²·à³†",shop:"à²…à²‚à²—à²¡à²¿",play:"à²†à²¡à²¿",craft:"à²•à³à²°à²¾à²«à³à²Ÿà²¿à²‚à²—à³",classes:"à²•à³à²²à²¾à²¸à³à²—à²³à³",
+        nickname:"à²…à²¡à³à²¡à²¹à³†à²¸à²°à³",coins:"à²¨à²¾à²£à³à²¯à²—à²³à³",level:"à²²à³†à²µà³†à²²à³",wave:"à²µà³‡à²µà³",start:"à²†à²Ÿ à²ªà³à²°à²¾à²°à²‚à²­à²¿à²¸à²¿"},
+    te:{language:"à°­à°¾à°·",shop:"à°·à°¾à°ªà±",play:"à°†à°¡à°‚à°¡à°¿",craft:"à°•à±à°°à°¾à°«à±à°Ÿà°¿à°‚à°—à±",classes:"à°•à±à°²à°¾à°¸à±à°²à±",
+        nickname:"à°®à±à°¦à±à°¦à±à°ªà±‡à°°à±",coins:"à°¨à°¾à°£à±‡à°²à±",level:"à°²à±†à°µà°²à±",wave:"à°µà±‡à°µà±",start:"à°—à±‡à°®à± à°ªà±à°°à°¾à°°à°‚à°­à°¿à°‚à°šà°‚à°¡à°¿"},
+    ta:{language:"à®®à¯Šà®´à®¿",shop:"à®•à®Ÿà¯ˆ",play:"à®µà®¿à®³à¯ˆà®¯à®¾à®Ÿà¯",craft:"à®•à®¿à®°à®¾à®ƒà®ªà¯à®Ÿà®¿à®™à¯",classes:"à®µà®•à¯à®ªà¯à®ªà¯à®•à®³à¯",
+        nickname:"à®ªà¯à®©à¯ˆà®ªà¯à®ªà¯†à®¯à®°à¯",coins:"à®¨à®¾à®£à®¯à®™à¯à®•à®³à¯",level:"à®¨à®¿à®²à¯ˆ",wave:"à®…à®²à¯ˆ",start:"à®µà®¿à®³à¯ˆà®¯à®¾à®Ÿà¯à®Ÿà¯ˆ à®¤à¯Šà®Ÿà®™à¯à®•à¯"},
+    ml:{language:"à´­à´¾à´·",shop:"à´•à´Ÿ",play:"à´•à´³à´¿à´•àµà´•àµà´•",craft:"à´•àµà´°à´¾à´«àµà´±àµà´±à´¿à´‚à´—àµ",classes:"à´•àµà´²à´¾à´¸àµà´•àµ¾",
+        nickname:"à´µà´¿à´³à´¿à´ªàµà´ªàµ‡à´°àµ",coins:"à´¨à´¾à´£à´¯à´™àµà´™àµ¾",level:"à´²àµ†à´µàµ½",wave:"à´µàµ‡à´µàµ",start:"à´—àµ†à´¯à´¿à´‚ à´†à´°à´‚à´­à´¿à´•àµà´•àµà´•"},
+    id:{language:"Bahasa",shop:"TOKO",play:"MAIN",craft:"MEMBUAT",classes:"KELAS",
+        nickname:"Nama panggilan",coins:"Koin",level:"Level",wave:"Gelombang",start:"Mulai Game"},
+    tr:{language:"Dil",shop:"MAÄžAZA",play:"OYNA",craft:"ÃœRETÄ°M",classes:"SINIFLAR",
+        nickname:"Takma ad",coins:"Paralar",level:"Seviye",wave:"Dalga",start:"Oyunu BaÅŸlat"},
+    vi:{language:"NgÃ´n ngá»¯",shop:"Cá»¬A HÃ€NG",play:"CHÆ I",craft:"CHáº¾ Táº O",classes:"Lá»šP",
+        nickname:"Biá»‡t danh",coins:"Xu",level:"Cáº¥p",wave:"LÃ n sÃ³ng",start:"Báº¯t Ä‘áº§u game"},
+    th:{language:"à¸ à¸²à¸©à¸²",shop:"à¸£à¹‰à¸²à¸™à¸„à¹‰à¸²",play:"à¹€à¸¥à¹ˆà¸™",craft:"à¸„à¸£à¸²à¸Ÿà¸•à¹Œ",classes:"à¸„à¸¥à¸²à¸ª",
+        nickname:"à¸Šà¸·à¹ˆà¸­à¹€à¸¥à¹ˆà¸™",coins:"à¹€à¸«à¸£à¸µà¸¢à¸",level:"à¹€à¸¥à¹€à¸§à¸¥",wave:"à¹€à¸§à¸Ÿ",start:"à¹€à¸£à¸´à¹ˆà¸¡à¹€à¸à¸¡"},
+    ar:{language:"Ø§Ù„Ù„ØºØ©",shop:"Ø§Ù„Ù…ØªØ¬Ø±",play:"Ø§Ù„Ø¹Ø¨",craft:"Ø§Ù„ØªØµÙ†ÙŠØ¹",classes:"Ø§Ù„ÙØ¦Ø§Øª",
+        nickname:"Ø§Ù„Ù„Ù‚Ø¨",coins:"Ø§Ù„Ø¹Ù…Ù„Ø§Øª",level:"Ø§Ù„Ù…Ø³ØªÙˆÙ‰",wave:"Ø§Ù„Ù…ÙˆØ¬Ø©",start:"Ø§Ø¨Ø¯Ø£ Ø§Ù„Ù„Ø¹Ø¨Ø©"}
+  };
+  function applyLanguage(code){
+    code = dict[code] ? code : "en";
+    localStorage.setItem("catopsLanguage", code);
+    const s=document.getElementById("languageSelect");
+    const status=document.getElementById("languageStatus");
+    if(s) s.value=code;
+    if(status) status.textContent=names[code];
+    // Translate elements that opt into CAT OPS language keys.
+    document.querySelectorAll("[data-i18n]").forEach(el=>{
+      const key=el.getAttribute("data-i18n");
+      if(dict[code][key]) el.textContent=dict[code][key];
+    });
+    document.documentElement.lang=code;
+    document.documentElement.dir=(code==="ar" ? "rtl" : "ltr");
+  }
+  window.catopsSetLanguage=applyLanguage;
+  document.addEventListener("DOMContentLoaded",()=>{
+    const s=document.getElementById("languageSelect");
+    if(s) s.addEventListener("change",()=>applyLanguage(s.value));
+    applyLanguage(localStorage.getItem("catopsLanguage") || "en");
+  });
+})();
+</script>
+<script>
+(function(){
+  const languageNames = {
+    en:"English", es:"Español", fr:"Français", de:"Deutsch", it:"Italiano",
+    pt:"Português", ru:"Русский", zh:"中文", ja:"日本語", ko:"한국어",
+    hi:"हिन्दी", kn:"ಕನ್ನಡ", te:"తెలుగు", ta:"தமிழ்", ml:"മലയാളം",
+    id:"Bahasa Indonesia", tr:"Türkçe", vi:"Tiếng Việt", th:"ไทย", ar:"العربية"
+  };
+  function setCATOPSLanguage(code){
+    if(!languageNames[code]) code="en";
+    localStorage.setItem("catopsLanguage", code);
+    const select=document.getElementById("languageSelect");
+    if(select) select.value=code;
+    const status=document.getElementById("languageStatus");
+    if(status) status.textContent=languageNames[code];
+    document.documentElement.lang=code;
+    document.documentElement.dir=(code==="ar" ? "rtl" : "ltr");
+    window.catopsLanguage=code;
+  }
+  window.setCATOPSLanguage=setCATOPSLanguage;
+  document.addEventListener("DOMContentLoaded", function(){
+    const select=document.getElementById("languageSelect");
+    if(select){
+      select.addEventListener("change", function(){
+        setCATOPSLanguage(this.value);
+      });
+    }
+    setCATOPSLanguage(localStorage.getItem("catopsLanguage") || "en");
+  });
+})();
+</script>
+<script>
+(function(){
+  function getCurrentNickname(){
+    return localStorage.getItem("catopsNickname") || "";
+  }
+  function setNicknameEverywhere(name){
+    // Common nickname variables/DOM elements used by the game.
+    try { if(typeof player !== "undefined" && player) player.nickname = name; } catch(e){}
+    try { if(typeof nickname !== "undefined") nickname = name; } catch(e){}
+    document.querySelectorAll("[data-nickname], #nicknameDisplay, #playerNickname").forEach(el=>{
+      el.textContent = name;
+    });
+    document.querySelectorAll("input[id*='nickname'], input[name*='nickname']").forEach(el=>{
+      if(el.id !== "newNickname") el.value = name;
+    });
+  }
+  function changeCATOPSNickname(){
+    const input=document.getElementById("newNickname");
+    const msg=document.getElementById("nicknameMessage");
+    if(!input) return;
+    const name=(input.value || "").trim().toLowerCase().replace(/[^a-z]/g,"");
+    input.value=name;
+    if(!name){
+      if(msg) msg.textContent="Enter a nickname (lowercase a–z only).";
+      return;
+    }
+    if(name.length < 3 || name.length > 16){
+      if(msg) msg.textContent="Nickname must be 3–16 lowercase letters.";
+      return;
+    }
+    
+    if(typeof save!=="undefined"){
+      save.nickname=name;
+      if(typeof saveGame==="function") saveGame();
+    }
+    localStorage.setItem("catopsNickname", name);
+    setNicknameEverywhere(name);
+    const main=document.getElementById("nicknameInput");
+    if(main) main.value=name;
+    if(msg) msg.textContent="Nickname changed to " + name + "!";
+    input.value="";
+  }
+  window.changeCATOPSNickname=changeCATOPSNickname;
+  document.addEventListener("DOMContentLoaded",()=>{
+    const btn=document.getElementById("changeNickname");
+    if(btn) btn.addEventListener("click", changeCATOPSNickname);
+    const saved=getCurrentNickname();
+    if(saved) setNicknameEverywhere(saved);
+  });
+})();
+</script>
+<script id="catops-gun-visuals">
+(function(){
+  const originalGetGun = window.getGun;
+  if (typeof window.getGun === "function") {
+    const old = window.getGun;
+    window.getGun = function(){
+      const g = old.apply(this, arguments);
+      if(g){
+        g.shape = g.shape || "circle";
+        g.color = g.color || "#ffffff";
+      }
+      return g;
+    };
+  }
+  window.CATOPSGunVisual = {
+    draw(ctx, x, y, gun, angle, size){
+      if(!ctx || !gun) return;
+      const s=size||5, a=angle||0;
+      ctx.save();
+      ctx.translate(x,y);
+      ctx.rotate(a);
+      ctx.fillStyle=gun.color || "#fff";
+      ctx.strokeStyle=gun.color || "#fff";
+      ctx.lineWidth=2;
+      switch(gun.shape){
+        case "square":
+          ctx.fillRect(-s,-s,s*2,s*2); break;
+        case "triangle":
+          ctx.beginPath(); ctx.moveTo(s,0); ctx.lineTo(-s,s); ctx.lineTo(-s,-s); ctx.closePath(); ctx.fill(); break;
+        case "diamond":
+          ctx.beginPath(); ctx.moveTo(s,0); ctx.lineTo(0,s); ctx.lineTo(-s,0); ctx.lineTo(0,-s); ctx.closePath(); ctx.fill(); break;
+        case "star":
+          ctx.beginPath();
+          for(let i=0;i<10;i++){let r=i%2?s:s*.42, t=i*Math.PI/5; let px=Math.cos(t)*r,py=Math.sin(t)*r;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}
+          ctx.closePath();ctx.fill();break;
+        case "hexagon":
+          ctx.beginPath();for(let i=0;i<6;i++){let t=i*Math.PI/3;let px=Math.cos(t)*s,py=Math.sin(t)*s;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath();ctx.fill();break;
+        case "bolt":
+          ctx.beginPath();ctx.moveTo(s*.2,-s*1.3);ctx.lineTo(-s*.8,.1*s);ctx.lineTo(-s*.1,.1*s);ctx.lineTo(-s*.4,s*1.3);ctx.lineTo(s*.8,-.15*s);ctx.lineTo(.1*s,-.15*s);ctx.closePath();ctx.fill();break;
+        case "ring":
+          ctx.beginPath();ctx.arc(0,0,s,0,Math.PI*2);ctx.stroke();break;
+        case "cross":
+          ctx.fillRect(-s*.3,-s,s*.6,s*2);ctx.fillRect(-s,-s*.3,s*2,s*.6);break;
+        case "capsule":
+          ctx.beginPath();ctx.roundRect(-s*1.2,-s*.45,s*2.4,s*.9,s*.45);ctx.fill();break;
+        case "arrow":
+          ctx.beginPath();ctx.moveTo(s,0);ctx.lineTo(-s,-s*.7);ctx.lineTo(-s*.35,0);ctx.lineTo(-s,s*.7);ctx.closePath();ctx.fill();break;
+        case "shard":
+          ctx.beginPath();ctx.moveTo(s*1.2,0);ctx.lineTo(-s*.3,s);ctx.lineTo(-s*.8,0);ctx.lineTo(-s*.3,-s);ctx.closePath();ctx.fill();break;
+        case "plus":
+          ctx.fillRect(-s*.25,-s,s*.5,s*2);ctx.fillRect(-s,-s*.25,s*2,s*.5);break;
+        case "flame":
+          ctx.beginPath();ctx.moveTo(0,-s*1.3);ctx.bezierCurveTo(s*1.1,-s*.2,s*.7,s*1.1,0,s*1.2);ctx.bezierCurveTo(-s*.8,s*.7,-s*.7,0,0,-s*1.3);ctx.fill();break;
+        case "ice":
+          ctx.beginPath();ctx.moveTo(0,-s);ctx.lineTo(s*.45,-s*.45);ctx.lineTo(s,0);ctx.lineTo(s*.45,s*.45);ctx.lineTo(0,s);ctx.lineTo(-s*.45,s*.45);ctx.lineTo(-s,0);ctx.lineTo(-s*.45,-s*.45);ctx.closePath();ctx.fill();break;
+        case "gear":
+          ctx.beginPath();ctx.arc(0,0,s*.75,0,Math.PI*2);ctx.fill();ctx.fillStyle="#111";ctx.beginPath();ctx.arc(0,0,s*.3,0,Math.PI*2);ctx.fill();break;
+        case "crescent":
+          ctx.beginPath();ctx.arc(0,0,s,Math.PI*.3,Math.PI*1.7);ctx.arc(s*.35,0,s*.8,Math.PI*1.7,Math.PI*.3,true);ctx.closePath();ctx.fill();break;
+        case "burst":
+          for(let i=0;i<8;i++){ctx.save();ctx.rotate(i*Math.PI/4);ctx.fillRect(0,-s*.18,s*1.4,s*.36);ctx.restore()}break;
+        case "comet":
+          ctx.beginPath();ctx.arc(s*.35,0,s*.55,0,Math.PI*2);ctx.fill();ctx.globalAlpha=.45;ctx.fillRect(-s*1.3,-s*.22,s*1.5,s*.44);break;
+        case "needle":
+          ctx.beginPath();ctx.moveTo(s*1.5,0);ctx.lineTo(-s*.8,s*.25);ctx.lineTo(-s*.8,-s*.25);ctx.closePath();ctx.fill();break;
+        case "wave":
+          ctx.beginPath();ctx.arc(0,0,s,Math.PI*.2,Math.PI*1.8);ctx.stroke();break;
+        case "crown":
+          ctx.beginPath();ctx.moveTo(-s,s*.6);ctx.lineTo(-s,-s*.6);ctx.lineTo(-s*.3,0);ctx.lineTo(0,-s*.7);ctx.lineTo(s*.3,0);ctx.lineTo(s,-s*.6);ctx.lineTo(s,s*.6);ctx.closePath();ctx.fill();break;
+        default:
+          ctx.beginPath();ctx.arc(0,0,s,0,Math.PI*2);ctx.fill();
+      }
+      ctx.restore();
+    }
+  };
+})();
 </script>
 </body>
 </html>
