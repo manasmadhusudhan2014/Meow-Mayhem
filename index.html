@@ -532,12 +532,6 @@ tr:hover td{
 <button onclick="showTerrains()" id="terrainButton" style="background:#234b2a;border:1px solid #58d85a">
     🗺️ TERRAIN
 </button>
-<button onclick="openHellfireEvent()" id="hellfireButton" style="background:#5a1d10;border:1px solid #ff5a2a">
-    🔥 HELLFIRE EVENT
-</button>
-<button onclick="toggleSound()" id="soundButton" style="background:#26354a;border:1px solid #6ea8fe">
-    🔊 SOUND: ON
-</button>
 <button onclick="resetSave()" id="resetSaveButton" style="background:#542b2b;border:1px solid #833">
     🗑️ RESET SAVE
 </button>
@@ -615,16 +609,6 @@ Every class has a <b>Free Awakening</b> (any level · <b>0 🪙</b>) and a <b>Pr
     <h3>🎄 CHRISTMAS EVENT — COMING SOON</h3>
     <p>On <b>December 25</b>, from <b>4:20 PM to 4:40 PM</b>, every class, gun and skin in the shop will be <b>FREE</b>!</p>
     <div id="christmasEventStatus">Event is coming soon...</div>
-</div>
-<!-- =========================================================
-     HELLFIRE EVENT — BELOW CHRISTMAS IN SHOP
-========================================================= -->
-<div class="coming-soon" id="hellfireShopBox" style="border-color:#ff5a2a;background:rgba(90,29,16,.18)">
-    <h3>🔥 HELLFIRE EVENT — SEPTEMBER 1–7</h3>
-    <p>🌋 Farm the <b>Volcano</b> during Hellfire. Every qualifying coin becomes a <b style="color:#ff8a3d">Hellfire Token</b>.</p>
-    <p>💰 <b>1 coin = 1 🔥 token</b> · 🎰 <b>1,000 tokens = 1 Exclusive Hellfire Spin</b></p>
-    <div id="hellfireShopStatus">Event is coming soon...</div>
-    <button class="primary" onclick="openHellfireEvent()">🔥 OPEN HELLFIRE EVENT</button>
 </div>
 <div class="shop-tabs">
 <button class="active"
@@ -1202,8 +1186,7 @@ if(!save){
         nicknameLocked:false,
         customGuns:[],
         language:"en",
-        spinNextAt:0,
-        hellfireTokens:0
+        spinNextAt:0
     };
 }
 if(!Array.isArray(save.customGuns)) save.customGuns=[];
@@ -1214,7 +1197,6 @@ if(typeof save.terrainChoice!=="number") save.terrainChoice=-1;
 if(!Array.isArray(save.ownedAccessories)) save.ownedAccessories=[0];
 if(typeof save.accessory!=="number") save.accessory=0;
 if(typeof save.spinNextAt!=="number") save.spinNextAt=0;
-if(typeof save.hellfireTokens!=="number") save.hellfireTokens=0;
 if(!save.language) save.language="en";
 /* Old admin /free left 999999999 coins — offer one-time cleanup */
 if(save.coins>=999999999 && !save._adminCoinFixAsked){
@@ -1467,16 +1449,6 @@ function christmasEventText(){
     }
 }
 setInterval(christmasEventText,1000);
-function hellfireShopText(){
-    const status=document.getElementById("hellfireShopStatus");
-    if(!status) return;
-    if(hellfireActive()){
-        status.innerHTML="🔥 EVENT LIVE! <b>"+save.hellfireTokens.toLocaleString()+"</b> Hellfire Tokens · Volcano coins convert to tokens.";
-    }else{
-        status.textContent="🔥 Runs September 1–7, 2026.";
-    }
-}
-setInterval(hellfireShopText,1000);
 /* =========================================================
    CHRISTMAS FREE ITEM LIMIT
 ========================================================= */
@@ -2015,7 +1987,6 @@ const game={
     fps:60,
     fpsSampleTime:0,
     fpsFrames:0,
-    lastRenderTime:0,
     lastTime:0,
     bullets:[],
     enemies:[],
@@ -2124,7 +2095,7 @@ function resizeCanvas(){
     /* Keep the internal render resolution small so old PCs do not
        have to redraw a 1080p canvas every frame. CSS still scales it
        to the full screen. */
-    const maxPixels = game.lowGraphics ? 180000 : 320000;
+    const maxPixels = 420000;
     const w = Math.max(320, window.innerWidth);
     const h = Math.max(240, window.innerHeight);
     const scale = Math.min(1, Math.sqrt(maxPixels/(w*h)));
@@ -2238,16 +2209,9 @@ window.addEventListener('resize', syncTouchUI);
    KEYBOARD
 ========================================================= */
 const keys={};
-window.addEventListener('pointerdown',()=>getAudio(),{once:false,passive:true});
-window.addEventListener('keydown',()=>getAudio(),{once:false,passive:true});
 window.addEventListener(
     "keydown",
     function(e){
-        // Never capture movement keys while typing in a text field.
-        // This fixes A/S/D/W being unusable in nicknames.
-        const tag=(e.target && e.target.tagName || "").toLowerCase();
-        const typing = tag === "input" || tag === "textarea" || tag === "select" || (e.target && e.target.isContentEditable);
-        if(typing) return;
         keys[e.key]=true;
         keys[e.key.toLowerCase()]=true;
     }
@@ -2255,9 +2219,6 @@ window.addEventListener(
 window.addEventListener(
     "keyup",
     function(e){
-        const tag=(e.target && e.target.tagName || "").toLowerCase();
-        const typing = tag === "input" || tag === "textarea" || tag === "select" || (e.target && e.target.isContentEditable);
-        if(typing) return;
         keys[e.key]=false;
         keys[e.key.toLowerCase()]=false;
     }
@@ -2334,6 +2295,7 @@ function startGame(){
     mouse.y=canvas.height/2;
     game.player.angle=0;
     syncTouchUI();
+    resizeCanvas();
     setTerrainForWave(1, false);
     game.player.x=canvas.width/2;
     game.player.y=canvas.height/2;
@@ -2660,7 +2622,6 @@ function clampToArena(e){
    SHOOT
 ========================================================= */
 function shoot(){
-    playSfx(hellfireActive() && getTerrain().id==="volcano" ? 'hellfire' : 'shoot');
     const gun=
         guns[save.gun];
     if(game.player.reloadTimer>0){
@@ -3424,88 +3385,6 @@ function updateBullets(dt){
     }
 }
 /* =========================================================
-   HELLFIRE EVENT + LIGHTWEIGHT SOUND
-========================================================= */
-const HELLFIRE_START = new Date(2026,8,1,0,0,0,0).getTime();
-const HELLFIRE_END   = new Date(2026,8,8,0,0,0,0).getTime(); // through Sep 7 inclusive
-const HELLFIRE_SPIN_COST = 1000;
-let soundEnabled = true;
-let audioCtx = null;
-function hellfireActive(){
-    const now=Date.now();
-    return now>=HELLFIRE_START && now<HELLFIRE_END;
-}
-function getAudio(){
-    if(!soundEnabled) return null;
-    try{
-        if(!audioCtx){ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }
-        if(audioCtx.state==='suspended') audioCtx.resume();
-        return audioCtx;
-    }catch(e){ return null; }
-}
-function playSfx(type){
-    const ac=getAudio();
-    if(!ac) return;
-    const o=ac.createOscillator(), g=ac.createGain();
-    const now=ac.currentTime;
-    const cfg={
-        shoot:[type==='hellfire'?180:420, type==='hellfire'?90:260, .045],
-        hit:[110,70,.035],
-        kill:[220,520,.055],
-        boss:[70,45,.10],
-        spin:[500,900,.07],
-        event:[180,760,.12]
-    }[type]||[300,300,.04];
-    o.type=type==='hellfire'?'sawtooth':'square';
-    o.frequency.setValueAtTime(cfg[0],now);
-    o.frequency.exponentialRampToValueAtTime(Math.max(40,cfg[1]),now+.12);
-    g.gain.setValueAtTime(.0001,now);
-    g.gain.exponentialRampToValueAtTime(cfg[2],now+.01);
-    g.gain.exponentialRampToValueAtTime(.0001,now+.13);
-    o.connect(g); g.connect(ac.destination); o.start(now); o.stop(now+.14);
-}
-function toggleSound(){
-    soundEnabled=!soundEnabled;
-    const b=document.getElementById('soundButton');
-    if(b) b.textContent=soundEnabled?'🔊 SOUND: ON':'🔇 SOUND: OFF';
-    if(soundEnabled) playSfx('event');
-}
-function openHellfireEvent(){
-    hideScreens();
-    const el=document.getElementById('homeInfo');
-    if(!el) return;
-    if(!hellfireActive()){
-        el.innerHTML='<div class="card"><h3>🔥 HELLFIRE EVENT</h3><p>Event runs <b>September 1–7, 2026</b>.</p><p>Come back during the event to farm Volcano for Hellfire Tokens.</p></div>';
-        document.getElementById('homeScreen').classList.remove('hidden');
-        return;
-    }
-    el.innerHTML=`<div class="card" style="border-color:#ff5a2a"><h3>🔥 HELLFIRE EVENT</h3><p>🌋 <b>VOLCANO ONLY:</b> coins earned here become <b style="color:#ff8a3d">Hellfire Tokens</b>.</p><p>💰 <b>1 coin = 1 Hellfire Token</b></p><p>🎰 <b>1,000 Tokens = 1 Exclusive Hellfire Spin</b></p><p>Tokens: <b class="gold">${save.hellfireTokens.toLocaleString()} 🔥</b></p><button class="primary" onclick="hellfireSpin()" ${save.hellfireTokens<HELLFIRE_SPIN_COST?'disabled':''}>🔥 EXCLUSIVE SPIN — 1,000 TOKENS</button><div id="hellfireResult" style="margin-top:12px"></div><p style="font-size:12px;opacity:.75">Exclusive prizes: Hellfire Cat 🔥, Inferno Blaster 🔫, Magma Skin 🌋, Cinder Crown 👑, Flame Wings 🪽 and Molten Core accessory.</p></div>`;
-    document.getElementById('homeScreen').classList.remove('hidden');
-}
-function hellfireSpin(){
-    if(!hellfireActive() || save.hellfireTokens<HELLFIRE_SPIN_COST) return;
-    save.hellfireTokens-=HELLFIRE_SPIN_COST;
-    const prizes=[
-        '🔥 HELLFIRE CAT — EXCLUSIVE CLASS',
-        '🔫 INFERNO BLASTER — EXCLUSIVE GUN',
-        '🌋 MAGMA SKIN — EXCLUSIVE SKIN',
-        '👑 CINDER CROWN — EXCLUSIVE ACCESSORY',
-        '🪽 FLAME WINGS — EXCLUSIVE ACCESSORY',
-        '💥 MOLTEN CORE — EXCLUSIVE ACCESSORY'
-    ];
-    const prize=prizes[Math.floor(Math.random()*prizes.length)];
-    saveGame();
-    playSfx('spin');
-    const r=document.getElementById('hellfireResult');
-    if(r) r.innerHTML='<b style="color:#ff8a3d">'+prize+'</b>';
-    openHellfireEvent();
-}
-setInterval(function(){
-    const b=document.getElementById('hellfireButton');
-    if(b) b.textContent=hellfireActive()?'🔥 HELLFIRE EVENT':'🔥 HELLFIRE (ENDED)';
-},1000);
-
-/* =========================================================
    KILL ENEMY
 ========================================================= */
 function killEnemy(e,index){
@@ -3531,13 +3410,7 @@ function killEnemy(e,index){
     if(game.wave>=50){
         reward=Math.max(1, Math.round(reward*(1.5+Math.min(2,(game.wave-50)*0.02))));
     }
-    if(hellfireActive() && terR && terR.id==="volcano") {
-        save.hellfireTokens+=reward;
-        gameMessage("🔥 +"+reward.toLocaleString()+" HELLFIRE TOKENS",900);
-    } else {
-        save.coins+=reward;
-    }
-    playSfx(e.boss?'boss':'kill');
+    save.coins+=reward;
     const oldLevel=getPlayerLevel();
     save.kills++;
     const newLevel=getPlayerLevel();
@@ -3869,4 +3742,1303 @@ function updateEnemies(dt){
                     damage:
                         8+game.night,
                     life:120,
-       
+                    enemyBullet:true
+                });
+            }
+        }else if(dist > 0.001){
+            e.x+=
+                dx/dist*
+                e.speed*
+                dt;
+            e.y+=
+                dy/dist*
+                e.speed*
+                dt;
+        }
+        if(e.boss){
+            clampToArena(e);
+        }
+        /* Recompute distance after movement for accurate collision. */
+        const dx2 = game.player.x - e.x;
+        const dy2 = game.player.y - e.y;
+        const dist2 = Math.hypot(dx2, dy2);
+        const hitRadius = e.size + 22;
+        if(dist2 <= hitRadius && !e.touchCooldown && !e.invisible){
+            e.touchCooldown = 45;
+            const touchDamage = (
+                e.type==="mega" ? 30 :
+                e.type==="miniboss" ? 22 :
+                e.type==="tank" ? 16 :
+                10
+            ) * (e.touchMul || 1);
+            /* Contact explosion (small AoE, does not re-damage via nested kill loops unsafely) */
+            explosion(
+                game.player.x,
+                game.player.y,
+                e.type==="mega" ? 85 : 55,
+                touchDamage * 0.35
+            );
+            createParticles(
+                game.player.x,
+                game.player.y,
+                e.type==="mega" ? 24 : 12
+            );
+            if(game.player.awakenInvuln>0 ){
+                e.x -= dx2/Math.max(dist2,0.01) * 40;
+                e.y -= dy2/Math.max(dist2,0.01) * 40;
+            } else {
+            let contactDamage = classes[save.class].name==="Shield Cat" ? touchDamage*0.65 : touchDamage;
+            if(getTerrain().id==="mountains") contactDamage*=0.92;
+            game.player.hp = Math.max(
+                0,
+                game.player.hp - contactDamage
+            );
+            gameMessage("💥 HIT! -"+Math.ceil(contactDamage)+" HP", 450);
+            game.timeSinceDamage = 0;
+            }
+            /* Push the enemy away safely, even if dist is nearly zero. */
+            const safeDist = Math.max(dist2, 0.01);
+            e.x -= dx2/safeDist * 40;
+            e.y -= dy2/safeDist * 40;
+            if(game.player.hp<=0){
+                gameOver();
+                return;
+            }
+        }
+        if(e.touchCooldown){
+            e.touchCooldown -= dt;
+            if(e.touchCooldown < 0) e.touchCooldown = 0;
+        }
+        if(e.boss){
+            const bossFill=
+                document.getElementById(
+                    "bossFill"
+                );
+            bossFill.style.width=
+                Math.max(
+                    0,
+                    e.hp/e.maxHp*100
+                )+"%";
+        }
+    }
+}
+/* =========================================================
+   NIGHT
+========================================================= */
+function updateNight(dt){
+    game.nightTimer+=dt;
+    if(game.nightTimer>1200){
+        game.nightTimer=0;
+        game.night++;
+        gameMessage(
+            "🌙 NIGHT "+game.night,
+            1000
+        );
+        /* Boss cadence is wave-driven (miniboss every 5 waves, megaboss every 10).
+           Night only fills in if no boss is active and kills are high enough. */
+        if(
+            save.kills>20 &&
+            !game.bossActive &&
+            game.night%10===0
+        ){
+            spawnMegaBoss();
+        }
+        else if(
+            save.kills>20 &&
+            !game.bossActive &&
+            game.night%5===0
+        ){
+            spawnMiniboss();
+        }
+    }
+}
+/* =========================================================
+   PARTICLES
+========================================================= */
+function createParticles(
+    x,
+    y,
+    count
+){
+    if(game.lowGraphics) return;
+    count=Math.min(count,4);
+    if(game.particles.length>24) return;
+    for(
+        let i=0;
+        i<count;
+        i++
+    ){
+        const angle=
+            Math.random()*
+            Math.PI*2;
+        const speed=
+            Math.random()*4+1;
+        game.particles.push({
+            x:x,
+            y:y,
+            vx:
+                Math.cos(angle)*speed,
+            vy:
+                Math.sin(angle)*speed,
+            life:
+                30+
+                Math.random()*30,
+            size:
+                2+
+                Math.random()*4
+        });
+    }
+}
+function updateParticles(dt){
+    for(
+        let i=game.particles.length-1;
+        i>=0;
+        i--
+    ){
+        const p=
+            game.particles[i];
+        p.x+=p.vx*dt;
+        p.y+=p.vy*dt;
+        p.vx*=.96;
+        p.vy*=.96;
+        p.life-=dt;
+        if(p.life<=0){
+            game.particles.splice(
+                i,
+                1
+            );
+        }
+    }
+}
+/* =========================================================
+   HUD
+========================================================= */
+function updateHUD(){
+    const hp=
+        Math.max(
+            0,
+            game.player.hp
+        );
+    const max=
+        playerMaxHP();
+    document.getElementById(
+        "hpText"
+    ).textContent=
+        Math.ceil(hp)+"/"+max;
+    document.getElementById(
+        "hpFill"
+    ).style.width=
+        Math.max(
+            0,
+            hp/max*100
+        )+"%";
+    const terrainRegen = getTerrain().regen || 0;
+    if(terrainRegen>0 && game.timeSinceDamage>=60 && hp<max){
+        game.player.hp=Math.min(max,game.player.hp + max*terrainRegen*dt);
+        hp=game.player.hp;
+    }
+    const regenActive =
+        game.timeSinceDamage >= 360 &&
+        hp < max;
+    const hpText =
+        document.getElementById("hpText");
+    hpText.style.color =
+        regenActive ? "#79ff79" : "";
+    document.getElementById(
+        "gameCoins"
+    ).textContent=
+        save.coins.toLocaleString();
+    document.getElementById(
+        "gameKills"
+    ).textContent=
+        save.kills.toLocaleString();
+    const levelEl=document.getElementById("gameLevel");
+    if(levelEl) levelEl.textContent=getPlayerLevel();
+    document.getElementById(
+        "nightText"
+    ).textContent=
+        game.night;
+    const waveEl=document.getElementById("waveText");
+    if(waveEl) waveEl.textContent=game.wave;
+    const terEl=document.getElementById("terrainText");
+    if(terEl){
+        const t=getTerrain();
+        if(t.id==="forest") save._terrainForest=true;
+        if(t.id==="volcano") save._terrainVolcano=true;
+        if(t.id==="mountains") save._terrainMountains=true;
+        if(t.id==="tundra") save._terrainTundra=true;
+        if(t.id==="abyss") save._terrainAbyss=true;
+        terEl.textContent=t.icon+" "+t.name+(game.wave>=50?" ⚠":"");
+        terEl.title=t.desc+" · coin ×"+t.coinMul+" · "+(t.ability||"");
+    }
+    const ammoEl=document.getElementById("ammoText");
+    if(ammoEl){
+        if(game.player.reloadTimer>0){
+            ammoEl.textContent="REL…";
+        }else{
+            ammoEl.textContent=Math.max(0,game.player.ammo)+"/"+magSize();
+        }
+    }
+    const awEl=document.getElementById("awakenText");
+    if(awEl){
+        if(!isClassAwakened()){
+            awEl.textContent="LOCKED";
+            awEl.style.color="#888";
+        }else if(game.player.awakenActive>0){
+            awEl.textContent=game.player.awakenType+" "+game.player.awakenActive.toFixed(1)+"s";
+            awEl.style.color=isClassPremiumAwakened()?"#ffd84a":"#a2ff9a";
+        }else if(game.player.awakenCooldown>0){
+            awEl.textContent="CD "+Math.ceil(game.player.awakenCooldown)+"s";
+            awEl.style.color="#ff7777";
+        }else{
+            const aw=getActiveAwakening();
+            const tag=isClassPremiumAwakened()?"👑":"✨";
+            awEl.textContent=tag+" "+(aw?aw.name:"READY")+" [E]";
+            awEl.style.color=isClassPremiumAwakened()?"#ffd84a":"#78ed78";
+        }
+    }
+}
+/* =========================================================
+   DRAW FOREST
+========================================================= */
+function drawForest(){
+    if(!forestCanvas){
+        buildForestCanvas();
+    }
+    ctx.drawImage(forestCanvas,0,0);
+}
+/* =========================================================
+   DRAW PLAYER
+========================================================= */
+function drawPlayer(){
+    const p=
+        game.player;
+    ctx.save();
+    ctx.translate(
+        p.x,
+        p.y
+    );
+    ctx.rotate(
+        p.angle
+    );
+    let color=
+        skins[save.skin].color;
+    if(color==="rainbow"){
+        const grad=
+            ctx.createLinearGradient(
+                -20,
+                -20,
+                20,
+                20
+            );
+        grad.addColorStop(
+            0,
+            "#ff5555"
+        );
+        grad.addColorStop(
+            .25,
+            "#ffd84a"
+        );
+        grad.addColorStop(
+            .5,
+            "#5cff76"
+        );
+        grad.addColorStop(
+            .75,
+            "#55cfff"
+        );
+        grad.addColorStop(
+            1,
+            "#c45cff"
+        );
+        color=grad;
+    }
+    /* CAT BODY */
+    ctx.fillStyle=color;
+    ctx.beginPath();
+    ctx.arc(
+        0,
+        0,
+        18,
+        0,
+        Math.PI*2
+    );
+    ctx.fill();
+    /* EARS */
+    ctx.beginPath();
+    ctx.moveTo(
+        -14,
+        -10
+    );
+    ctx.lineTo(
+        -10,
+        -28
+    );
+    ctx.lineTo(
+        -2,
+        -13
+    );
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(
+        14,
+        -10
+    );
+    ctx.lineTo(
+        10,
+        -28
+    );
+    ctx.lineTo(
+        2,
+        -13
+    );
+    ctx.fill();
+    /* EYES */
+    ctx.fillStyle="#111";
+    ctx.beginPath();
+    ctx.arc(
+        7,
+        -6,
+        3,
+        0,
+        Math.PI*2
+    );
+    ctx.arc(
+        7,
+        6,
+        3,
+        0,
+        Math.PI*2
+    );
+    ctx.fill();
+    /* SANTA HAT */
+    if(classes[save.class].name==="Santa Cat"){
+        ctx.fillStyle="#d92727";
+        ctx.beginPath();
+        ctx.moveTo(-14,-18);
+        ctx.lineTo(8,-38);
+        ctx.lineTo(15,-18);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle="#ffffff";
+        ctx.fillRect(-15,-20,31,6);
+        ctx.beginPath();
+        ctx.arc(9,-39,5,0,Math.PI*2);
+        ctx.fill();
+    }
+    /* WEAPON */
+    ctx.fillStyle="#555";
+    ctx.fillRect(
+        10,
+        -4,
+        28,
+        8
+    );
+    ctx.restore();
+}
+/* =========================================================
+   DRAW BULLETS
+========================================================= */
+function drawBullets(){
+    for(
+        let i=0;
+        i<game.bullets.length;
+        i++
+    ){
+        const b=
+            game.bullets[i];
+        if(!b.enemyBullet){
+            ctx.save();
+            ctx.translate(b.x,b.y);
+            if(b.weaponName==="Laser Gun"){ ctx.strokeStyle="#63f5ff"; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(-12,0); ctx.lineTo(12,0); ctx.stroke(); }
+            else if(b.weaponName==="Thunder Gun"){ ctx.fillStyle="#ffe45c"; ctx.fillRect(-4,-4,8,8); }
+            else if(b.weaponName==="Rocket Launcher" || b.weaponName==="Plasma Cannon"){ ctx.fillStyle="#ff7b39"; ctx.beginPath(); ctx.arc(0,0,6,0,Math.PI*2); ctx.fill(); }
+            ctx.restore();
+        }
+        if(!b.enemyBullet && b.giftBox){
+            ctx.save();
+            ctx.translate(b.x,b.y);
+            ctx.rotate((b.life*0.08)%(Math.PI*2));
+            ctx.shadowBlur=12;
+            ctx.shadowColor="#ffdd55";
+            ctx.fillStyle="#d93636";
+            ctx.fillRect(-9,-9,18,18);
+            ctx.fillStyle="#fff4c2";
+            ctx.fillRect(-2,-9,4,18);
+            ctx.fillRect(-9,-2,18,4);
+            ctx.fillStyle="#ffd84a";
+            ctx.fillRect(-3,-3,6,6);
+            ctx.shadowBlur=0;
+            ctx.restore();
+            continue;
+        }
+        if(b.enemyBullet && b.kind==="knife"){
+            ctx.save();
+            ctx.translate(b.x,b.y);
+            ctx.rotate(b.angle||0);
+            ctx.shadowBlur=10;
+            ctx.shadowColor="#ffffff";
+            ctx.fillStyle="#f4f4f4";
+            ctx.beginPath();
+            ctx.moveTo(18,0);
+            ctx.lineTo(-5,-7);
+            ctx.lineTo(0,0);
+            ctx.lineTo(-5,7);
+            ctx.closePath();
+            ctx.fill();
+            ctx.shadowBlur=0;
+            ctx.fillStyle="#7b2f2f";
+            ctx.fillRect(-11,-4,8,8);
+            ctx.restore();
+            continue;
+        }
+        ctx.fillStyle=
+            b.enemyBullet
+            ?"#ff5555"
+            :"#ffe65c";
+        ctx.beginPath();
+        ctx.arc(
+            b.x,
+            b.y,
+            b.enemyBullet?5:4,
+            0,
+            Math.PI*2
+        );
+        ctx.fill();
+    }
+}
+/* =========================================================
+   DRAW ENEMIES
+========================================================= */
+function drawEnemies(){
+    for(
+        let i=0;
+        i<game.enemies.length;
+        i++
+    ){
+        const e=
+            game.enemies[i];
+        ctx.save();
+        ctx.globalAlpha = e.invisible ? 0.18 : 1;
+        ctx.translate(
+            e.x,
+            e.y
+        );
+        if(e.type==="mega"){
+            ctx.fillStyle="#8d2222";
+            ctx.beginPath();
+            ctx.arc(
+                0,
+                0,
+                e.size,
+                0,
+                Math.PI*2
+            );
+            ctx.fill();
+            ctx.strokeStyle="#ff3d3d";
+            ctx.lineWidth=4;
+            ctx.stroke();
+        }
+        else if(e.type==="miniboss"){
+            ctx.fillStyle="#8f9692";
+            ctx.fillRect(
+                -e.size,
+                -e.size,
+                e.size*2,
+                e.size*2
+            );
+            ctx.strokeStyle="#d8dedb";
+            ctx.lineWidth=3;
+            ctx.strokeRect(
+                -e.size,
+                -e.size,
+                e.size*2,
+                e.size*2
+            );
+            ctx.fillStyle="#2d332f";
+            ctx.fillRect(-4,-18,8,30);
+            ctx.beginPath();
+            ctx.moveTo(0,-25);
+            ctx.lineTo(-8,-12);
+            ctx.lineTo(8,-12);
+            ctx.closePath();
+            ctx.fill();
+        }
+        else if(e.type==="tank"){
+            ctx.fillStyle="#59615b";
+            ctx.fillRect(
+                -e.size,
+                -e.size,
+                e.size*2,
+                e.size*2
+            );
+        }
+        else if(e.type==="bomber"){
+            ctx.fillStyle="#e4c53d";
+            ctx.beginPath(); ctx.arc(0,0,e.size,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle="#ff6b35"; ctx.fillRect(-5,-5,10,10);
+        }
+        else if(e.type==="shadow"){
+            ctx.fillStyle="#15151f";
+            ctx.beginPath(); ctx.arc(0,0,e.size,0,Math.PI*2); ctx.fill();
+            ctx.strokeStyle="#8b6cff"; ctx.lineWidth=2; ctx.stroke();
+        }
+        else if(e.type==="fast"){
+            ctx.fillStyle="#c64b4b";
+            ctx.beginPath();
+            ctx.arc(
+                0,
+                0,
+                e.size,
+                0,
+                Math.PI*2
+            );
+            ctx.fill();
+        }
+        else{
+            ctx.fillStyle="#a83f3f";
+            ctx.beginPath();
+            ctx.arc(
+                0,
+                0,
+                e.size,
+                0,
+                Math.PI*2
+            );
+            ctx.fill();
+        }
+        /* HEALTH BAR */
+        ctx.fillStyle="#111";
+        ctx.fillRect(
+            -e.size,
+            -e.size-9,
+            e.size*2,
+            4
+        );
+        ctx.fillStyle="#61e45e";
+        ctx.fillRect(
+            -e.size,
+            -e.size-9,
+            e.size*2*
+            Math.max(
+                0,
+                e.hp/e.maxHp
+            ),
+            4
+        );
+        if(e.freeze>0){
+            ctx.strokeStyle="#68d9ff"; ctx.lineWidth=4;
+            ctx.beginPath(); ctx.arc(0,0,e.size+7,0,Math.PI*2); ctx.stroke();
+        }
+        if(e.burn>0){
+            ctx.strokeStyle="#ff7a22"; ctx.lineWidth=3;
+            ctx.beginPath(); ctx.arc(0,0,e.size+10,0,Math.PI*2); ctx.stroke();
+        }
+        if(e.shield>0){
+            ctx.strokeStyle="#74b9ff"; ctx.lineWidth=6;
+            ctx.globalAlpha=.75;
+            ctx.beginPath(); ctx.arc(0,0,e.size+13,0,Math.PI*2); ctx.stroke();
+        }
+        ctx.restore();
+    }
+}
+/* =========================================================
+   DRAW PARTICLES
+========================================================= */
+function drawParticles(){
+    if(game.lowGraphics) return;
+    for(
+        let i=0;
+        i<game.particles.length;
+        i++
+    ){
+        const p=
+            game.particles[i];
+        ctx.globalAlpha=
+            Math.max(
+                0,
+                p.life/50
+            );
+        ctx.fillStyle="#ffd34d";
+        ctx.fillRect(
+            p.x,
+            p.y,
+            p.size,
+            p.size
+        );
+        ctx.globalAlpha=1;
+    }
+}
+/* =========================================================
+   DRAW
+========================================================= */
+function drawMediumLighting(){
+    if(game.lowGraphics) return;
+    const px=game.player.x;
+    const py=game.player.y;
+    const glow=ctx.createRadialGradient(px,py,25,px,py,210);
+    glow.addColorStop(0,"rgba(255,240,170,0.10)");
+    glow.addColorStop(0.45,"rgba(120,220,120,0.035)");
+    glow.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.fillStyle=glow;
+    ctx.fillRect(
+        Math.max(0,px-220),
+        Math.max(0,py-220),
+        440,
+        440
+    );
+    if(!vignetteGradient){
+        buildVignette();
+    }
+    ctx.fillStyle=vignetteGradient;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+}
+function drawAwakeningExtras(){
+    const p=game.player;
+    if(p.turret){
+        ctx.save();
+        ctx.fillStyle="#6ee7b7";
+        ctx.beginPath();
+        ctx.arc(p.turret.x,p.turret.y,12,0,Math.PI*2);
+        ctx.fill();
+        ctx.strokeStyle="#fff";
+        ctx.lineWidth=2;
+        ctx.stroke();
+        ctx.restore();
+    }
+    for(const h of game.hazards){
+        if(h.type!=="turret2") continue;
+        ctx.save();
+        ctx.fillStyle="#fbbf24";
+        ctx.beginPath();
+        ctx.arc(h.x,h.y,12,0,Math.PI*2);
+        ctx.fill();
+        ctx.strokeStyle="#fff";
+        ctx.lineWidth=2;
+        ctx.stroke();
+        ctx.restore();
+    }
+    if(p.awakenActive>0 || p.awakenInvuln>0){
+        ctx.save();
+        ctx.strokeStyle=p.awakenInvuln>0 ? "rgba(120,200,255,0.7)" : "rgba(255,216,74,0.55)";
+        ctx.lineWidth=3;
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,26+Math.sin(performance.now()/100)*3,0,Math.PI*2);
+        ctx.stroke();
+        ctx.restore();
+    }
+}
+function draw(){
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+    drawForest();
+    drawParticles();
+    drawHazards();
+    drawEnemies();
+    drawBullets();
+    drawPlayer();
+    drawAwakeningExtras();
+    drawMediumLighting();
+}
+/* =========================================================
+   WAVE SPAWNER
+========================================================= */
+function spawnEnemyForced(type){
+    if(game.bossActive) return;
+    const edge=Math.floor(Math.random()*4); let x,y;
+    if(edge===0){x=Math.random()*canvas.width;y=-40;}
+    else if(edge===1){x=canvas.width+40;y=Math.random()*canvas.height;}
+    else if(edge===2){x=Math.random()*canvas.width;y=canvas.height+40;}
+    else{x=-40;y=Math.random()*canvas.height;}
+    const scale=1+Math.floor((game.wave-1)/10)*0.35;
+    const ter=getTerrain();
+    const hard=waveHardScale(game.wave);
+    const cfg={basic:[1.6,17,30],fast:[2.7,13,30],tank:[1,25,120],ranged:[1.3,17,30],bomber:[1.8,19,30],shadow:[2,16,30]}[type]||[1.6,17,30];
+    let hp=(cfg[2]*scale+game.night*4)*ter.enemyHp*hard.hp*(ter.enemyHpBonus||1);
+    let spd=cfg[0]*ter.enemySpd*hard.spd;
+    game.enemies.push({x,y,type,hp,maxHp:hp,speed:spd,size:cfg[1],shoot:Math.random()*1200,freeze:0,burn:0,burnDamage:0,invisible:false,shadowTimer:Math.random()*240,boss:false,reward:1,touchCooldown:0,touchMul:ter.enemyDmg*hard.touch});
+}
+function spawnCurrentWave(){
+    const w=game.wave;
+    if(w%10===0){spawnMegaBoss();gameMessage("🔴 MEGA BOSS WAVE!",1200);return;}
+    if(w%10===5){spawnMiniboss();gameMessage("🔶 MINIBOSS WAVE!",1200);return;}
+    if(w===1){spawnEnemyForced("basic");spawnEnemyForced("basic");return;}
+    if(w===2){spawnEnemyForced("fast");spawnEnemyForced("fast");return;}
+    if(w===3){spawnEnemyForced("tank");spawnEnemyForced("basic");return;}
+    if(w===4){spawnEnemyForced("ranged");spawnEnemyForced("ranged");return;}
+    if(w===6){spawnEnemyForced("fast");spawnEnemyForced("tank");spawnEnemyForced("ranged");return;}
+    if(w===7){spawnEnemyForced("ranged");spawnEnemyForced("ranged");spawnEnemyForced("fast");return;}
+    if(w===8){spawnEnemyForced("tank");spawnEnemyForced("bomber");spawnEnemyForced("fast");return;}
+    if(w===9){spawnEnemyForced("shadow");spawnEnemyForced("ranged");spawnEnemyForced("tank");spawnEnemyForced("bomber");return;}
+    const hard=waveHardScale(w);
+    let count=Math.min(8,2+Math.floor(w/4))+hard.count;
+    if(w>=50) count=Math.min(26, count+6);
+    const types=w>=50
+        ? ["fast","fast","tank","ranged","bomber","shadow","tank","fast"]
+        : ["basic","fast","tank","ranged","bomber","shadow"];
+    for(let i=0;i<count;i++) spawnEnemyForced(types[Math.floor(Math.random()*types.length)]);
+}
+/* =========================================================
+   GAME UPDATE
+========================================================= */
+function update(dt){
+    updatePlayer(dt);
+    updateAwakening(dt);
+    updateBullets(dt);
+    updateHazards(dt);
+    updateEnemies(dt);
+    updateNight(dt);
+    /* WAVE SYSTEM: miniboss every 5 waves, megaboss every 10 waves. */
+    if(!game.bossActive && game.enemies.length===0 && !game.waveSpawned){
+        spawnCurrentWave();
+        game.waveSpawned=true;
+    }
+    if(!game.bossActive && game.waveSpawned && game.enemies.length===0){
+        game.wave++;
+        game.waveSpawned=false;
+        setTerrainForWave(game.wave, true);
+        if(game.wave>=50){
+            const bonus = game.wave===50 ? 5000 : (game.wave%10===0 ? game.wave*250 : 0);
+            if(bonus>0){
+                save.coins += bonus;
+                saveGame();
+                gameMessage("🌊 WAVE "+game.wave+"! ☠️ NIGHTMARE MODE · +"+bonus.toLocaleString()+" 🪙",1400);
+            }else{
+                gameMessage("🌊 WAVE "+game.wave+"! ☠️ NIGHTMARE MODE · ENEMIES ARE FASTER",1000);
+            }
+        }else{
+            gameMessage("🌊 WAVE "+game.wave+"!",800);
+        }
+    }
+    updateParticles(dt);
+    // Passive out-of-combat regen (HUD already hints at this)
+    game.timeSinceDamage += dt;
+    if(
+        game.timeSinceDamage >= 360 &&
+        game.player.hp > 0 &&
+        game.player.hp < playerMaxHP()
+    ){
+        game.player.hp = Math.min(
+            playerMaxHP(),
+            game.player.hp + 0.012 * dt
+        );
+    }
+    updateHUD();
+}
+/* =========================================================
+   MESSAGE
+========================================================= */
+function gameMessage(
+    text,
+    time
+){
+    const el=
+        document.getElementById(
+            "gameMessage"
+        );
+    el.innerHTML=
+        `<div class="bigMessage">
+            ${text}
+        </div>`;
+    setTimeout(
+        function(){
+            if(
+                el.innerHTML.includes(text)
+            ){
+                el.innerHTML="";
+            }
+        },
+        time
+    );
+}
+/* =========================================================
+   LOW GRAPHICS / LAG MODE
+========================================================= */
+function toggleLowGraphics(){
+    game.lowGraphics=!game.lowGraphics;
+    const b=document.getElementById("lowGraphicsButton");
+    if(b) b.textContent=game.lowGraphics?"⚡ LOW GRAPHICS: ON":"⚡ LOW GRAPHICS: OFF";
+    if(game.lowGraphics){
+        game.particles.length=0;
+        game.hazards=game.hazards.filter(h=>h.type==="enemyBullet");
+    }
+}
+function updatePerformance(time){
+    game.fpsFrames++;
+    if(!game.fpsSampleTime) game.fpsSampleTime=time;
+    if(time-game.fpsSampleTime>=1000){
+        game.fps=(game.fpsFrames*1000)/(time-game.fpsSampleTime);
+        game.fpsFrames=0;
+        game.fpsSampleTime=time;
+        // Automatically reduce expensive effects on weak/laggy PCs.
+        if(game.fps<30 && !game.lowGraphics) toggleLowGraphics();
+    }
+}
+/* =========================================================
+   GAME LOOP
+========================================================= */
+function loop(time){
+    if(!game.running){
+        return;
+    }
+    const dt=
+        Math.min(
+            2,
+            (time-game.lastTime)/16.67
+        );
+    game.lastTime=time;
+    updatePerformance(time);
+    try{
+        update(dt);
+        draw();
+    }catch(err){
+        console.error("CAT OPS frame error (game kept running):",err);
+    }
+    requestAnimationFrame(loop);
+}
+/* =========================================================
+   GAME OVER
+========================================================= */
+function gameOver(){
+    if(!game.running){
+        return;
+    }
+    game.running=false;
+    mouse.down=false;
+    save._achGameOver=true;
+    saveGame();
+    setTimeout(
+        function(){
+            alert(
+                "CAT OPS GAME OVER!\n\n"+
+                "Kills: "+
+                save.kills+
+                "\nCoins: "+
+                save.coins+
+                "\nNight reached: "+
+                game.night
+            );
+            goHome();
+        },
+        100
+    );
+}
+/* =========================================================
+   EXIT
+========================================================= */
+function endGame(clear=true){
+    game.running=false;
+    mouse.down=false;
+    touchState.moveX=0; touchState.moveY=0;
+    touchState.aimX=0; touchState.aimY=0; touchState.aiming=false;
+    if(clear){
+        hideScreens();
+        document.getElementById(
+            "homeScreen"
+        ).classList.remove("hidden");
+    }
+}
+
+/* =========================================================
+   ACHIEVEMENTS
+========================================================= */
+const ACHIEVEMENTS = [
+  {id:"first_blood",name:"First Blood",desc:"Get your first kill",icon:"💀",check:s=>s.kills>=1,reward:25},
+  {id:"killer_10",name:"Warm Up",desc:"Reach 10 kills",icon:"🔫",check:s=>s.kills>=10,reward:50},
+  {id:"killer_50",name:"Hunter",desc:"Reach 50 kills",icon:"🎯",check:s=>s.kills>=50,reward:100},
+  {id:"killer_100",name:"Slayer",desc:"Reach 100 kills",icon:"⚔️",check:s=>s.kills>=100,reward:200},
+  {id:"killer_500",name:"Exterminator",desc:"Reach 500 kills",icon:"💥",check:s=>s.kills>=500,reward:500},
+  {id:"killer_1000",name:"Legend",desc:"Reach 1,000 kills",icon:"👑",check:s=>s.kills>=1000,reward:1000},
+  {id:"killer_5000",name:"Cat of War",desc:"Reach 5,000 kills",icon:"🏆",check:s=>s.kills>=5000,reward:2500},
+  {id:"coins_100",name:"Pocket Change",desc:"Hold 100 coins",icon:"🪙",check:s=>s.coins>=100,reward:20},
+  {id:"coins_1000",name:"Saver",desc:"Hold 1,000 coins",icon:"💰",check:s=>s.coins>=1000,reward:50},
+  {id:"coins_10000",name:"Rich Cat",desc:"Hold 10,000 coins",icon:"💎",check:s=>s.coins>=10000,reward:200},
+  {id:"coins_100000",name:"Tycoon",desc:"Hold 100,000 coins",icon:"🏦",check:s=>s.coins>=100000,reward:500},
+  {id:"level_10",name:"Rising Star",desc:"Reach Level 10",icon:"⭐",check:s=>Math.floor(s.kills/10)+1>=10,reward:50},
+  {id:"level_50",name:"Veteran",desc:"Reach Level 50",icon:"🌟",check:s=>Math.floor(s.kills/10)+1>=50,reward:150},
+  {id:"level_100",name:"Centurion",desc:"Reach Level 100",icon:"✨",check:s=>Math.floor(s.kills/10)+1>=100,reward:300},
+  {id:"level_1000",name:"Immortal",desc:"Reach Level 1000",icon:"🔮",check:s=>Math.floor(s.kills/10)+1>=1000,reward:2000},
+  {id:"class_5",name:"Collector",desc:"Own 5 classes",icon:"📋",check:s=>(s.ownedClasses||[]).length>=5,reward:100},
+  {id:"class_15",name:"Class Act",desc:"Own 15 classes",icon:"🎖️",check:s=>(s.ownedClasses||[]).length>=15,reward:300},
+  {id:"class_all",name:"Completionist",desc:"Own all 66 classes",icon:"🏅",check:s=>(s.ownedClasses||[]).length>=66,reward:2000},
+  {id:"gun_5",name:"Arsenal",desc:"Own 5 guns",icon:"🔫",check:s=>(s.ownedGuns||[]).length>=5,reward:80},
+  {id:"gun_10",name:"Gun Nut",desc:"Own 10 guns",icon:"🧰",check:s=>(s.ownedGuns||[]).length>=10,reward:200},
+  {id:"skin_3",name:"Stylish",desc:"Own 3 skins",icon:"🎨",check:s=>(s.ownedSkins||[]).length>=3,reward:50},
+  {id:"awaken_1",name:"Awakened",desc:"Free-awaken 1 class",icon:"✨",check:s=>(s.awakenedClasses||[]).length>=1,reward:100},
+  {id:"awaken_5",name:"Power Surge",desc:"Free-awaken 5 classes",icon:"⚡",check:s=>(s.awakenedClasses||[]).length>=5,reward:300},
+  {id:"premium_1",name:"Premium Power",desc:"Premium-awaken 1 class",icon:"👑",check:s=>(s.premiumAwakenedClasses||[]).length>=1,reward:500},
+  {id:"night_5",name:"Night Owl",desc:"Reach Night 5 in a run",icon:"🌙",check:()=>typeof game!=="undefined"&&game.night>=5,reward:75},
+  {id:"night_10",name:"Midnight",desc:"Reach Night 10 in a run",icon:"🌑",check:()=>typeof game!=="undefined"&&game.night>=10,reward:150},
+  {id:"night_20",name:"Endless Dark",desc:"Reach Night 20 in a run",icon:"👁️",check:()=>typeof game!=="undefined"&&game.night>=20,reward:400},
+  {id:"wave_10",name:"Wave Rider",desc:"Reach Wave 10",icon:"🌊",check:()=>typeof game!=="undefined"&&game.wave>=10,reward:100},
+  {id:"wave_25",name:"Tsunami",desc:"Reach Wave 25",icon:"🌊",check:()=>typeof game!=="undefined"&&game.wave>=25,reward:250},
+  {id:"miniboss",name:"Boss Breaker",desc:"Defeat a Miniboss",icon:"👹",check:s=>!!s._achMiniboss,reward:150},
+  {id:"megaboss",name:"Mega Slayer",desc:"Defeat a Mega Boss",icon:"👑",check:s=>!!s._achMegaboss,reward:300},
+  {id:"craft",name:"Engineer",desc:"Craft a custom gun",icon:"🛠️",check:s=>(s.customGuns||[]).length>=1,reward:500},
+  {id:"survive_1",name:"Survivor",desc:"Finish a run (game over once)",icon:"❤️",check:s=>!!s._achGameOver,reward:30},
+  {id:"wave_50",name:"Nightmare Walker",desc:"Reach Wave 50",icon:"☠️",check:()=>typeof game!=="undefined"&&game.wave>=50,reward:1000},
+  {id:"wave_75",name:"Hell Walker",desc:"Reach Wave 75",icon:"🔥",check:()=>typeof game!=="undefined"&&game.wave>=75,reward:2500},
+  {id:"wave_100",name:"Century of Pain",desc:"Reach Wave 100",icon:"💀",check:()=>typeof game!=="undefined"&&game.wave>=100,reward:5000},
+  {id:"volcano_visit",name:"Into the Volcano",desc:"Play in Volcano terrain",icon:"🌋",check:()=>typeof game!=="undefined"&&getTerrain().id==="volcano",reward:250},
+  {id:"mountain_visit",name:"Mountain Grinder",desc:"Play in Mountains terrain",icon:"⛰️",check:()=>typeof game!=="undefined"&&getTerrain().id==="mountains",reward:300},
+  {id:"tundra_visit",name:"Frozen Paws",desc:"Play in Tundra terrain",icon:"❄️",check:()=>typeof game!=="undefined"&&getTerrain().id==="tundra",reward:300},
+  {id:"abyss_visit",name:"Abyss Diver",desc:"Enter the Abyss terrain",icon:"🕳️",check:()=>typeof game!=="undefined"&&getTerrain().id==="abyss",reward:500},
+  {id:"terrain_master",name:"Biome Master",desc:"Visit every terrain",icon:"🗺️",check:s=>!!s._terrainForest&&!!s._terrainVolcano&&!!s._terrainMountains&&!!s._terrainTundra&&!!s._terrainAbyss,reward:2500},
+  {id:"coins_million",name:"Millionaire Cat",desc:"Hold 1,000,000 coins",icon:"💰",check:s=>s.coins>=1000000,reward:5000},
+  {id:"accessory_10",name:"Accessory Hoarder",desc:"Own 10 accessories",icon:"🎀",check:s=>(s.ownedAccessories||[]).length>=10,reward:500},
+  {id:"accessory_25",name:"Fashion Overload",desc:"Own 25 accessories",icon:"👑",check:s=>(s.ownedAccessories||[]).length>=25,reward:1500},
+  {id:"accessory_all",name:"Accessory King",desc:"Own all accessories",icon:"💎",check:s=>(s.ownedAccessories||[]).length>=accessories.length,reward:5000}
+];
+
+function hasAchievement(id){
+  return (save.achievements||[]).includes(id);
+}
+function unlockAchievement(id){
+  if(!save.achievements) save.achievements=[];
+  if(hasAchievement(id)) return false;
+  const def=ACHIEVEMENTS.find(a=>a.id===id);
+  if(!def) return false;
+  save.achievements.push(id);
+  if(def.reward) save.coins+=(def.reward|0);
+  saveGame();
+  try{
+    if(typeof gameMessage==="function" && game && game.running){
+      gameMessage("🏆 "+def.name+"! +"+(def.reward||0)+" 🪙",1400);
+    }
+  }catch(e){}
+  // toast on menu
+  try{
+    const info=document.getElementById("homeInfo");
+    if(info && (!game||!game.running)){
+      info.innerHTML='<div class="card"><h3>🏆 Achievement unlocked</h3><p><b>'+def.name+'</b> — '+def.desc+'</p><p class="gold">+'+(def.reward||0)+' 🪙</p></div>';
+    }
+  }catch(e){}
+  return true;
+}
+function checkAchievements(){
+  if(window.__checkingAch) return false;
+  window.__checkingAch=true;
+  let any=false;
+  try{
+    for(const a of ACHIEVEMENTS){
+      if(hasAchievement(a.id)) continue;
+      try{
+        if(a.check(save)){ if(unlockAchievement(a.id)) any=true; }
+      }catch(e){}
+    }
+  }finally{
+    window.__checkingAch=false;
+  }
+  return any;
+}
+function showAchievements(){
+  hideScreens();
+  const scr=document.getElementById("achievementsScreen");
+  if(scr) scr.classList.remove("hidden");
+  buildAchievementsList();
+}
+function buildAchievementsList(){
+  const list=document.getElementById("achievementsList");
+  if(!list) return;
+  list.innerHTML="";
+  let unlocked=0;
+  ACHIEVEMENTS.forEach(a=>{
+    const done=hasAchievement(a.id);
+    if(done) unlocked++;
+    const card=document.createElement("div");
+    card.className="card";
+    card.style.opacity=done?"1":"0.55";
+    card.style.borderColor=done?"#58d85a":"#314a35";
+    card.innerHTML=`
+      <h3 style="margin:0 0 6px">${a.icon} ${a.name}</h3>
+      <p style="margin:0 0 8px;min-height:auto">${a.desc}</p>
+      <div class="price">${done?"✅ UNLOCKED":"🔒 LOCKED"} · Reward ${a.reward||0} 🪙</div>
+    `;
+    list.appendChild(card);
+  });
+  const u=document.getElementById("achUnlockedCount");
+  const tot=document.getElementById("achTotalCount");
+  if(u) u.textContent=unlocked;
+  if(tot) tot.textContent=ACHIEVEMENTS.length;
+}
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+function lockNicknameInput(){
+    const input=document.getElementById("nicknameInput");
+    if(!input) return;
+    input.value=(save.nickname || "").toLowerCase().replace(/[^a-z]/g,"");
+    input.disabled=!!save.nicknameLocked;
+    input.title=save.nicknameLocked
+        ? "Nickname is permanently locked for this account."
+        : "Lowercase letters only (a–z).";
+}
+/* Force nickname fields to lowercase letters only while typing */
+function bindLowercaseNickname(el){
+    if(!el) return;
+    el.addEventListener("input",function(){
+        const pos=el.selectionStart;
+        const cleaned=el.value.toLowerCase().replace(/[^a-z]/g,"");
+        if(el.value!==cleaned){
+            el.value=cleaned;
+            try{ el.setSelectionRange(pos-1,pos-1); }catch(err){}
+        }
+    });
+}
+bindLowercaseNickname(document.getElementById("nicknameInput"));
+bindLowercaseNickname(document.getElementById("newNickname"));
+/* Existing saves from older versions remain compatible.
+   If an old save already has a nickname, lock it now. */
+if(save.nickname && save.nickname.trim()){
+    save.nicknameLocked=true;
+}
+lockNicknameInput();
+updateDisplays();
+buildClassTable();
+/* AUTO SAVE */
+setInterval(
+    function(){
+        saveGame();
+    },
+    10000
+);
+</script>
+<script>
+(function(){
+  const names = {
+    en:"English", es:"Español", fr:"Français", de:"Deutsch", it:"Italiano",
+    pt:"Português", ru:"Русский", zh:"中文", ja:"日本語", ko:"한국어",
+    hi:"हिन्दी", kn:"ಕನ್ನಡ", te:"తెలుగు", ta:"தமிழ்", ml:"മലയാളം",
+    id:"Bahasa Indonesia", tr:"Türkçe", vi:"Tiếng Việt", th:"ไทย", ar:"العربية"
+  };
+  const dict = {
+    en:{language:"Language",shop:"SHOP",play:"PLAY",craft:"CRAFTING",classes:"CLASSES",
+        nickname:"Nickname",coins:"Coins",level:"Level",wave:"Wave",start:"Start Game"},
+    es:{language:"Idioma",shop:"TIENDA",play:"JUGAR",craft:"FABRICACIÃ“N",classes:"CLASES",
+        nickname:"Apodo",coins:"Monedas",level:"Nivel",wave:"Oleada",start:"Iniciar partida"},
+    fr:{language:"Langue",shop:"BOUTIQUE",play:"JOUER",craft:"FABRICATION",classes:"CLASSES",
+        nickname:"Pseudo",coins:"PiÃ¨ces",level:"Niveau",wave:"Vague",start:"Commencer"},
+    de:{language:"Sprache",shop:"SHOP",play:"SPIELEN",craft:"HERSTELLEN",classes:"KLASSEN",
+        nickname:"Spitzname",coins:"MÃ¼nzen",level:"Level",wave:"Welle",start:"Spiel starten"},
+    it:{language:"Lingua",shop:"NEGOZIO",play:"GIOCA",craft:"CREAZIONE",classes:"CLASSI",
+        nickname:"Nickname",coins:"Monete",level:"Livello",wave:"Ondata",start:"Inizia partita"},
+    pt:{language:"Idioma",shop:"LOJA",play:"JOGAR",craft:"CRIAÃ‡ÃƒO",classes:"CLASSES",
+        nickname:"Apelido",coins:"Moedas",level:"NÃ­vel",wave:"Onda",start:"ComeÃ§ar jogo"},
+    ru:{language:"Ð¯Ð·Ñ‹Ðº",shop:"ÐœÐÐ“ÐÐ—Ð˜Ð",play:"Ð˜Ð“Ð ÐÐ¢Ð¬",craft:"ÐšÐ ÐÐ¤Ð¢",classes:"ÐšÐ›ÐÐ¡Ð¡Ð«",
+        nickname:"ÐÐ¸ÐºÐ½ÐµÐ¹Ð¼",coins:"ÐœÐ¾Ð½ÐµÑ‚Ñ‹",level:"Ð£Ñ€Ð¾Ð²ÐµÐ½ÑŒ",wave:"Ð’Ð¾Ð»Ð½Ð°",start:"ÐÐ°Ñ‡Ð°Ñ‚ÑŒ Ð¸Ð³Ñ€Ñƒ"},
+    zh:{language:"è¯­è¨€",shop:"å•†åº—",play:"å¼€å§‹æ¸¸æˆ",craft:"åˆ¶ä½œ",classes:"èŒä¸š",
+        nickname:"æ˜µç§°",coins:"é‡‘å¸",level:"ç­‰çº§",wave:"æ³¢æ¬¡",start:"å¼€å§‹"},
+    ja:{language:"è¨€èªž",shop:"ã‚·ãƒ§ãƒƒãƒ—",play:"ãƒ—ãƒ¬ã‚¤",craft:"ã‚¯ãƒ©ãƒ•ãƒˆ",classes:"ã‚¯ãƒ©ã‚¹",
+        nickname:"ãƒ‹ãƒƒã‚¯ãƒãƒ¼ãƒ ",coins:"ã‚³ã‚¤ãƒ³",level:"ãƒ¬ãƒ™ãƒ«",wave:"ã‚¦ã‚§ãƒ¼ãƒ–",start:"ã‚²ãƒ¼ãƒ é–‹å§‹"},
+    ko:{language:"ì–¸ì–´",shop:"ìƒì ",play:"í”Œë ˆì´",craft:"ì œìž‘",classes:"í´ëž˜ìŠ¤",
+        nickname:"ë‹‰ë„¤ìž„",coins:"ì½”ì¸",level:"ë ˆë²¨",wave:"ì›¨ì´ë¸Œ",start:"ê²Œìž„ ì‹œìž‘"},
+    hi:{language:"à¤­à¤¾à¤·à¤¾",shop:"à¤¦à¥à¤•à¤¾à¤¨",play:"à¤–à¥‡à¤²à¥‡à¤‚",craft:"à¤•à¥à¤°à¤¾à¤«à¥à¤Ÿà¤¿à¤‚à¤—",classes:"à¤•à¥à¤²à¤¾à¤¸",
+        nickname:"à¤‰à¤ªà¤¨à¤¾à¤®",coins:"à¤¸à¤¿à¤•à¥à¤•à¥‡",level:"à¤²à¥‡à¤µà¤²",wave:"à¤µà¥‡à¤µ",start:"à¤—à¥‡à¤® à¤¶à¥à¤°à¥‚ à¤•à¤°à¥‡à¤‚"},
+    kn:{language:"à²­à²¾à²·à³†",shop:"à²…à²‚à²—à²¡à²¿",play:"à²†à²¡à²¿",craft:"à²•à³à²°à²¾à²«à³à²Ÿà²¿à²‚à²—à³",classes:"à²•à³à²²à²¾à²¸à³à²—à²³à³",
+        nickname:"à²…à²¡à³à²¡à²¹à³†à²¸à²°à³",coins:"à²¨à²¾à²£à³à²¯à²—à²³à³",level:"à²²à³†à²µà³†à²²à³",wave:"à²µà³‡à²µà³",start:"à²†à²Ÿ à²ªà³à²°à²¾à²°à²‚à²­à²¿à²¸à²¿"},
+    te:{language:"à°­à°¾à°·",shop:"à°·à°¾à°ªà±",play:"à°†à°¡à°‚à°¡à°¿",craft:"à°•à±à°°à°¾à°«à±à°Ÿà°¿à°‚à°—à±",classes:"à°•à±à°²à°¾à°¸à±à°²à±",
+        nickname:"à°®à±à°¦à±à°¦à±à°ªà±‡à°°à±",coins:"à°¨à°¾à°£à±‡à°²à±",level:"à°²à±†à°µà°²à±",wave:"à°µà±‡à°µà±",start:"à°—à±‡à°®à± à°ªà±à°°à°¾à°°à°‚à°­à°¿à°‚à°šà°‚à°¡à°¿"},
+    ta:{language:"à®®à¯Šà®´à®¿",shop:"à®•à®Ÿà¯ˆ",play:"à®µà®¿à®³à¯ˆà®¯à®¾à®Ÿà¯",craft:"à®•à®¿à®°à®¾à®ƒà®ªà¯à®Ÿà®¿à®™à¯",classes:"à®µà®•à¯à®ªà¯à®ªà¯à®•à®³à¯",
+        nickname:"à®ªà¯à®©à¯ˆà®ªà¯à®ªà¯†à®¯à®°à¯",coins:"à®¨à®¾à®£à®¯à®™à¯à®•à®³à¯",level:"à®¨à®¿à®²à¯ˆ",wave:"à®…à®²à¯ˆ",start:"à®µà®¿à®³à¯ˆà®¯à®¾à®Ÿà¯à®Ÿà¯ˆ à®¤à¯Šà®Ÿà®™à¯à®•à¯"},
+    ml:{language:"à´­à´¾à´·",shop:"à´•à´Ÿ",play:"à´•à´³à´¿à´•àµà´•àµà´•",craft:"à´•àµà´°à´¾à´«àµà´±àµà´±à´¿à´‚à´—àµ",classes:"à´•àµà´²à´¾à´¸àµà´•àµ¾",
+        nickname:"à´µà´¿à´³à´¿à´ªàµà´ªàµ‡à´°àµ",coins:"à´¨à´¾à´£à´¯à´™àµà´™àµ¾",level:"à´²àµ†à´µàµ½",wave:"à´µàµ‡à´µàµ",start:"à´—àµ†à´¯à´¿à´‚ à´†à´°à´‚à´­à´¿à´•àµà´•àµà´•"},
+    id:{language:"Bahasa",shop:"TOKO",play:"MAIN",craft:"MEMBUAT",classes:"KELAS",
+        nickname:"Nama panggilan",coins:"Koin",level:"Level",wave:"Gelombang",start:"Mulai Game"},
+    tr:{language:"Dil",shop:"MAÄžAZA",play:"OYNA",craft:"ÃœRETÄ°M",classes:"SINIFLAR",
+        nickname:"Takma ad",coins:"Paralar",level:"Seviye",wave:"Dalga",start:"Oyunu BaÅŸlat"},
+    vi:{language:"NgÃ´n ngá»¯",shop:"Cá»¬A HÃ€NG",play:"CHÆ I",craft:"CHáº¾ Táº O",classes:"Lá»šP",
+        nickname:"Biá»‡t danh",coins:"Xu",level:"Cáº¥p",wave:"LÃ n sÃ³ng",start:"Báº¯t Ä‘áº§u game"},
+    th:{language:"à¸ à¸²à¸©à¸²",shop:"à¸£à¹‰à¸²à¸™à¸„à¹‰à¸²",play:"à¹€à¸¥à¹ˆà¸™",craft:"à¸„à¸£à¸²à¸Ÿà¸•à¹Œ",classes:"à¸„à¸¥à¸²à¸ª",
+        nickname:"à¸Šà¸·à¹ˆà¸­à¹€à¸¥à¹ˆà¸™",coins:"à¹€à¸«à¸£à¸µà¸¢à¸",level:"à¹€à¸¥à¹€à¸§à¸¥",wave:"à¹€à¸§à¸Ÿ",start:"à¹€à¸£à¸´à¹ˆà¸¡à¹€à¸à¸¡"},
+    ar:{language:"Ø§Ù„Ù„ØºØ©",shop:"Ø§Ù„Ù…ØªØ¬Ø±",play:"Ø§Ù„Ø¹Ø¨",craft:"Ø§Ù„ØªØµÙ†ÙŠØ¹",classes:"Ø§Ù„ÙØ¦Ø§Øª",
+        nickname:"Ø§Ù„Ù„Ù‚Ø¨",coins:"Ø§Ù„Ø¹Ù…Ù„Ø§Øª",level:"Ø§Ù„Ù…Ø³ØªÙˆÙ‰",wave:"Ø§Ù„Ù…ÙˆØ¬Ø©",start:"Ø§Ø¨Ø¯Ø£ Ø§Ù„Ù„Ø¹Ø¨Ø©"}
+  };
+  function applyLanguage(code){
+    code = dict[code] ? code : "en";
+    localStorage.setItem("catopsLanguage", code);
+    const s=document.getElementById("languageSelect");
+    const status=document.getElementById("languageStatus");
+    if(s) s.value=code;
+    if(status) status.textContent=names[code];
+    // Translate elements that opt into CAT OPS language keys.
+    document.querySelectorAll("[data-i18n]").forEach(el=>{
+      const key=el.getAttribute("data-i18n");
+      if(dict[code][key]) el.textContent=dict[code][key];
+    });
+    document.documentElement.lang=code;
+    document.documentElement.dir=(code==="ar" ? "rtl" : "ltr");
+  }
+  window.catopsSetLanguage=applyLanguage;
+  document.addEventListener("DOMContentLoaded",()=>{
+    const s=document.getElementById("languageSelect");
+    if(s) s.addEventListener("change",()=>applyLanguage(s.value));
+    applyLanguage(localStorage.getItem("catopsLanguage") || "en");
+  });
+})();
+</script>
+<script>
+(function(){
+  const languageNames = {
+    en:"English", es:"Español", fr:"Français", de:"Deutsch", it:"Italiano",
+    pt:"Português", ru:"Русский", zh:"中文", ja:"日本語", ko:"한국어",
+    hi:"हिन्दी", kn:"ಕನ್ನಡ", te:"తెలుగు", ta:"தமிழ்", ml:"മലയാളം",
+    id:"Bahasa Indonesia", tr:"Türkçe", vi:"Tiếng Việt", th:"ไทย", ar:"العربية"
+  };
+  function setCATOPSLanguage(code){
+    if(!languageNames[code]) code="en";
+    localStorage.setItem("catopsLanguage", code);
+    const select=document.getElementById("languageSelect");
+    if(select) select.value=code;
+    const status=document.getElementById("languageStatus");
+    if(status) status.textContent=languageNames[code];
+    document.documentElement.lang=code;
+    document.documentElement.dir=(code==="ar" ? "rtl" : "ltr");
+    window.catopsLanguage=code;
+  }
+  window.setCATOPSLanguage=setCATOPSLanguage;
+  document.addEventListener("DOMContentLoaded", function(){
+    const select=document.getElementById("languageSelect");
+    if(select){
+      select.addEventListener("change", function(){
+        setCATOPSLanguage(this.value);
+      });
+    }
+    setCATOPSLanguage(localStorage.getItem("catopsLanguage") || "en");
+  });
+})();
+</script>
+<script>
+(function(){
+  function getCurrentNickname(){
+    return localStorage.getItem("catopsNickname") || "";
+  }
+  function setNicknameEverywhere(name){
+    // Common nickname variables/DOM elements used by the game.
+    try { if(typeof player !== "undefined" && player) player.nickname = name; } catch(e){}
+    try { if(typeof nickname !== "undefined") nickname = name; } catch(e){}
+    document.querySelectorAll("[data-nickname], #nicknameDisplay, #playerNickname").forEach(el=>{
+      el.textContent = name;
+    });
+    document.querySelectorAll("input[id*='nickname'], input[name*='nickname']").forEach(el=>{
+      if(el.id !== "newNickname") el.value = name;
+    });
+  }
+  function changeCATOPSNickname(){
+    const input=document.getElementById("newNickname");
+    const msg=document.getElementById("nicknameMessage");
+    if(!input) return;
+    const name=(input.value || "").trim().toLowerCase().replace(/[^a-z]/g,"");
+    input.value=name;
+    if(!name){
+      if(msg) msg.textContent="Enter a nickname (lowercase a–z only).";
+      return;
+    }
+    if(name.length < 3 || name.length > 16){
+      if(msg) msg.textContent="Nickname must be 3–16 lowercase letters.";
+      return;
+    }
+    
+    if(typeof save!=="undefined"){
+      save.nickname=name;
+      if(typeof saveGame==="function") saveGame();
+    }
+    localStorage.setItem("catopsNickname", name);
+    setNicknameEverywhere(name);
+    const main=document.getElementById("nicknameInput");
+    if(main) main.value=name;
+    if(msg) msg.textContent="Nickname changed to " + name + "!";
+    input.value="";
+  }
+  window.changeCATOPSNickname=changeCATOPSNickname;
+  document.addEventListener("DOMContentLoaded",()=>{
+    const btn=document.getElementById("changeNickname");
+    if(btn) btn.addEventListener("click", changeCATOPSNickname);
+    const saved=getCurrentNickname();
+    if(saved) setNicknameEverywhere(saved);
+  });
+})();
+</script>
+<script id="catops-gun-visuals">
+(function(){
+  const originalGetGun = window.getGun;
+  if (typeof window.getGun === "function") {
+    const old = window.getGun;
+    window.getGun = function(){
+      const g = old.apply(this, arguments);
+      if(g){
+        g.shape = g.shape || "circle";
+        g.color = g.color || "#ffffff";
+      }
+      return g;
+    };
+  }
+  window.CATOPSGunVisual = {
+    draw(ctx, x, y, gun, angle, size){
+      if(!ctx || !gun) return;
+      const s=size||5, a=angle||0;
+      ctx.save();
+      ctx.translate(x,y);
+      ctx.rotate(a);
+      ctx.fillStyle=gun.color || "#fff";
+      ctx.strokeStyle=gun.color || "#fff";
+      ctx.lineWidth=2;
+      switch(gun.shape){
+        case "square":
+          ctx.fillRect(-s,-s,s*2,s*2); break;
+        case "triangle":
+          ctx.beginPath(); ctx.moveTo(s,0); ctx.lineTo(-s,s); ctx.lineTo(-s,-s); ctx.closePath(); ctx.fill(); break;
+        case "diamond":
+          ctx.beginPath(); ctx.moveTo(s,0); ctx.lineTo(0,s); ctx.lineTo(-s,0); ctx.lineTo(0,-s); ctx.closePath(); ctx.fill(); break;
+        case "star":
+          ctx.beginPath();
+          for(let i=0;i<10;i++){let r=i%2?s:s*.42, t=i*Math.PI/5; let px=Math.cos(t)*r,py=Math.sin(t)*r;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}
+          ctx.closePath();ctx.fill();break;
+        case "hexagon":
+          ctx.beginPath();for(let i=0;i<6;i++){let t=i*Math.PI/3;let px=Math.cos(t)*s,py=Math.sin(t)*s;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath();ctx.fill();break;
+        case "bolt":
+          ctx.beginPath();ctx.moveTo(s*.2,-s*1.3);ctx.lineTo(-s*.8,.1*s);ctx.lineTo(-s*.1,.1*s);ctx.lineTo(-s*.4,s*1.3);ctx.lineTo(s*.8,-.15*s);ctx.lineTo(.1*s,-.15*s);ctx.closePath();ctx.fill();break;
+        case "ring":
+          ctx.beginPath();ctx.arc(0,0,s,0,Math.PI*2);ctx.stroke();break;
+        case "cross":
+          ctx.fillRect(-s*.3,-s,s*.6,s*2);ctx.fillRect(-s,-s*.3,s*2,s*.6);break;
+        case "capsule":
+          ctx.beginPath();ctx.roundRect(-s*1.2,-s*.45,s*2.4,s*.9,s*.45);ctx.fill();break;
+        case "arrow":
+          ctx.beginPath();ctx.moveTo(s,0);ctx.lineTo(-s,-s*.7);ctx.lineTo(-s*.35,0);ctx.lineTo(-s,s*.7);ctx.closePath();ctx.fill();break;
+        case "shard":
+          ctx.beginPath();ctx.moveTo(s*1.2,0);ctx.lineTo(-s*.3,s);ctx.lineTo(-s*.8,0);ctx.lineTo(-s*.3,-s);ctx.closePath();ctx.fill();break;
+        case "plus":
+          ctx.fillRect(-s*.25,-s,s*.5,s*2);ctx.fillRect(-s,-s*.25,s*2,s*.5);break;
+        case "flame":
+          ctx.beginPath();ctx.moveTo(0,-s*1.3);ctx.bezierCurveTo(s*1.1,-s*.2,s*.7,s*1.1,0,s*1.2);ctx.bezierCurveTo(-s*.8,s*.7,-s*.7,0,0,-s*1.3);ctx.fill();break;
+        case "ice":
+          ctx.beginPath();ctx.moveTo(0,-s);ctx.lineTo(s*.45,-s*.45);ctx.lineTo(s,0);ctx.lineTo(s*.45,s*.45);ctx.lineTo(0,s);ctx.lineTo(-s*.45,s*.45);ctx.lineTo(-s,0);ctx.lineTo(-s*.45,-s*.45);ctx.closePath();ctx.fill();break;
+        case "gear":
+          ctx.beginPath();ctx.arc(0,0,s*.75,0,Math.PI*2);ctx.fill();ctx.fillStyle="#111";ctx.beginPath();ctx.arc(0,0,s*.3,0,Math.PI*2);ctx.fill();break;
+        case "crescent":
+          ctx.beginPath();ctx.arc(0,0,s,Math.PI*.3,Math.PI*1.7);ctx.arc(s*.35,0,s*.8,Math.PI*1.7,Math.PI*.3,true);ctx.closePath();ctx.fill();break;
+        case "burst":
+          for(let i=0;i<8;i++){ctx.save();ctx.rotate(i*Math.PI/4);ctx.fillRect(0,-s*.18,s*1.4,s*.36);ctx.restore()}break;
+        case "comet":
+          ctx.beginPath();ctx.arc(s*.35,0,s*.55,0,Math.PI*2);ctx.fill();ctx.globalAlpha=.45;ctx.fillRect(-s*1.3,-s*.22,s*1.5,s*.44);break;
+        case "needle":
+          ctx.beginPath();ctx.moveTo(s*1.5,0);ctx.lineTo(-s*.8,s*.25);ctx.lineTo(-s*.8,-s*.25);ctx.closePath();ctx.fill();break;
+        case "wave":
+          ctx.beginPath();ctx.arc(0,0,s,Math.PI*.2,Math.PI*1.8);ctx.stroke();break;
+        case "crown":
+          ctx.beginPath();ctx.moveTo(-s,s*.6);ctx.lineTo(-s,-s*.6);ctx.lineTo(-s*.3,0);ctx.lineTo(0,-s*.7);ctx.lineTo(s*.3,0);ctx.lineTo(s,-s*.6);ctx.lineTo(s,s*.6);ctx.closePath();ctx.fill();break;
+        default:
+          ctx.beginPath();ctx.arc(0,0,s,0,Math.PI*2);ctx.fill();
+      }
+      ctx.restore();
+    }
+  };
+})();
+</script>
+</body>
+</html>
